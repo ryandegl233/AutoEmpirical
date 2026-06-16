@@ -1,8 +1,8 @@
-# AutoEmpirical-Reproduce
+# AutoEmpirical
 
 _A dataset-first reproduction project for evaluating automated empirical software fault analysis._
 
-AutoEmpirical-Reproduce aims to build a clean, reusable benchmark for studying whether LLMs and later multi-agent systems can reproduce key parts of empirical software fault studies. The current repository state is intentionally dataset-first: the dataset is frozen and documented before new MAS design begins.
+AutoEmpirical aims to build a clean, reusable benchmark for studying whether LLMs and later multi-agent systems can reproduce key parts of empirical software fault studies. The current repository state is intentionally dataset-first: the dataset is frozen and documented before new MAS design begins.
 
 ---
 
