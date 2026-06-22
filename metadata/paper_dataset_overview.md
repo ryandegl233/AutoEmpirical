@@ -12,7 +12,7 @@ The final dataset excludes papers whose Stage 1 to Stage 2 filtering rate is 0%.
 | Stage 2 Filtered  | 4199    |
 | Stage 3 Annotated | 2050    |
 
-Final annotated dataset file: `data/processed/stage3.csv`
+Final annotated dataset file: `Dataset/stage3.csv`
 
 ## Included Papers
 

@@ -19,8 +19,8 @@ The dataset naturally creates two tasks:
 
 | Task | Input | Gold Target | Main Metrics |
 | --- | --- | --- | --- |
-| Stage 2 filtering | `data/stage1.csv` | membership in `data/stage2.csv` | precision, recall, F1, false positive categories, false negative categories |
-| Stage 3 labeling | `data/stage2.csv` | labels in `data/stage3.csv` | exact match, per-label macro/micro F1, hierarchical or semantic agreement if taxonomy is normalized |
+| Stage 2 filtering | `Dataset/stage1.csv` | membership in `Dataset/stage2.csv` | precision, recall, F1, false positive categories, false negative categories |
+| Stage 3 labeling | `Dataset/stage2.csv` | labels in `Dataset/stage3.csv` | exact match, per-label macro/micro F1, hierarchical or semantic agreement if taxonomy is normalized |
 
 The first task asks whether a candidate record should be accepted as bug-relevant. The second asks how to assign empirical-study labels such as `symptom`, `root_cause`, `bug_type`, `component`, and `fix_type`.
 
@@ -109,7 +109,7 @@ This baseline is especially relevant for Stage 2 filtering because bug relevance
 
 Sources used during this handoff:
 
-- Local AutoEmpirical paper attachment: `Attachments/Yu ç­‰ - 2025 - AutoEmpirical LLM-based automated research for empirical software fault analysis.pdf`.
+- Local AutoEmpirical paper attachment: `Attachments/Yu ç­?- 2025 - AutoEmpirical LLM-based automated research for empirical software fault analysis.pdf`.
 - Public AutoEmpirical PDF search result: [Towards Automatic Software Faults Analysis / AutoEmpirical PDF](https://ttfish.cc/content/Papers/ICSE26-AutoEmpirical.pdf).
 - ACM result for LLM-based fine-grained bug categorization: [Exploring Fine-Grained Bug Report Categorization with Large Language Models](https://dl.acm.org/doi/10.1145/3736408).
 - Recent arXiv result on invalid bug report root-cause subclassification and LLM/RAG/web-search comparisons: [Automated Root-Cause Subclassification and No-Code Fix Generation of Invalid Bug Reports](https://arxiv.org/html/2605.17561v2).

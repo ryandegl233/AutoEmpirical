@@ -8,9 +8,9 @@ This handoff package contains the current three-stage AutoEmpirical reproduction
 
 | Stage | File | Rows | Columns | Intended Use |
 | --- | --- | ---: | ---: | --- |
-| Stage 1 Raw | `data/stage1.csv` | 33,822 | 23 | Candidate records before human filtering |
-| Stage 2 Filtered | `data/stage2.csv` | 4,199 | 23 | Human-filtered bug-relevant records |
-| Stage 3 Annotated | `data/stage3.csv` | 2,050 | 23 | Human-annotated records with final labels |
+| Stage 1 Raw | `Dataset/stage1.csv` | 33,822 | 23 | Candidate records before human filtering |
+| Stage 2 Filtered | `Dataset/stage2.csv` | 4,199 | 23 | Human-filtered bug-relevant records |
+| Stage 3 Annotated | `Dataset/stage3.csv` | 2,050 | 23 | Human-annotated records with final labels |
 
 All three stage files use the same 23-column schema:
 
