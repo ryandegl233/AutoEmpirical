@@ -1,0 +1,32 @@
+{
+  "query": "repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-10-20 -label:\"module: docs\" -label:enhancement",
+  "unique_issues": 2252,
+  "variant": "no_docs_no_enhancement",
+  "windows": [
+    {
+      "count": 130,
+      "end": "2019-05-27",
+      "start": "2016-01-01"
+    },
+    {
+      "count": 489,
+      "end": "2020-04-02",
+      "start": "2019-05-28"
+    },
+    {
+      "count": 656,
+      "end": "2021-02-06",
+      "start": "2020-04-03"
+    },
+    {
+      "count": 558,
+      "end": "2021-12-14",
+      "start": "2021-02-07"
+    },
+    {
+      "count": 419,
+      "end": "2022-10-20",
+      "start": "2021-12-15"
+    }
+  ]
+}

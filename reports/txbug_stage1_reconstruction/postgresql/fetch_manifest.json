@@ -1,0 +1,26 @@
+{
+  "archive_bug_reports": 1750,
+  "archive_window": {
+    "end": "2022-12",
+    "start": "2018-01"
+  },
+  "keywords": [
+    "transaction",
+    "transactions",
+    "rollback",
+    "roll back",
+    "isolation level",
+    "serializable",
+    "read committed",
+    "repeatable read",
+    "XA",
+    "deadlock",
+    "commit transaction",
+    "abort transaction"
+  ],
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "source": "https://www.postgresql.org/list/pgsql-bugs",
+  "unique_issues": 437,
+  "with_body": 437,
+  "with_comments": 378
+}

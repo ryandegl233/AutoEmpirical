@@ -1,4 +1,4 @@
-﻿record_id,paper_id,source_project,issue_url,title,body,comments,created_at,updated_at,state,symptom,root_cause,bug_type,component,sub_component,trigger_condition,consequence,fix_type,severity_or_impact,original_label_json,source_file,source_sheet,source_row_index
+record_id,paper_id,source_project,issue_url,title,body,comments,created_at,updated_at,state,symptom,root_cause,bug_type,component,sub_component,trigger_condition,consequence,fix_type,severity_or_impact,original_label_json,source_file,source_sheet,source_row_index
 icse2023_an_empirical_study_on_bugs:39e0ec392babdfc9,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/11030,PyTorch issue 11030,"## Issue description
 `torch.distributions.Beta` and `torch.distributions.Dirichlet` don't allow for backward() calls on the GPU; the CPU versions works fine though. 
 

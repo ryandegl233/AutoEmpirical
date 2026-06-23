@@ -1,0 +1,14 @@
+{
+  "count": 2205,
+  "extra_vs_local_stage3_count": 2013,
+  "local_stage3_coverage": 192,
+  "local_stage3_missing_count": 2,
+  "local_stage3_missing_urls": [
+    "https://github.com/pytorch/pytorch/issues/39007",
+    "https://github.com/pytorch/pytorch/issues/48841"
+  ],
+  "paper_reported_stage1_count": 2205,
+  "rule": "base reconstruction filtered to closed_at <= 2022-03-09",
+  "source_file": "../pytorch_stage1_candidates.csv",
+  "variant": "closed_cutoff_2022_03_09_exact_2205"
+}

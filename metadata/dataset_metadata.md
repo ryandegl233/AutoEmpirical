@@ -1,25 +1,25 @@
 # Dataset Metadata
 
-This metadata table is computed from `Dataset/stage1.csv`, `Dataset/stage2.csv`, and `Dataset/stage3.csv`.
+This metadata is computed from the three unified stage files.
 
 ## File Sizes
 
-| file                                | size_mb |
-| ----------------------------------- | ------- |
-| Dataset/stage1.csv           | 40.78   |
-| Dataset/stage2.csv           | 7.145   |
-| Dataset/stage3.csv           | 8.812   |
-| metadata/dataset_metadata.csv | 0.008   |
+| File | Size (MiB) |
+| --- | ---: |
+| Dataset/stage1.csv | 136.039 |
+| Dataset/stage2.csv | 7.131 |
+| Dataset/stage3.csv | 8.805 |
+| metadata/dataset_metadata.csv | 0.007 |
 
 ## Paper-Level Metadata
 
-| paper_id                                            | project_name                    | venue | raw_data_time_range      | stage1_raw_count | stage2_filtered_count | stage3_annotated_count | stage1_to_stage2_filter_rate | stage2_to_stage3_filter_rate | stage1_by_paper_path                                                                   | stage2_by_paper_path                                                                   | stage3_by_paper_path                                                                   |
-| --------------------------------------------------- | ------------------------------- | ----- | ------------------------ | ---------------- | --------------------- | ---------------------- | ---------------------------- | ---------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| ase2022_towards_understanding_the_faults_of         | tensorflow/tfjs                 | ASE   | 2018-03-27 to 2021-12-23 | 3859             | 684                   | 682                    | 82.3%                        | 0.3%                         | Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage1.csv         | Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage2.csv         | Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage3.csv         |
-| icse2021_iot_bugs_and_development_challenges        | iot_projects; iot_systems       | ICSE  | 2012-07-27 to 2020-03-13 | 5565             | 323                   | 320                    | 94.2%                        | 0.9%                         | Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage1.csv        | Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage2.csv        | Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage3.csv        |
-| issta2024_bugs_in_pods_understanding_bugs           | containerd; cri-o; gvisor; runc | ISSTA | 2021-06-01 to 2023-05-31 | 8271             | 429                   | 429                    | 94.8%                        | 0.0%                         | Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage1.csv           | Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage2.csv           | Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage3.csv           |
-| icse2023_an_empirical_study_on_bugs                 | pytorch                         | ICSE  | up to 2022-10-20         | 2205             | 194                   | 194                    | 91.2%                        | 0.0%                         | Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage1.csv                 | Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage2.csv                 | Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage3.csv                 |
-| icse2024_understanding_transaction_bugs_in_database | database_transactions           | ICSE  | 2018-01 to 2022-12       | 7775             | 140                   | 140                    | 98.2%                        | 0.0%                         | Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage1.csv | Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage2.csv | Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage3.csv |
-| fse2021_an_exploratory_study_of_autopilot           | Ardupilot; PX4; autopilot_uav   | FSE   | not published in source  | 569              | 168                   | 142                    | 70.5%                        | 15.5%                        | Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage1.csv           | Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage2.csv           | Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage3.csv           |
-| icse2022_an_empirical_study_on_performance          | dl_framework_perf               | ICSME | 2016-08-16 to 2021-03-16 | 5578             | 2261                  | 143                    | 59.5%                        | 93.7%                        | Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage1.csv          | Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage2.csv          | Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage3.csv          |
-| TOTAL                                               |                                 |       |                          | 33822            | 4199                  | 2050                   | 87.6%                        | 51.2%                        | Dataset/by_paper/<paper_id>/stage1.csv                                          | Dataset/by_paper/<paper_id>/stage2.csv                                          | Dataset/by_paper/<paper_id>/stage3.csv                                          |
+| paper_id                                            | project_name                    | venue   |   stage1_raw_count |   stage2_filtered_count |   stage3_annotated_count | stage1_to_stage2_filter_rate   | stage2_to_stage3_filter_rate   |
+|:----------------------------------------------------|:--------------------------------|:--------|-------------------:|------------------------:|-------------------------:|:-------------------------------|:-------------------------------|
+| ase2022_towards_understanding_the_faults_of         | tensorflow/tfjs                 | ASE     |               4184 |                     683 |                      682 | 83.7%                          | 0.1%                           |
+| icse2021_iot_bugs_and_development_challenges        | iot_projects; iot_systems       | ICSE    |               5548 |                     320 |                      320 | 94.2%                          | 0.0%                           |
+| issta2024_bugs_in_pods_understanding_bugs           | containerd; cri-o; gvisor; runc | ISSTA   |               8275 |                     427 |                      427 | 94.8%                          | 0.0%                           |
+| icse2023_an_empirical_study_on_bugs                 | pytorch                         | ICSE    |               2207 |                     194 |                      194 | 91.2%                          | 0.0%                           |
+| icse2024_understanding_transaction_bugs_in_database | database_transactions           | ICSE    |               7775 |                     140 |                      140 | 98.2%                          | 0.0%                           |
+| fse2021_an_exploratory_study_of_autopilot           | Ardupilot; PX4; autopilot_uav   | FSE     |                567 |                     168 |                      142 | 70.4%                          | 15.5%                          |
+| icse2022_an_empirical_study_on_performance          | dl_framework_perf               | ICSME   |               6835 |                    2265 |                      136 | 66.9%                          | 94.0%                          |
+| TOTAL                                               |                                 |         |              35391 |                    4197 |                     2041 | 88.1%                          | 51.4%                          |

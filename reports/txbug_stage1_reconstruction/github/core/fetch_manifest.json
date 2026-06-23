@@ -1,0 +1,334 @@
+{
+  "date_window": {
+    "end": "2022-12-31",
+    "field": "created",
+    "start": "2018-01-01"
+  },
+  "keyword_mode": "core",
+  "keywords": [
+    "transaction",
+    "transactions",
+    "rollback",
+    "\"roll back\"",
+    "\"isolation level\"",
+    "serializable",
+    "\"commit transaction\"",
+    "\"transaction commit\"",
+    "\"abort transaction\"",
+    "\"transaction abort\"",
+    "XA"
+  ],
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "queries": [
+    {
+      "keyword": "transaction",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 628,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 628,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "transactions",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 182,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 182,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "rollback",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 116,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 116,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"roll back\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 13,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 13,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"isolation level\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 54,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 54,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "serializable",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 13,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 13,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"commit transaction\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 138,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 138,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"transaction commit\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 140,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 140,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"abort transaction\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 11,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 11,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"transaction abort\"",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 12,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 12,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "XA",
+      "repo": "pingcap/tidb",
+      "reported_total_count": 5,
+      "source_project": "tidb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 5,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "transaction",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 2504,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2019-04-02",
+          "reported_total_count": 688,
+          "start": "2018-01-01"
+        },
+        {
+          "end": "2020-07-01",
+          "reported_total_count": 558,
+          "start": "2019-04-03"
+        },
+        {
+          "end": "2021-10-01",
+          "reported_total_count": 593,
+          "start": "2020-07-02"
+        },
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 665,
+          "start": "2021-10-02"
+        }
+      ]
+    },
+    {
+      "keyword": "transactions",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 921,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 921,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "rollback",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 495,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 495,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"roll back\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 188,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 188,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"isolation level\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 22,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 22,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "serializable",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 633,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 633,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"commit transaction\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 319,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 319,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"transaction commit\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 317,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 317,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"abort transaction\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 463,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 463,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "\"transaction abort\"",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 464,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 464,
+          "start": "2018-01-01"
+        }
+      ]
+    },
+    {
+      "keyword": "XA",
+      "repo": "cockroachdb/cockroach",
+      "reported_total_count": 25,
+      "source_project": "cockroachdb",
+      "windows": [
+        {
+          "end": "2022-12-31",
+          "reported_total_count": 25,
+          "start": "2018-01-01"
+        }
+      ]
+    }
+  ],
+  "repositories": {
+    "cockroachdb": "cockroachdb/cockroach",
+    "tidb": "pingcap/tidb"
+  },
+  "unique_by_source_project": {
+    "cockroachdb": 3389,
+    "tidb": 759
+  },
+  "unique_issues_written": 4148
+}

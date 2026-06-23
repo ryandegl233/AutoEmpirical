@@ -1,0 +1,35 @@
+{
+  "base_query": "repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-10-20",
+  "cutoff": "2022-10-20",
+  "paper_id": "icse2023_an_empirical_study_on_bugs",
+  "repo": "pytorch/pytorch",
+  "unique_issues_written": 2676,
+  "window_count": 5,
+  "window_counts": [
+    {
+      "end": "2019-05-27",
+      "reported_total_count": 166,
+      "start": "2016-01-01"
+    },
+    {
+      "end": "2020-04-02",
+      "reported_total_count": 565,
+      "start": "2019-05-28"
+    },
+    {
+      "end": "2021-02-06",
+      "reported_total_count": 805,
+      "start": "2020-04-03"
+    },
+    {
+      "end": "2021-12-14",
+      "reported_total_count": 663,
+      "start": "2021-02-07"
+    },
+    {
+      "end": "2022-10-20",
+      "reported_total_count": 477,
+      "start": "2021-12-15"
+    }
+  ]
+}

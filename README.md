@@ -29,9 +29,9 @@ The dataset contains seven retained empirical software fault studies and three w
 
 | Stage | File | Meaning | Rows |
 | --- | --- | --- | ---: |
-| Stage 1 Raw | `Dataset/stage1.csv` | Raw candidate records before human filtering | 33,822 |
-| Stage 2 Filtered | `Dataset/stage2.csv` | Human-filtered bug-relevant records | 4,199 |
-| Stage 3 Annotated | `Dataset/stage3.csv` | Final human-labeled records | 2,050 |
+| Stage 1 Raw | `Dataset/stage1.csv` | Raw candidate records before human filtering | 35,391 |
+| Stage 2 Filtered | `Dataset/stage2.csv` | Human-filtered bug-relevant records | 4,197 |
+| Stage 3 Annotated | `Dataset/stage3.csv` | Final human-labeled records | 2,041 |
 
 See [Dataset/README.md](./Dataset/README.md) for the dataset layout, included studies, schema notes, and data health summary.
 
@@ -109,9 +109,9 @@ for stage in ["stage1", "stage2", "stage3"]:
 Expected output:
 
 ```text
-stage1 (33822, 23) 7
-stage2 (4199, 23) 7
-stage3 (2050, 23) 7
+stage1 (35391, 23) 7
+stage2 (4197, 23) 7
+stage3 (2041, 23) 7
 ```
 
 ## Current Status
@@ -131,7 +131,7 @@ stage3 (2050, 23) 7
 - Do not continue the previous MAS v2 design as the default next step.
 - Do not claim a new MAS contribution before baseline experiments have been run.
 - Use paper-level splits or grouped `issue_url` splits to avoid issue-level leakage.
-- Treat `record_id` and `issue_url` as non-strict keys; duplicate rows are documented in `reports/duplicate_key_rows.csv`.
+- Treat `record_id` as globally unique. `issue_url` is unique within each paper but can repeat across papers; use paper-level or grouped-URL splits to avoid leakage.
 - Preserve `reports/SHA256SUMS.txt` or regenerate it whenever dataset files change.
 
 ## Citation
@@ -150,3 +150,4 @@ If you use this repository, please cite the related AutoEmpirical paper when the
 ## Contact
 
 Maintainer: Yanjie Yu
+Email: Ryandegl@outlook.com

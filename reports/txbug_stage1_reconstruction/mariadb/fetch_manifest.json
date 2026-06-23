@@ -1,0 +1,106 @@
+{
+  "date_window": {
+    "end": "2022-12-31",
+    "field": "created",
+    "start": "2018-01-01"
+  },
+  "keywords": [
+    "transaction",
+    "transactions",
+    "rollback",
+    "roll back",
+    "isolation level",
+    "serializable",
+    "read committed",
+    "repeatable read",
+    "XA",
+    "deadlock",
+    "commit transaction",
+    "abort transaction"
+  ],
+  "mariadb": 3918,
+  "mariadb_columnstore": 195,
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "projects": {
+    "MCOL": "mariadb_columnstore",
+    "MDEV": "mariadb"
+  },
+  "queries": [
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"transaction\"",
+      "keyword": "transaction",
+      "reported_total": 2612,
+      "unique_keys_seen": 2612
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"transactions\"",
+      "keyword": "transactions",
+      "reported_total": 2612,
+      "unique_keys_seen": 2612
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"rollback\"",
+      "keyword": "rollback",
+      "reported_total": 1248,
+      "unique_keys_seen": 1248
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"roll back\"",
+      "keyword": "roll back",
+      "reported_total": 417,
+      "unique_keys_seen": 417
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"isolation level\"",
+      "keyword": "isolation level",
+      "reported_total": 156,
+      "unique_keys_seen": 156
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"serializable\"",
+      "keyword": "serializable",
+      "reported_total": 40,
+      "unique_keys_seen": 40
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"read committed\"",
+      "keyword": "read committed",
+      "reported_total": 1195,
+      "unique_keys_seen": 1195
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"repeatable read\"",
+      "keyword": "repeatable read",
+      "reported_total": 979,
+      "unique_keys_seen": 979
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"XA\"",
+      "keyword": "XA",
+      "reported_total": 371,
+      "unique_keys_seen": 371
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"deadlock\"",
+      "keyword": "deadlock",
+      "reported_total": 636,
+      "unique_keys_seen": 636
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"commit transaction\"",
+      "keyword": "commit transaction",
+      "reported_total": 1155,
+      "unique_keys_seen": 1155
+    },
+    {
+      "jql": "project in (MDEV, MCOL) AND created >= \"2018-01-01\" AND created <= \"2022-12-31\" AND text ~ \"abort transaction\"",
+      "keyword": "abort transaction",
+      "reported_total": 930,
+      "unique_keys_seen": 930
+    }
+  ],
+  "source": "https://jira.mariadb.org",
+  "unique_issues": 4113,
+  "with_body": 4103,
+  "with_comments": 3525
+}

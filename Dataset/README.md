@@ -21,9 +21,9 @@ This directory is the dataset entry point for AutoEmpirical. It contains the uni
 
 | Stage | File | Meaning | Rows |
 | --- | --- | --- | ---: |
-| Stage 1 Raw | `stage1.csv` | Raw candidate records before human filtering | 33,822 |
-| Stage 2 Filtered | `stage2.csv` | Human-filtered bug-relevant records | 4,199 |
-| Stage 3 Annotated | `stage3.csv` | Final human-labeled records | 2,050 |
+| Stage 1 Raw | `stage1.csv` | Raw candidate records before human filtering | 35,391 |
+| Stage 2 Filtered | `stage2.csv` | Human-filtered bug-relevant records | 4,197 |
+| Stage 3 Annotated | `stage3.csv` | Final human-labeled records | 2,041 |
 
 Use Stage 1 to Stage 2 for filtering or verification experiments. Use Stage 2 to Stage 3 for label prediction experiments.
 
@@ -31,13 +31,13 @@ Use Stage 1 to Stage 2 for filtering or verification experiments. Use Stage 2 to
 
 | Paper ID | Venue | Stage 1 | Stage 2 | Stage 3 |
 | --- | --- | ---: | ---: | ---: |
-| `ase2022_towards_understanding_the_faults_of` | ASE | 3,859 | 684 | 682 |
-| `icse2021_iot_bugs_and_development_challenges` | ICSE | 5,565 | 323 | 320 |
-| `issta2024_bugs_in_pods_understanding_bugs` | ISSTA | 8,271 | 429 | 429 |
-| `icse2023_an_empirical_study_on_bugs` | ICSE | 2,205 | 194 | 194 |
+| `ase2022_towards_understanding_the_faults_of` | ASE | 4,184 | 683 | 682 |
+| `icse2021_iot_bugs_and_development_challenges` | ICSE | 5,548 | 320 | 320 |
+| `issta2024_bugs_in_pods_understanding_bugs` | ISSTA | 8,275 | 427 | 427 |
+| `icse2023_an_empirical_study_on_bugs` | ICSE | 2,207 | 194 | 194 |
 | `icse2024_understanding_transaction_bugs_in_database` | ICSE | 7,775 | 140 | 140 |
-| `fse2021_an_exploratory_study_of_autopilot` | FSE | 569 | 168 | 142 |
-| `icse2022_an_empirical_study_on_performance` | ICSME | 5,578 | 2,261 | 143 |
+| `fse2021_an_exploratory_study_of_autopilot` | FSE | 567 | 168 | 142 |
+| `icse2022_an_empirical_study_on_performance` | ICSME | 6,835 | 2,265 | 136 |
 
 Two earlier candidate studies were excluded because their Stage 1 to Stage 2 filtering rate was 0%, which made them unsuitable for the current filtering-task formulation.
 
@@ -56,13 +56,13 @@ See `../metadata/data_dictionary.md` and `../metadata/stage1_label_dictionary.md
 
 ## Data Health
 
-The latest health check was run on 2026-06-16.
+The latest health check was run on 2026-06-22.
 
 | Stage | Schema OK | Papers | `record_id` unique | Duplicate `record_id` rows | `issue_url` unique | Duplicate `issue_url` rows | Final-label coverage |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Stage 1 | yes | 7 | 33,799 / 33,822 | 23 | 33,749 / 33,822 | 73 | partial |
-| Stage 2 | yes | 7 | 4,177 / 4,199 | 22 | 4,163 / 4,199 | 36 | partial |
-| Stage 3 | yes | 7 | 2,042 / 2,050 | 8 | 2,032 / 2,050 | 18 | 100% |
+| Stage 1 | yes | 7 | 35,391 / 35,391 | 0 | 35,054 / 35,391 | 337 | partial |
+| Stage 2 | yes | 7 | 4,197 / 4,197 | 0 | 4,183 / 4,197 | 14 | partial |
+| Stage 3 | yes | 7 | 2,041 / 2,041 | 0 | 2,032 / 2,041 | 9 | 100% |
 
 Stage 3 is analysis-ready for label prediction experiments. Stage 1 and Stage 2 intentionally contain partial labels because they preserve earlier human workflow stages.
 
@@ -71,5 +71,5 @@ Stage 3 is analysis-ready for label prediction experiments. Stage 1 and Stage 2 
 - Use paper-level splits for cross-paper generalization.
 - Use grouped `issue_url` splits when evaluating within a mixed-paper setting.
 - Avoid row-level random splits because duplicate issue URLs can leak across train and test.
-- Do not assume `record_id` or `issue_url` is a strict primary key.
-- If a strict experiment ID is needed, derive a new row ID after deciding how duplicates should be handled.
+- `record_id` is globally unique after duplicate-key cleanup; `issue_url` remains a cross-paper grouping key, not a global row key.
+- If a strict experiment grouping key is needed, combine `paper_id` with `issue_url` or derive a grouped experiment ID explicitly.

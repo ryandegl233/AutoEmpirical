@@ -1,0 +1,11 @@
+{
+  "base": "../core/txbug_github_candidates.csv",
+  "supplement_fetched_items": 418,
+  "supplement_query": "repo:pingcap/tidb is:issue created:2018-01-01..2022-12-31 label:\"sig/transaction\"",
+  "supplement_reported_total_count": 418,
+  "unique_by_source_project": {
+    "cockroachdb": 3389,
+    "tidb": 946
+  },
+  "unique_issues_written": 4335
+}

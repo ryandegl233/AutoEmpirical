@@ -1,0 +1,136 @@
+{
+  "detail_fetch": {
+    "audit_csv": "details/mysql_detail_fetch_audit.csv",
+    "average_body_chars": 3244,
+    "average_comments_chars": 4023,
+    "body_nonempty": 773,
+    "comments_nonempty": 772,
+    "details_json": "details/txbug_mysql_candidate_details.json",
+    "enhanced_csv": "txbug_mysql_candidates_with_text.csv",
+    "parse_warning": "JSONL may contain Unicode line separators; use details_json for robust parsing.",
+    "status_counts": {
+      "ok": 773
+    }
+  },
+  "keyword_mode": "mysql_core",
+  "keywords": [
+    "transaction",
+    "transactions",
+    "rollback",
+    "\"roll back\"",
+    "\"isolation level\"",
+    "serializable",
+    "\"read committed\"",
+    "\"repeatable read\"",
+    "XA",
+    "deadlock",
+    "innodb_trx",
+    "data_locks",
+    "\"commit transaction\"",
+    "\"transaction commit\"",
+    "\"abort transaction\"",
+    "\"transaction abort\""
+  ],
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "source": "bugs.mysql.com",
+  "supplement_terms": [
+    {
+      "kept2018_2022": 12,
+      "rawRows": 90,
+      "term": "\"read uncommitted\""
+    },
+    {
+      "kept2018_2022": 9,
+      "rawRows": 43,
+      "term": "\"xa rollback\""
+    },
+    {
+      "kept2018_2022": 9,
+      "rawRows": 43,
+      "term": "\"XA rollback\""
+    }
+  ],
+  "term_counts": [
+    {
+      "kept2018_2022": 495,
+      "rawRows": 810,
+      "term": "transaction"
+    },
+    {
+      "kept2018_2022": 278,
+      "rawRows": 450,
+      "term": "transactions"
+    },
+    {
+      "kept2018_2022": 184,
+      "rawRows": 270,
+      "term": "rollback"
+    },
+    {
+      "kept2018_2022": 25,
+      "rawRows": 90,
+      "term": "\"roll back\""
+    },
+    {
+      "kept2018_2022": 59,
+      "rawRows": 180,
+      "term": "\"isolation level\""
+    },
+    {
+      "kept2018_2022": 15,
+      "rawRows": 90,
+      "term": "serializable"
+    },
+    {
+      "kept2018_2022": 61,
+      "rawRows": 180,
+      "term": "\"read committed\""
+    },
+    {
+      "kept2018_2022": 43,
+      "rawRows": 180,
+      "term": "\"repeatable read\""
+    },
+    {
+      "kept2018_2022": 64,
+      "rawRows": 180,
+      "term": "XA"
+    },
+    {
+      "kept2018_2022": 117,
+      "rawRows": 270,
+      "term": "deadlock"
+    },
+    {
+      "kept2018_2022": 22,
+      "rawRows": 90,
+      "term": "innodb_trx"
+    },
+    {
+      "kept2018_2022": 23,
+      "rawRows": 42,
+      "term": "data_locks"
+    },
+    {
+      "kept2018_2022": 8,
+      "rawRows": 41,
+      "term": "\"commit transaction\""
+    },
+    {
+      "kept2018_2022": 18,
+      "rawRows": 90,
+      "term": "\"transaction commit\""
+    },
+    {
+      "kept2018_2022": 0,
+      "rawRows": 3,
+      "term": "\"abort transaction\""
+    },
+    {
+      "kept2018_2022": 0,
+      "rawRows": 10,
+      "term": "\"transaction abort\""
+    }
+  ],
+  "unique_issues_written": 773
+}

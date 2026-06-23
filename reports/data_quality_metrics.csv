@@ -1,4 +1,4 @@
 stage,rows,columns,schema_matches_expected,record_id_non_null,record_id_unique,record_id_duplicate_rows,issue_url_non_null,issue_url_unique,issue_url_duplicate_rows,title_non_empty,body_non_empty,comments_non_empty,symptom_non_empty,root_cause_non_empty,bug_type_non_empty,component_non_empty,fix_type_non_empty,paper_count
-stage1,33822,23,True,33822,33799,23,33822,33749,73,33822,33822,33822,1270,1272,619,1206,659,7
-stage2,4199,23,True,4199,4177,22,4199,4163,36,4199,4199,4199,2067,2069,983,1775,961,7
-stage3,2050,23,True,2050,2042,8,2050,2032,18,2050,2050,2050,2050,2050,2050,2050,2050,7
+stage1,35391,23,True,35391,35391,0,35391,35054,337,35391,35373,30781,932,934,618,868,325,7
+stage2,4197,23,True,4197,4197,0,4197,4183,14,4197,4197,4197,2045,2047,966,1759,948,7
+stage3,2041,23,True,2041,2041,0,2041,2032,9,2041,2041,2041,2041,2041,2041,2041,2041,7
