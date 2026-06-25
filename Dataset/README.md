@@ -56,7 +56,7 @@ See `../metadata/data_dictionary.md` and `../metadata/stage1_label_dictionary.md
 
 ## Data Health
 
-The latest health check was run on 2026-06-22.
+The latest health check was run on 2026-06-25.
 
 | Stage | Schema OK | Papers | `record_id` unique | Duplicate `record_id` rows | `issue_url` unique | Duplicate `issue_url` rows | Final-label coverage |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -65,6 +65,11 @@ The latest health check was run on 2026-06-22.
 | Stage 3 | yes | 7 | 2,041 / 2,041 | 0 | 2,032 / 2,041 | 9 | 100% |
 
 Stage 3 is analysis-ready for label prediction experiments. Stage 1 and Stage 2 intentionally contain partial labels because they preserve earlier human workflow stages.
+
+The 2026-06-25 check also cleaned timestamp fields: numeric `updated_at` values
+that came from TXBug confirmed-duration fields were replaced with source-backed
+timestamps when available, or `not_available_in_source` when no authoritative
+local timestamp was available. Details are in `../reports/timestamp_repairs.csv`.
 
 ## Experimental Design Notes
 
