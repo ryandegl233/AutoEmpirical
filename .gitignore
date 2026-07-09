@@ -1,8 +1,8 @@
 __pycache__/
 *.pyc
 .env
-scripts/
 tests/
+.vscode/
 
 reports/txbug_stage1_reconstruction/**/*.jsonl
 reports/pytorch_stage1_reconstruction/**/*.jsonl
