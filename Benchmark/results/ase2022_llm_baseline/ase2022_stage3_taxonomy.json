@@ -1,0 +1,29 @@
+{
+  "symptom": [
+    "Build & Initialization Failure",
+    "Crash",
+    "Document Error",
+    "Incorrect Functionality",
+    "Poor Performance"
+  ],
+  "root_cause": [
+    "API Misuse",
+    "Browser Incompatibility",
+    "Confused Document",
+    "Cross-platform App Framework Incompatibility",
+    "Data/Model Inaccessibility",
+    "Dependency Error",
+    "Device Incompatibility",
+    "Import Error",
+    "Improper Exception Handling",
+    "Improper Model Attribute",
+    "Incompatibilitty between 3rd-party DL Library and TF.js",
+    "Inconsistent Modules",
+    "Incorrect Code Logic",
+    "Misconfiguration",
+    "Unimplemented Operator",
+    "Unknown",
+    "Untimely Update",
+    "WebGL Limits"
+  ]
+}
