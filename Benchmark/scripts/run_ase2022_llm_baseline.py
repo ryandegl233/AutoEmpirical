@@ -43,13 +43,18 @@ def resolve_run_config(
     env: dict[str, str],
     base_url_override: str | None = None,
 ) -> dict[str, str]:
-    base_url = base_url_override or env.get("BASE_URL") or env.get("LLM_BASE_URL")
+    base_url = (
+        base_url_override
+        or env.get("SELF_BASE_URL")
+        or env.get("BASE_URL")
+        or env.get("LLM_BASE_URL")
+    )
     if not base_url:
-        raise SystemExit("Missing BASE_URL in .env or --base-url")
+        raise SystemExit("Missing SELF_BASE_URL or BASE_URL in .env or --base-url")
 
-    api_key = env.get("OPENAI_API_KEY") or env.get("API_KEY")
+    api_key = env.get("SELF_API") or env.get("OPENAI_API_KEY") or env.get("API_KEY")
     if not api_key:
-        raise SystemExit("Missing OPENAI_API_KEY or API_KEY in .env or environment")
+        raise SystemExit("Missing SELF_API, OPENAI_API_KEY, or API_KEY in .env or environment")
 
     wire_api = env.get("WIRE_API", "chat_completions")
     responses_path = env.get("RESPONSES_PATH", "/responses")
@@ -81,6 +86,13 @@ def main() -> None:
     parser.add_argument("--models", nargs="*", default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--sleep-seconds", type=float, default=0.0)
+    parser.add_argument("--max-retries", type=int, default=3)
+    parser.add_argument("--retry-delay-seconds", type=float, default=2.0)
+    parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Ignore existing predictions and restart each selected model.",
+    )
     parser.add_argument("--responses-path", default=None)
     parser.add_argument(
         "--http-client",
@@ -117,6 +129,9 @@ def main() -> None:
             http_client=args.http_client or config["http_client"],
             limit=args.limit,
             sleep_seconds=args.sleep_seconds,
+            resume=not args.no_resume,
+            max_retries=args.max_retries,
+            retry_delay_seconds=args.retry_delay_seconds,
         )
         print(metrics)
 

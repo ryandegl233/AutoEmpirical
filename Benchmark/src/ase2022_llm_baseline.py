@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import http.client
 import json
 import os
 import random
@@ -538,6 +539,70 @@ def call_model(
     raise ValueError(f"Unsupported WIRE_API: {wire_api}")
 
 
+def _is_retryable_network_error(exc: BaseException) -> bool:
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code in {408, 425, 429, 500, 502, 503, 504}
+    return isinstance(
+        exc,
+        (
+            http.client.RemoteDisconnected,
+            urllib.error.URLError,
+            TimeoutError,
+            ConnectionError,
+        ),
+    )
+
+
+def call_model_with_retries(
+    *,
+    max_retries: int,
+    retry_delay_seconds: float,
+    **call_kwargs: object,
+) -> tuple[str, int]:
+    attempts = 0
+    while True:
+        attempts += 1
+        try:
+            return call_model(**call_kwargs), attempts
+        except Exception as exc:
+            if attempts > max_retries or not _is_retryable_network_error(exc):
+                setattr(exc, "attempts", attempts)
+                raise
+            if retry_delay_seconds:
+                time.sleep(retry_delay_seconds * (2 ** (attempts - 1)))
+
+
+def load_existing_predictions(
+    path: str | Path,
+    model: str,
+    allowed_record_ids: set[str],
+) -> dict[str, dict[str, object]]:
+    predictions_path = Path(path)
+    if not predictions_path.exists():
+        return {}
+
+    existing: dict[str, dict[str, object]] = {}
+    for line_number, line in enumerate(
+        predictions_path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not line.strip():
+            continue
+        try:
+            prediction = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Invalid JSONL in {predictions_path} at line {line_number}: {exc}"
+            ) from exc
+        record_id = str(prediction.get("record_id", ""))
+        if (
+            prediction.get("model") == model
+            and record_id in allowed_record_ids
+            and not prediction.get("request_failed", False)
+        ):
+            existing[record_id] = prediction
+    return existing
+
+
 def run_llm_prompts(
     prompts_path: str | Path,
     examples: list[dict[str, str]],
@@ -552,6 +617,9 @@ def run_llm_prompts(
     http_client: str = "urllib",
     limit: int | None = None,
     sleep_seconds: float = 0.0,
+    resume: bool = True,
+    max_retries: int = 3,
+    retry_delay_seconds: float = 2.0,
 ) -> dict[str, float | int | str]:
     prompts = [
         json.loads(line)
@@ -563,12 +631,30 @@ def run_llm_prompts(
 
     predictions_output = Path(predictions_path)
     predictions_output.parent.mkdir(parents=True, exist_ok=True)
-    parsed_predictions: list[dict[str, object]] = []
-    with predictions_output.open("w", encoding="utf-8") as handle:
-        for row in prompts:
+    prompt_record_ids = {str(row["record_id"]) for row in prompts}
+    existing_by_record_id = (
+        load_existing_predictions(predictions_output, model, prompt_record_ids)
+        if resume
+        else {}
+    )
+    parsed_predictions: list[dict[str, object]] = [
+        existing_by_record_id[str(row["record_id"])]
+        for row in prompts
+        if str(row["record_id"]) in existing_by_record_id
+    ]
+    pending_prompts = [
+        row for row in prompts if str(row["record_id"]) not in existing_by_record_id
+    ]
+    output_mode = "a" if resume and predictions_output.exists() else "w"
+    with predictions_output.open(output_mode, encoding="utf-8") as handle:
+        for row in pending_prompts:
             started = time.perf_counter()
+            attempts = 0
+            request_failed = False
             try:
-                raw_output = call_model(
+                raw_output, attempts = call_model_with_retries(
+                    max_retries=max_retries,
+                    retry_delay_seconds=retry_delay_seconds,
                     system_prompt=row["system_prompt"],
                     user_prompt=row["user_prompt"],
                     model=model,
@@ -580,13 +666,17 @@ def run_llm_prompts(
                 )
                 parsed = parse_prediction_text(raw_output, taxonomy)
             except (
+                http.client.RemoteDisconnected,
                 urllib.error.URLError,
                 TimeoutError,
+                ConnectionError,
                 KeyError,
                 ValueError,
                 RuntimeError,
                 subprocess.SubprocessError,
             ) as exc:
+                attempts = int(getattr(exc, "attempts", attempts or 1))
+                request_failed = True
                 raw_output = ""
                 parsed = {
                     "symptom": "",
@@ -602,10 +692,13 @@ def run_llm_prompts(
                 "model": model,
                 "raw_output": raw_output,
                 "latency_seconds": round(time.perf_counter() - started, 3),
+                "attempts": attempts,
+                "request_failed": request_failed,
                 **parsed,
             }
             parsed_predictions.append(prediction)
             handle.write(json.dumps(prediction, ensure_ascii=False) + "\n")
+            handle.flush()
             if sleep_seconds:
                 time.sleep(sleep_seconds)
 
@@ -621,6 +714,9 @@ def run_llm_prompts(
         "wire_api": wire_api,
         "responses_path": responses_path if wire_api == "responses" else "",
         "http_client": http_client,
+        "resumed_count": len(existing_by_record_id),
+        "processed_count": len(pending_prompts),
+        "max_retries": max_retries,
         **metrics,
     }
     metrics_output = Path(metrics_path)
