@@ -1,0 +1,28 @@
+{
+  "task": "ase2022_stage2_filter",
+  "mode": "balanced_pilot",
+  "seed": 20260711,
+  "per_class": 50,
+  "stage1_path": "Dataset/stage1.csv",
+  "stage2_path": "Dataset/stage2.csv",
+  "all_counts": {
+    "accepted_fault": 683,
+    "rejected_candidate": 3501
+  },
+  "selected_counts": {
+    "accepted_fault": 50,
+    "rejected_candidate": 50
+  },
+  "selected_count": 100,
+  "label_semantics": {
+    "accepted_fault": "record_id is present in the ASE2022 Stage 2 dataset",
+    "rejected_candidate": "record_id is absent from the ASE2022 Stage 2 dataset"
+  },
+  "model_input_fields": [
+    "title",
+    "body",
+    "comments",
+    "state",
+    "created_at"
+  ]
+}
