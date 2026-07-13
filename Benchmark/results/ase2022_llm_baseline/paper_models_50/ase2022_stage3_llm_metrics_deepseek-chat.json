@@ -1,0 +1,17 @@
+{
+  "model": "deepseek-chat",
+  "base_url": "https://yunwu.ai/v1",
+  "wire_api": "chat_completions",
+  "responses_path": "",
+  "http_client": "urllib",
+  "resumed_count": 0,
+  "processed_count": 50,
+  "max_retries": 3,
+  "n": 50,
+  "valid_count": 50,
+  "invalid_count": 0,
+  "invalid_rate": 0.0,
+  "symptom_accuracy": 0.72,
+  "root_cause_accuracy": 0.4,
+  "both_exact_match_accuracy": 0.32
+}

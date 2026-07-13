@@ -8,3 +8,4 @@ reports/txbug_stage1_reconstruction/**/*.jsonl
 reports/pytorch_stage1_reconstruction/**/*.jsonl
 reports/txbug_stage1_reconstruction/txbug_stage1_reconstructed_7775_preview.csv
 .firecrawl/
+fixcode/

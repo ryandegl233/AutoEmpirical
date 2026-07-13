@@ -1,0 +1,17 @@
+{
+  "model": "gemini-2.5-flash",
+  "base_url": "https://yunwu.ai/v1",
+  "wire_api": "chat_completions",
+  "responses_path": "",
+  "http_client": "urllib",
+  "resumed_count": 50,
+  "processed_count": 0,
+  "max_retries": 3,
+  "n": 50,
+  "valid_count": 50,
+  "invalid_count": 0,
+  "invalid_rate": 0.0,
+  "symptom_accuracy": 0.76,
+  "root_cause_accuracy": 0.46,
+  "both_exact_match_accuracy": 0.32
+}
