@@ -1,0 +1,23 @@
+{
+  "task": "ase2022_camel_mas_baseline",
+  "paper_id": "ase2022_towards_understanding_the_faults_of",
+  "stage2_sample_path": "Benchmark/results/ase2022_stage2_filter_baseline/ase2022_stage2_filter_sample.csv",
+  "stage3_sample_path": "Benchmark/results/ase2022_llm_baseline/ase2022_stage3_llm_sample.csv",
+  "counts": {
+    "accepted_fault": 50,
+    "rejected_candidate": 50
+  },
+  "cohort_sha256": "4e90efb7cc26c4c1822bcd740d1a06519e27f0eb306fd71be87bd4f6d485415c",
+  "model_input_fields": [
+    "title",
+    "body",
+    "comments",
+    "state",
+    "created_at"
+  ],
+  "gold_fields_excluded_from_agent_prompts": [
+    "decision",
+    "symptom",
+    "root_cause"
+  ]
+}

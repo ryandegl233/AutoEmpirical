@@ -1,0 +1,46 @@
+{
+  "task": "ase2022_camel_evidence_anchored_stage3",
+  "architecture": "camel_roleplaying_evidence_anchored",
+  "society_mode": "evidence_anchored",
+  "model": "deepseek-v4-flash",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "config_hash": "60a6234989330712a341994db97f10f317397bd8d64be3b1e2ec0aad1ac7a7eb",
+  "max_turns": 10,
+  "final": {
+    "n": 50,
+    "valid_count": 50,
+    "invalid_count": 0,
+    "invalid_rate": 0.0,
+    "symptom_correct": 36,
+    "root_cause_correct": 24,
+    "joint_correct": 18,
+    "symptom_accuracy": 0.72,
+    "root_cause_accuracy": 0.48,
+    "joint_accuracy": 0.36
+  },
+  "http_single_llm_control": {
+    "metrics_path": "Benchmark\\results\\ase2022_llm_baseline\\paper_models_50\\ase2022_stage3_llm_metrics_deepseek-v4-flash.json",
+    "metrics": null
+  },
+  "society": {
+    "n": 70,
+    "valid_count": 70,
+    "invalid_count": 0,
+    "total_turn_count": 70,
+    "average_turn_count": 1.0,
+    "early_stop_count": 70,
+    "early_stop_rate": 1.0,
+    "stop_reason_counts": {
+      "valid_json": 70
+    },
+    "final_answer_turn_counts": {
+      "1": 70
+    },
+    "total_api_requests": 140,
+    "total_tokens": 486970,
+    "total_latency_seconds": 1051.2336091999896,
+    "format_normalized_count": 1,
+    "token_usage_incomplete_role_count": 0
+  }
+}

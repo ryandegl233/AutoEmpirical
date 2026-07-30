@@ -2,6 +2,10 @@ __pycache__/
 *.pyc
 .env
 tests/
+!tests/
+tests/*
+!tests/test_ase2022_camel_mas_baseline.py
+!tests/test_run_ase2022_camel_mas_baseline.py
 .vscode/
 
 reports/txbug_stage1_reconstruction/**/*.jsonl
@@ -9,3 +13,6 @@ reports/pytorch_stage1_reconstruction/**/*.jsonl
 reports/txbug_stage1_reconstruction/txbug_stage1_reconstructed_7775_preview.csv
 .firecrawl/
 fixcode/
+
+Benchmark/results/ase2022_camel_mas_baseline/smoke/
+Benchmark/results/ase2022_camel_mas_baseline/smoke_counted/
