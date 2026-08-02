@@ -6,6 +6,7 @@ tests/
 tests/*
 !tests/test_ase2022_camel_mas_baseline.py
 !tests/test_run_ase2022_camel_mas_baseline.py
+!tests/test_issta2024_bugs_in_pods_baseline.py
 .vscode/
 
 reports/txbug_stage1_reconstruction/**/*.jsonl
@@ -16,3 +17,4 @@ fixcode/
 
 Benchmark/results/ase2022_camel_mas_baseline/smoke/
 Benchmark/results/ase2022_camel_mas_baseline/smoke_counted/
+Benchmark/results/issta2024_bugs_in_pods_baseline/evidence_enriched/raw/

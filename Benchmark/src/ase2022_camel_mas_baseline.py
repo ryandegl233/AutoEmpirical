@@ -94,6 +94,10 @@ class SocietyLike(Protocol):
 
 SocietyFactory = Callable[[str], SocietyLike]
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
+TaskBuilder = Callable[
+    [dict[str, str], Literal["stage2", "stage3"], dict[str, list[str]]],
+    str,
+]
 CONFIG_SCHEMA_VERSION = 7
 SocietyMode = Literal["native", "evidence_anchored"]
 
@@ -185,6 +189,7 @@ def build_config_hash(
     backend_id: str = "",
     max_turns: int = DEFAULT_MAX_TURNS,
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
+    require_valid_json: bool = False,
 ) -> str:
     if max_turns <= 0:
         raise ValueError("max_turns must be positive")
@@ -200,6 +205,7 @@ def build_config_hash(
         "temperature": temperature,
         "backend_id": backend_id,
         "max_turns": max_turns,
+        "require_valid_json": require_valid_json,
     }
     encoded = json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
@@ -1012,13 +1018,14 @@ def run_roleplaying_society_record(
     config_hash: str = "",
     backend_id: str = "",
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
+    task_builder: TaskBuilder | None = None,
 ) -> dict[str, Any]:
     if max_turns <= 0:
         raise ValueError("max_turns must be positive")
     if finalizer_max_retries < 0:
         raise ValueError("finalizer_max_retries must be non-negative")
     architecture = society_architecture(society_mode)
-    task_prompt = build_society_task(record, stage, taxonomy)
+    task_prompt = (task_builder or build_society_task)(record, stage, taxonomy)
     immutable_evidence_sha256 = hashlib.sha256(
         task_prompt.encode("utf-8")
     ).hexdigest()
@@ -1661,6 +1668,46 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def validate_final_prediction(
+    row: dict[str, Any],
+    stage: Literal["stage2", "stage3"],
+    taxonomy: dict[str, list[str]],
+) -> None:
+    record_id = str(row.get("record_id") or "<missing>")
+    if row.get("invalid", True):
+        raise ValueError(
+            f"record {record_id} has no valid final prediction"
+        )
+    prediction = row.get("final_prediction")
+    if not isinstance(prediction, dict):
+        raise ValueError(
+            f"record {record_id} final_prediction must be a JSON object"
+        )
+    if stage == "stage2":
+        if set(prediction) != {"decision"} or prediction.get("decision") not in {
+            ACCEPTED_FAULT,
+            REJECTED_CANDIDATE,
+        }:
+            raise ValueError(
+                f"record {record_id} has invalid Stage 2 final_prediction"
+            )
+        return
+    if stage != "stage3":
+        raise ValueError("stage must be stage2 or stage3")
+    if set(prediction) != {"symptom", "root_cause"}:
+        raise ValueError(
+            f"record {record_id} has invalid Stage 3 final_prediction keys"
+        )
+    if prediction.get("symptom") not in taxonomy.get("symptom", []):
+        raise ValueError(
+            f"record {record_id} has symptom outside the taxonomy"
+        )
+    if prediction.get("root_cause") not in taxonomy.get("root_cause", []):
+        raise ValueError(
+            f"record {record_id} has root_cause outside the taxonomy"
+        )
+
+
 def run_stage_records(
     records: list[dict[str, str]],
     predictions_path: str | Path,
@@ -1670,14 +1717,23 @@ def run_stage_records(
     record_runner: Callable[[dict[str, str]], dict[str, Any]],
     resume: bool = True,
     progress_callback: Callable[[int, int, str, str], None] | None = None,
+    require_valid_json: bool = False,
+    taxonomy: dict[str, list[str]] | None = None,
 ) -> list[dict[str, Any]]:
     output = Path(predictions_path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    existing = {
-        row["record_id"]: row
-        for row in (_load_jsonl(output) if resume else [])
-        if _complete_result(row, stage, model, config_hash)
-    }
+    if require_valid_json and taxonomy is None:
+        raise ValueError("taxonomy is required when require_valid_json is enabled")
+    existing: dict[str, dict[str, Any]] = {}
+    for row in (_load_jsonl(output) if resume else []):
+        if not _complete_result(row, stage, model, config_hash):
+            continue
+        if require_valid_json:
+            try:
+                validate_final_prediction(row, stage, taxonomy or {})
+            except ValueError:
+                continue
+        existing[row["record_id"]] = row
     results: list[dict[str, Any]] = []
     with output.open("w", encoding="utf-8") as handle:
         total = len(records)
@@ -1690,6 +1746,8 @@ def run_stage_records(
                 row["model"] = model
                 row["config_hash"] = config_hash
                 status = "completed"
+            if require_valid_json:
+                validate_final_prediction(row, stage, taxonomy or {})
             results.append(row)
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
             handle.flush()

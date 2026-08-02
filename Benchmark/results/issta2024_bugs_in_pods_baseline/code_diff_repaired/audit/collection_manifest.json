@@ -1,0 +1,32 @@
+{
+  "task": "issta2024_commit_message_graphql_repair",
+  "input_count": 8275,
+  "resolved_count": 8275,
+  "failure_count": 0,
+  "batch_count": 168,
+  "request_count": 0,
+  "cache_hit_count": 168,
+  "duplicate_record_id_count": 0,
+  "sha_mismatch_count": 0,
+  "missing_headline_count": 0,
+  "empty_body_count": 235,
+  "repository_counts": {
+    "containerd/containerd": 2984,
+    "cri-o/cri-o": 1904,
+    "google/gvisor": 2305,
+    "opencontainers/runc": 1082
+  },
+  "code_diff": {
+    "task": "issta2024_github_rest_unified_diff_collection",
+    "expected_count": 8275,
+    "resolved_count": 8275,
+    "failure_count": 0,
+    "request_count": 0,
+    "cache_hit_count": 8275,
+    "duplicate_record_id_count": 0,
+    "empty_diff_count": 0,
+    "total_bytes": 844970660,
+    "min_bytes": 127,
+    "max_bytes": 39759075
+  }
+}
