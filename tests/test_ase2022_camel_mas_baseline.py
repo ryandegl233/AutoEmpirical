@@ -324,6 +324,40 @@ def test_society_record_stops_immediately_on_first_valid_json() -> None:
     assert row["society"]["specified_task_prompt"] == "specified task"
 
 
+def test_society_record_accepts_a_paper_specific_task_builder() -> None:
+    captured_tasks: list[str] = []
+    society = _FakeSociety(
+        [
+            (
+                _society_response(
+                    'Solution: {"decision":"accepted_fault"}\nNext request.'
+                ),
+                _society_response("CAMEL_TASK_DONE"),
+            )
+        ]
+    )
+
+    def task_builder(record, stage, taxonomy):
+        assert record["record_id"] == "r1"
+        assert stage == "stage2"
+        assert taxonomy["symptom"] == ["Crash"]
+        return "CUSTOM ISSTA CONTAINER RUNTIME TASK"
+
+    row = mas.run_roleplaying_society_record(
+        _record("r1"),
+        stage="stage2",
+        taxonomy={"symptom": ["Crash"], "root_cause": ["Cause"]},
+        model="test-model",
+        society_factory=lambda task: captured_tasks.append(task) or society,
+        society_mode="native",
+        max_turns=1,
+        task_builder=task_builder,
+    )
+
+    assert captured_tasks == ["CUSTOM ISSTA CONTAINER RUNTIME TASK"]
+    assert row["invalid"] is False
+
+
 def test_society_record_ignores_early_done_and_repairs_invalid_json() -> None:
     society = _FakeSociety(
         [
@@ -1125,6 +1159,104 @@ def test_run_stage_records_checkpoints_each_completed_record(tmp_path: Path) -> 
 
     saved = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
     assert [row["record_id"] for row in saved] == ["r1", "r2"]
+
+
+def test_validate_final_prediction_rejects_invalid_stage2_decision() -> None:
+    row = {
+        "record_id": "bad-stage2",
+        "invalid": False,
+        "final_prediction": {"decision": "maybe"},
+    }
+
+    with pytest.raises(ValueError, match="bad-stage2"):
+        mas.validate_final_prediction(
+            row,
+            stage="stage2",
+            taxonomy={"symptom": ["Crash"], "root_cause": ["Cause"]},
+        )
+
+
+def test_validate_final_prediction_rejects_stage3_label_outside_taxonomy() -> None:
+    row = {
+        "record_id": "bad-stage3",
+        "invalid": False,
+        "final_prediction": {
+            "symptom": "Unknown",
+            "root_cause": "Cause",
+        },
+    }
+
+    with pytest.raises(ValueError, match="bad-stage3"):
+        mas.validate_final_prediction(
+            row,
+            stage="stage3",
+            taxonomy={"symptom": ["Crash"], "root_cause": ["Cause"]},
+        )
+
+
+def test_strict_stage_records_do_not_write_invalid_row_and_resume_retries_it(
+    tmp_path: Path,
+) -> None:
+    cohort = [_record("valid"), _record("retry")]
+    output = tmp_path / "strict_predictions.jsonl"
+    taxonomy = {"symptom": ["Crash"], "root_cause": ["Cause"]}
+
+    def first_runner(record: dict[str, str]) -> dict[str, object]:
+        return {
+            "record_id": record["record_id"],
+            "roles": {"proposer": {}, "critic": {}, "judge": {}},
+            "final_prediction": (
+                {"decision": mas.ACCEPTED_FAULT}
+                if record["record_id"] == "valid"
+                else {}
+            ),
+            "invalid": record["record_id"] == "retry",
+        }
+
+    with pytest.raises(ValueError, match="retry"):
+        mas.run_stage_records(
+            cohort,
+            predictions_path=output,
+            stage="stage2",
+            model="model",
+            config_hash="strict-hash",
+            record_runner=first_runner,
+            resume=False,
+            require_valid_json=True,
+            taxonomy=taxonomy,
+        )
+
+    saved_after_failure = [
+        json.loads(line)
+        for line in output.read_text(encoding="utf-8").splitlines()
+    ]
+    assert [row["record_id"] for row in saved_after_failure] == ["valid"]
+
+    called: list[str] = []
+
+    def retry_runner(record: dict[str, str]) -> dict[str, object]:
+        called.append(record["record_id"])
+        return {
+            "record_id": record["record_id"],
+            "roles": {"proposer": {}, "critic": {}, "judge": {}},
+            "final_prediction": {"decision": mas.REJECTED_CANDIDATE},
+            "invalid": False,
+        }
+
+    rows = mas.run_stage_records(
+        cohort,
+        predictions_path=output,
+        stage="stage2",
+        model="model",
+        config_hash="strict-hash",
+        record_runner=retry_runner,
+        resume=True,
+        require_valid_json=True,
+        taxonomy=taxonomy,
+    )
+
+    assert called == ["retry"]
+    assert [row["record_id"] for row in rows] == ["valid", "retry"]
 
 
 def test_prepare_artifacts_writes_cohort_prompts_taxonomy_and_manifest(tmp_path: Path) -> None:

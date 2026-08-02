@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, TextIO
 
@@ -23,7 +24,9 @@ from Benchmark.src.ase2022_camel_mas_baseline import (  # noqa: E402
     DEFAULT_MODEL,
     DEFAULT_SOCIETY_MODE,
     SocietyMode,
+    TaskBuilder,
     build_config_hash,
+    build_society_task,
     evaluate_end_to_end,
     evaluate_society_diagnostics,
     evaluate_stage2,
@@ -36,6 +39,45 @@ from Benchmark.src.ase2022_camel_mas_baseline import (  # noqa: E402
     select_requested_records,
     select_stage3_records,
     society_architecture,
+)
+
+
+@dataclass(frozen=True)
+class CamelMasCliProfile:
+    study_slug: str
+    description: str
+    default_provider: str
+    default_cohort_path: str
+    default_taxonomy_path: str
+    default_output_dir: str
+    default_single_stage2_metrics: str
+    default_single_stage3_metrics: str
+    task_builder: TaskBuilder
+    default_require_valid_json: bool = False
+
+
+ASE2022_PROFILE = CamelMasCliProfile(
+    study_slug="ase2022",
+    description="Run the ASE2022 CAMEL-AI RolePlaying Society baseline.",
+    default_provider="proxy",
+    default_cohort_path=(
+        "Benchmark/results/ase2022_camel_mas_baseline/"
+        "ase2022_camel_mas_cohort.csv"
+    ),
+    default_taxonomy_path=(
+        "Benchmark/results/ase2022_camel_mas_baseline/"
+        "ase2022_camel_mas_taxonomy.json"
+    ),
+    default_output_dir="Benchmark/results/ase2022_camel_mas_baseline",
+    default_single_stage2_metrics=(
+        "Benchmark/results/ase2022_camel_mas_baseline/single_llm_control/"
+        "ase2022_stage2_filter_metrics_{slug}.json"
+    ),
+    default_single_stage3_metrics=(
+        "Benchmark/results/ase2022_llm_baseline/paper_models_50/"
+        "ase2022_stage3_llm_metrics_{slug}.json"
+    ),
+    task_builder=build_society_task,
 )
 
 
@@ -88,11 +130,15 @@ def validate_max_turns(value: int) -> int:
     return value
 
 
-def society_artifact_prefix(society_mode: SocietyMode) -> str:
+def society_artifact_prefix(
+    society_mode: SocietyMode,
+    *,
+    study_slug: str = "ase2022",
+) -> str:
     society_architecture(society_mode)
     if society_mode == "native":
-        return "ase2022_camel_society"
-    return "ase2022_camel_evidence_anchored"
+        return f"{study_slug}_camel_society"
+    return f"{study_slug}_camel_evidence_anchored"
 
 
 def make_runner_factories(
@@ -243,31 +289,27 @@ def _load_optional_json(path: str | Path) -> dict[str, object] | None:
     return payload
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run the ASE2022 CAMEL-AI RolePlaying Society baseline."
-    )
+def build_parser(
+    profile: CamelMasCliProfile = ASE2022_PROFILE,
+) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=profile.description)
     parser.add_argument("--stage", choices=("stage2", "stage3", "all"), default="all")
-    parser.add_argument("--provider", choices=("proxy", "deepseek"), default="proxy")
+    parser.add_argument(
+        "--provider",
+        choices=("proxy", "deepseek"),
+        default=profile.default_provider,
+    )
     parser.add_argument("--model", default=None)
     parser.add_argument("--base-url", default=None)
     parser.add_argument(
         "--cohort-path",
-        default=(
-            "Benchmark/results/ase2022_camel_mas_baseline/"
-            "ase2022_camel_mas_cohort.csv"
-        ),
+        default=profile.default_cohort_path,
     )
     parser.add_argument(
         "--taxonomy-path",
-        default=(
-            "Benchmark/results/ase2022_camel_mas_baseline/"
-            "ase2022_camel_mas_taxonomy.json"
-        ),
+        default=profile.default_taxonomy_path,
     )
-    parser.add_argument(
-        "--output-dir", default="Benchmark/results/ase2022_camel_mas_baseline"
-    )
+    parser.add_argument("--output-dir", default=profile.default_output_dir)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument(
         "--record-ids",
@@ -292,9 +334,35 @@ def main() -> None:
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument("--show-camel-warnings", action="store_true")
     parser.add_argument("--no-progress", action="store_true")
+    validity = parser.add_mutually_exclusive_group()
+    validity.add_argument(
+        "--require-valid-json",
+        dest="require_valid_json",
+        action="store_true",
+        help=(
+            "Abort before writing any record whose final prediction does not "
+            "pass the stage schema and taxonomy."
+        ),
+    )
+    validity.add_argument(
+        "--allow-invalid",
+        dest="require_valid_json",
+        action="store_false",
+        help="Allow invalid prediction rows for diagnostic runs.",
+    )
+    parser.set_defaults(
+        require_valid_json=profile.default_require_valid_json
+    )
     parser.add_argument("--single-llm-stage2-metrics", default=None)
     parser.add_argument("--single-llm-stage3-metrics", default=None)
-    args = parser.parse_args()
+    return parser
+
+
+def run_profile(
+    profile: CamelMasCliProfile,
+    argv: list[str] | None = None,
+) -> None:
+    args = build_parser(profile).parse_args(argv)
     args.max_turns = validate_max_turns(args.max_turns)
 
     _load_env_file(REPO_ROOT / ".env")
@@ -315,18 +383,18 @@ def main() -> None:
     configure_camel_logging(args.show_camel_warnings)
     output_dir = Path(args.output_dir)
     slug = model_slug(args.model)
-    artifact_prefix = society_artifact_prefix(args.society_mode)
+    artifact_prefix = society_artifact_prefix(
+        args.society_mode,
+        study_slug=profile.study_slug,
+    )
     architecture = society_architecture(args.society_mode)
     single_stage2_path = Path(
         args.single_llm_stage2_metrics
-        or output_dir
-        / "single_llm_control"
-        / f"ase2022_stage2_filter_metrics_{slug}.json"
+        or profile.default_single_stage2_metrics.format(slug=slug)
     )
     single_stage3_path = Path(
         args.single_llm_stage3_metrics
-        or "Benchmark/results/ase2022_llm_baseline/paper_models_50"
-        f"/ase2022_stage3_llm_metrics_{slug}.json"
+        or profile.default_single_stage3_metrics.format(slug=slug)
     )
 
     stage2_path = output_dir / f"{artifact_prefix}_stage2_predictions_{slug}.jsonl"
@@ -346,6 +414,7 @@ def main() -> None:
             backend_id=backend_id,
             max_turns=args.max_turns,
             society_mode=args.society_mode,
+            require_valid_json=args.require_valid_json,
         )
 
         def run_stage2(record: dict[str, str]) -> dict[str, object]:
@@ -361,6 +430,7 @@ def main() -> None:
                 config_hash=stage2_hash,
                 backend_id=backend_id,
                 society_mode=args.society_mode,
+                task_builder=profile.task_builder,
             )
 
         stage2_progress = None if args.no_progress else ConsoleProgress("Stage 2")
@@ -375,6 +445,8 @@ def main() -> None:
             record_runner=run_stage2,
             resume=not args.no_resume,
             progress_callback=stage2_progress,
+            require_valid_json=args.require_valid_json,
+            taxonomy=taxonomy,
         )
         _write_json(
             output_dir / f"{artifact_prefix}_stage2_metrics_{slug}.json",
@@ -387,6 +459,7 @@ def main() -> None:
                 "base_url": config["base_url"],
                 "config_hash": stage2_hash,
                 "max_turns": args.max_turns,
+                "require_valid_json": args.require_valid_json,
                 "final": evaluate_stage2(stage2_records, stage2_rows, source="final"),
                 "http_single_llm_control": {
                     "metrics_path": str(single_stage2_path),
@@ -418,6 +491,7 @@ def main() -> None:
             backend_id=backend_id,
             max_turns=args.max_turns,
             society_mode=args.society_mode,
+            require_valid_json=args.require_valid_json,
         )
 
         def run_stage3(record: dict[str, str]) -> dict[str, object]:
@@ -433,6 +507,7 @@ def main() -> None:
                 config_hash=stage3_hash,
                 backend_id=backend_id,
                 society_mode=args.society_mode,
+                task_builder=profile.task_builder,
             )
 
         stage3_progress = None if args.no_progress else ConsoleProgress("Stage 3")
@@ -447,6 +522,8 @@ def main() -> None:
             record_runner=run_stage3,
             resume=not args.no_resume,
             progress_callback=stage3_progress,
+            require_valid_json=args.require_valid_json,
+            taxonomy=taxonomy,
         )
         evaluated_ids = {row["record_id"] for row in stage3_records}
         positive_records = [
@@ -470,6 +547,7 @@ def main() -> None:
                 "base_url": config["base_url"],
                 "config_hash": stage3_hash,
                 "max_turns": args.max_turns,
+                "require_valid_json": args.require_valid_json,
                 "final": evaluate_stage3(
                     positive_records, positive_stage3_rows, source="final"
                 ),
@@ -492,9 +570,14 @@ def main() -> None:
                 "provider": args.provider,
                 "base_url": config["base_url"],
                 "max_turns": args.max_turns,
+                "require_valid_json": args.require_valid_json,
                 **evaluate_end_to_end(stage2_records, stage2_rows, stage3_rows),
             },
         )
+
+
+def main() -> None:
+    run_profile(ASE2022_PROFILE)
 
 
 if __name__ == "__main__":

@@ -387,6 +387,7 @@ def run_filter_prompts(
     max_retries: int = 3,
     retry_delay_seconds: float = 2.0,
     model_caller: Callable[..., str] | None = None,
+    task: str = "ase2022_stage2_filter",
 ) -> dict[str, object]:
     prompts = _load_prompt_rows(prompts_path, limit)
     predictions_output = Path(predictions_path)
@@ -460,7 +461,7 @@ def run_filter_prompts(
     metrics = evaluate_filter_predictions(examples, ordered_predictions)
     metrics_with_context: dict[str, object] = {
         "model": model,
-        "task": "ase2022_stage2_filter",
+        "task": task,
         "wire_api": wire_api,
         "http_client": http_client,
         "resumed_count": len(existing),

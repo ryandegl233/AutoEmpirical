@@ -620,6 +620,7 @@ def run_llm_prompts(
     resume: bool = True,
     max_retries: int = 3,
     retry_delay_seconds: float = 2.0,
+    task: str = "",
 ) -> dict[str, float | int | str]:
     prompts = [
         json.loads(line)
@@ -719,6 +720,8 @@ def run_llm_prompts(
         "max_retries": max_retries,
         **metrics,
     }
+    if task:
+        metrics_with_context["task"] = task
     metrics_output = Path(metrics_path)
     metrics_output.parent.mkdir(parents=True, exist_ok=True)
     metrics_output.write_text(

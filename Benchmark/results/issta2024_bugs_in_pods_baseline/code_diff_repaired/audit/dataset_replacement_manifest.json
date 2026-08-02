@@ -1,0 +1,92 @@
+{
+  "task": "issta2024_commit_message_dataset_replacement",
+  "collection_manifest": {
+    "task": "issta2024_commit_message_graphql_repair",
+    "input_count": 8275,
+    "resolved_count": 8275,
+    "failure_count": 0,
+    "batch_count": 168,
+    "request_count": 0,
+    "cache_hit_count": 168,
+    "duplicate_record_id_count": 0,
+    "sha_mismatch_count": 0,
+    "missing_headline_count": 0,
+    "empty_body_count": 235,
+    "repository_counts": {
+      "containerd/containerd": 2984,
+      "cri-o/cri-o": 1904,
+      "google/gvisor": 2305,
+      "opencontainers/runc": 1082
+    },
+    "code_diff": {
+      "task": "issta2024_github_rest_unified_diff_collection",
+      "expected_count": 8275,
+      "resolved_count": 8275,
+      "failure_count": 0,
+      "request_count": 0,
+      "cache_hit_count": 8275,
+      "duplicate_record_id_count": 0,
+      "empty_diff_count": 0,
+      "total_bytes": 844970660,
+      "min_bytes": 127,
+      "max_bytes": 39759075
+    }
+  },
+  "files": [
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\by_paper\\issta2024_bugs_in_pods_understanding_bugs\\stage1.csv",
+      "input_rows": 8275,
+      "updated_rows": 8275,
+      "immutable_projection_sha256_before": "cffa49f84a973c24b93582ddb86a2c9d48587710956040d873378b5d58a2af59",
+      "immutable_projection_sha256_after": "cffa49f84a973c24b93582ddb86a2c9d48587710956040d873378b5d58a2af59",
+      "code_diff_nonempty_count": 8275,
+      "code_diff_total_bytes": 844970660
+    },
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\by_paper\\issta2024_bugs_in_pods_understanding_bugs\\stage2.csv",
+      "input_rows": 427,
+      "updated_rows": 427,
+      "immutable_projection_sha256_before": "a6c5eaf4e10c3742ac5edd973c6440137b6f21b539c42cb78e652d9dab30f705",
+      "immutable_projection_sha256_after": "a6c5eaf4e10c3742ac5edd973c6440137b6f21b539c42cb78e652d9dab30f705",
+      "code_diff_nonempty_count": 427,
+      "code_diff_total_bytes": 23187285
+    },
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\by_paper\\issta2024_bugs_in_pods_understanding_bugs\\stage3.csv",
+      "input_rows": 427,
+      "updated_rows": 427,
+      "immutable_projection_sha256_before": "b54ed3d604045c0a7363971b23fcc6723bc3e042ffc020b58851dcf70afc9955",
+      "immutable_projection_sha256_after": "b54ed3d604045c0a7363971b23fcc6723bc3e042ffc020b58851dcf70afc9955",
+      "code_diff_nonempty_count": 427,
+      "code_diff_total_bytes": 23187285
+    },
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\stage1.csv",
+      "input_rows": 35391,
+      "updated_rows": 8275,
+      "immutable_projection_sha256_before": "7076f39b897c3e965354cc7cbd02b01d8c3004526551875c9c66d74d6433809b",
+      "immutable_projection_sha256_after": "7076f39b897c3e965354cc7cbd02b01d8c3004526551875c9c66d74d6433809b",
+      "code_diff_nonempty_count": 8275,
+      "code_diff_total_bytes": 844970660
+    },
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\stage2.csv",
+      "input_rows": 4197,
+      "updated_rows": 427,
+      "immutable_projection_sha256_before": "130bff84a9b578a20fe990f4835ff5764ea2e208a4f3dc3c29966acbd888f014",
+      "immutable_projection_sha256_after": "130bff84a9b578a20fe990f4835ff5764ea2e208a4f3dc3c29966acbd888f014",
+      "code_diff_nonempty_count": 427,
+      "code_diff_total_bytes": 23187285
+    },
+    {
+      "path": "D:\\AutoEmpirical-worktrees\\issta2024-domain-baseline\\Dataset\\stage3.csv",
+      "input_rows": 2041,
+      "updated_rows": 427,
+      "immutable_projection_sha256_before": "112ad6778fe9a24497740228d0251a712a856da5ba46304272e8253a4df79dcc",
+      "immutable_projection_sha256_after": "112ad6778fe9a24497740228d0251a712a856da5ba46304272e8253a4df79dcc",
+      "code_diff_nonempty_count": 427,
+      "code_diff_total_bytes": 23187285
+    }
+  ],
+  "total_updated_rows": 18258
+}

@@ -1,0 +1,136 @@
+{
+  "task": "issta2024_bugs_in_pods_baseline",
+  "paper_id": "issta2024_bugs_in_pods_understanding_bugs",
+  "seed": 20260730,
+  "source_paths": {
+    "stage1": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage1.csv",
+    "stage2": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage2.csv",
+    "stage3": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage3.csv"
+  },
+  "counts": {
+    "stage2_total": 100,
+    "stage2_positive": 50,
+    "stage2_negative": 50,
+    "stage3_total": 50
+  },
+  "stage3_coverage": {
+    "symptom": 16,
+    "root_cause": 13
+  },
+  "stage3_distribution": {
+    "symptom": {
+      "Access Permission Denied": 1,
+      "Build Failure": 4,
+      "Escalized Privilege": 1,
+      "Excessive Execution Time": 3,
+      "High Disk Resource Occupancy": 1,
+      "Host Memory Leak": 1,
+      "Incorrect Configuration Effect": 6,
+      "Incorrect Return Value": 7,
+      "Logging Error": 3,
+      "Others": 1,
+      "Out of Memory": 2,
+      "Plugin Management Error": 3,
+      "Preset Exit Code": 2,
+      "Runtime Daemon Crash": 3,
+      "System Communication Error": 3,
+      "Wrong Container Behavior": 9
+    },
+    "root_cause": {
+      "Build Configuration Error": 4,
+      "Improper Exception Handling": 7,
+      "Inaccurate Permission Assignment": 1,
+      "Inappropriate Lifecycle Organization": 3,
+      "Incorrect 3rd Party Library Usage": 4,
+      "Incorrect Image or Config Parsing": 5,
+      "Incorrect Mount Options": 3,
+      "Incorrect System Config": 3,
+      "Others": 2,
+      "Plugin Config Error": 7,
+      "Runtime Shim Config Error": 2,
+      "Unsafe API Usage": 1,
+      "Wrong Code Logic": 8
+    },
+    "source_project": {
+      "containerd": 15,
+      "cri-o": 11,
+      "gvisor": 13,
+      "runc": 11
+    }
+  },
+  "stage2_distribution": {
+    "decision": {
+      "accepted_fault": 50,
+      "rejected_candidate": 50
+    },
+    "source_project": {
+      "containerd": 32,
+      "cri-o": 23,
+      "gvisor": 27,
+      "runc": 18
+    }
+  },
+  "model_input_fields": [
+    "source_project",
+    "issue_url",
+    "title",
+    "body",
+    "comments",
+    "state",
+    "created_at",
+    "changed_files",
+    "code_diff"
+  ],
+  "sampling_eligibility": {
+    "requires_nonempty_code_diff": true,
+    "max_code_diff_bytes": 200000,
+    "code_diff_truncated_in_prompts": false,
+    "audit": {
+      "nonempty_count": 8275,
+      "missing_count": 0,
+      "eligible_count": 7964,
+      "oversized_count": 311,
+      "oversized_by_decision": {
+        "accepted_fault": 7,
+        "rejected_candidate": 304
+      },
+      "max_code_diff_bytes_observed": 39759074
+    }
+  },
+  "gold_fields_excluded_from_prompts": [
+    "decision",
+    "symptom",
+    "root_cause",
+    "symptom_code",
+    "root_cause_code",
+    "original_label_json",
+    "Lack of test"
+  ],
+  "provenance_audit": {
+    "local_counts": {
+      "stage1": 8275,
+      "stage2": 427,
+      "stage3": 427
+    },
+    "paper_reported_counts": {
+      "stage1": 8271,
+      "stage2": 429,
+      "stage3": 429
+    },
+    "count_deltas": {
+      "stage1": 4,
+      "stage2": -2,
+      "stage3": -2
+    },
+    "counts_match_paper": false,
+    "stage2_subset_of_stage1": true,
+    "stage2_stage3_ids_equal": true
+  },
+  "artifact_sha256": {
+    "stage2_sample": "0a898f36756a226e5d0badb98cf71650b91ce97f7e434e0e1e0fd0693a805140",
+    "stage2_prompts": "a8476f132deb3d2120033f9ce274e208577ddf0a58bf0d9ecfdc6a1a84729843",
+    "stage3_sample": "87b368d5e21d62bf93e76d4b1f5eea4df7a7a18abede40c8ef7632f1aaa141d1",
+    "stage3_prompts": "8526e2af59822b57eaa4522bd77ca84ad4f1c54c89d6ec45871067b9286c1096",
+    "taxonomy": "ea16dc2952e7dbff450efdb3373779c1be8a73076f509c7d77c7271f6ce43f8c"
+  }
+}

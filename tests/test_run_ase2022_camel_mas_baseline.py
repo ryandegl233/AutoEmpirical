@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import json
 from io import StringIO
 
 import pytest
@@ -94,11 +95,129 @@ def test_runner_defaults_to_evidence_anchored_society() -> None:
     assert getattr(runner, "DEFAULT_SOCIETY_MODE", None) == "evidence_anchored"
 
 
+def test_strict_json_defaults_are_profile_specific() -> None:
+    from Benchmark.scripts import run_issta2024_camel_mas_baseline as issta
+
+    ase_args = runner.build_parser(runner.ASE2022_PROFILE).parse_args([])
+    issta_args = runner.build_parser(issta.PROFILE).parse_args([])
+
+    assert ase_args.require_valid_json is False
+    assert issta_args.require_valid_json is True
+
+
+def test_issta_allow_invalid_explicitly_disables_strict_json() -> None:
+    from Benchmark.scripts import run_issta2024_camel_mas_baseline as issta
+
+    args = runner.build_parser(issta.PROFILE).parse_args(["--allow-invalid"])
+
+    assert args.require_valid_json is False
+
+
+def test_strict_json_setting_changes_config_hash() -> None:
+    records = [{"record_id": "r1"}]
+    taxonomy = {"symptom": ["Crash"], "root_cause": ["Cause"]}
+
+    permissive = runner.build_config_hash(
+        "model",
+        "stage2",
+        records,
+        taxonomy,
+        0.0,
+        require_valid_json=False,
+    )
+    strict = runner.build_config_hash(
+        "model",
+        "stage2",
+        records,
+        taxonomy,
+        0.0,
+        require_valid_json=True,
+    )
+
+    assert permissive != strict
+
+
+def test_stage_metrics_record_strict_json_mode(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    cohort = [
+        {
+            "record_id": "r1",
+            "decision": "accepted_fault",
+            "symptom": "Crash",
+            "root_cause": "Cause",
+        }
+    ]
+    taxonomy = {"symptom": ["Crash"], "root_cause": ["Cause"]}
+    observed: dict[str, object] = {}
+
+    monkeypatch.setattr(runner, "_load_env_file", lambda _path: None)
+    monkeypatch.setattr(runner, "load_unified_cohort", lambda _path: cohort)
+    monkeypatch.setattr(runner, "_load_taxonomy", lambda _path: taxonomy)
+    monkeypatch.setattr(
+        runner,
+        "resolve_run_config",
+        lambda *_args, **_kwargs: {
+            "base_url": "https://example.invalid",
+            "api_key": "key",
+        },
+    )
+    monkeypatch.setattr(
+        runner,
+        "make_runner_factories",
+        lambda *_args, **_kwargs: ("society", "finalizer"),
+    )
+    monkeypatch.setattr(runner, "configure_camel_logging", lambda *_args: None)
+
+    def run_records(*_args, **kwargs):
+        observed["require_valid_json"] = kwargs["require_valid_json"]
+        return [
+            {
+                "record_id": "r1",
+                "invalid": False,
+                "final_prediction": {"decision": "accepted_fault"},
+                "society": {},
+            }
+        ]
+
+    monkeypatch.setattr(runner, "run_stage_records", run_records)
+
+    runner.run_profile(
+        runner.ASE2022_PROFILE,
+        [
+            "--stage",
+            "stage2",
+            "--model",
+            "model",
+            "--output-dir",
+            str(tmp_path),
+            "--require-valid-json",
+            "--no-progress",
+        ],
+    )
+
+    metrics_path = next(tmp_path.glob("*stage2_metrics*.json"))
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    assert observed["require_valid_json"] is True
+    assert metrics["require_valid_json"] is True
+
+
 def test_society_artifact_prefix_isolates_native_and_anchored_outputs() -> None:
     assert runner.society_artifact_prefix("native") == "ase2022_camel_society"
     assert (
         runner.society_artifact_prefix("evidence_anchored")
         == "ase2022_camel_evidence_anchored"
+    )
+    assert (
+        runner.society_artifact_prefix("native", study_slug="issta2024")
+        == "issta2024_camel_society"
+    )
+    assert (
+        runner.society_artifact_prefix(
+            "evidence_anchored", study_slug="issta2024"
+        )
+        == "issta2024_camel_evidence_anchored"
     )
 
 
