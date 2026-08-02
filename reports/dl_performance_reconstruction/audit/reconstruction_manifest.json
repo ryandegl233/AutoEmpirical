@@ -1,0 +1,53 @@
+{
+  "artifact_commit": "24a19cd03a607a5051686ea2e275ac9dad511626",
+  "artifact_repository": "https://github.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks",
+  "counts": {
+    "author_commit_targets": 173,
+    "canonical_issues": 6831,
+    "comment_count_mismatch_rows": 7,
+    "evidence_records": 6835,
+    "failed_commits": 0,
+    "failed_or_missing_issues": 6,
+    "missing_author_commit_rows": 1,
+    "raw_issue_comment_complete": 6825,
+    "raw_issue_comment_incomplete": 0,
+    "successful_commits": 173,
+    "successful_issues": 6825
+  },
+  "generated_at": "2026-08-02T10:16:09.107247Z",
+  "historical_truth_policy": {
+    "cohort_and_comment_counts": "author_snapshot_anchored",
+    "commit_raw_payload": "omitted_to_exclude_commit_email_addresses",
+    "github_text": "current_unversioned"
+  },
+  "input_hashes": {
+    "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage1.csv": "f362668577921c40c14cbd117cb18623165137df0e29e36b3208d7130d33e12f",
+    "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage2.csv": "e3d20fa086e7b100f391ec2427c1aebfabda0ef821334bdb09176b383d30280a",
+    "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage3.csv": "10218cf242f9b18c34dfb4b782cbcf67337a4df62640b184541c273681fdff3b",
+    "Dataset/stage1.csv": "7666a149e5d822c3d0e43ed2f23d142b70172274a8369f0e5929f4caf304171e",
+    "Dataset/stage2.csv": "a74dc04eaa1f8a509a3d03fae86588b1a04b39fdaf494fea6489b129a325be16",
+    "Dataset/stage3.csv": "fb3ea06bff2056ad33a0b471bb3f3b4d8498de898a30b2f9121ddf4f9935e3d2"
+  },
+  "non_target_row_hashes": {
+    "stage1": "495ecc15bc0e6149f00e5d2a1aa2a5c755a0260cb9f6e953ea7dbad09bf14b91",
+    "stage2": "6818cbc405ce7582de3909845f40f5da6167751255c646df5640cedf658594d1",
+    "stage3": "a9d287a49e5dead908c3e2af4ee400d8e98ff4020ad6d93514a421ebdc96a963"
+  },
+  "paper_id": "icse2022_an_empirical_study_on_performance",
+  "preview_hashes": {
+    "stage1.csv": "f362668577921c40c14cbd117cb18623165137df0e29e36b3208d7130d33e12f",
+    "stage2.csv": "e3d20fa086e7b100f391ec2427c1aebfabda0ef821334bdb09176b383d30280a",
+    "stage3.csv": "10218cf242f9b18c34dfb4b782cbcf67337a4df62640b184541c273681fdff3b"
+  },
+  "sidecar": "Dataset/evidence/icse2022_dl_performance_evidence.jsonl",
+  "target_gold_label_hashes": {
+    "stage1": "9684a0edffc07dda8a314cf24abca766301fbf3110bec553f54559cb3de23cb3",
+    "stage2": "8e172d9531b22e9f318aeb455a96eb1d6436a74f64fffa3401b55a6630c99891",
+    "stage3": "ee165b0f898cafd7ec471963aa48a799b054fbd312335b08f152b11a3a77e06f"
+  },
+  "target_identity_hashes": {
+    "stage1": "c6e9316464bc9bbaadf331f225564cb3bdc96c81a713637e8630b886e2e4054d",
+    "stage2": "ce9222e827c68fdcf46179cbac7eb132f0640f061071be438300dad4e9940a36",
+    "stage3": "fe55c291fb57470f67051f4b14e52a12c7c1cf921109bb6d67d9fc15f8443458"
+  }
+}

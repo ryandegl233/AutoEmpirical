@@ -1,0 +1,106 @@
+{
+  "artifact_repository": "https://github.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks",
+  "fetched_at": "2026-08-02T09:07:14.173262Z",
+  "files": {
+    "perf_bugs_taxonomy.csv": {
+      "bytes": 8564,
+      "columns": [
+        "Framework",
+        "Category",
+        "Issue.ID"
+      ],
+      "rows": 143,
+      "sha256": "63647539399e3f329fb569b13eb6bd5e456dd795fe95c1431b7f9f69ae159d68",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/perf_bugs_taxonomy.csv"
+    },
+    "pytorch_non_perf_bugs_information.csv": {
+      "bytes": 2340726,
+      "columns": [
+        "Issue.ID",
+        "Author",
+        "Date.Opened",
+        "Number.of.Comment.s.",
+        "Date.of.first.comment",
+        "Date.of.last.time.closed",
+        "Time.before.first.comment..in.minutes.",
+        "Time.before.issue.last.closed..in.minutes.",
+        "Number.of.participants..including.the.author.and.people.who.did.not.comment.on.the.issue.thread.",
+        "Number.of.commentators",
+        "Commentators..username.alongside.the.number.of.comments.posted.",
+        "Issue.labels"
+      ],
+      "rows": 15276,
+      "sha256": "dbcebb4f5c4bc9b8ea8069c14e93cd633891ac559a1c3b73d0c0c86cac3c1055",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/pytorch_non_perf_bugs_information.csv"
+    },
+    "pytorch_perf_bugs_information.csv": {
+      "bytes": 179956,
+      "columns": [
+        "Issue.ID",
+        "Author",
+        "Date.Opened",
+        "Number.of.Comment.s.",
+        "Date.of.first.comment",
+        "Date.of.last.time.closed",
+        "Time.before.first.comment..in.minutes.",
+        "Time.before.issue.last.closed..in.minutes.",
+        "Number.of.participants..including.the.author.and.people.who.did.not.comment.on.the.issue.thread.",
+        "Number.of.commentators",
+        "Commentators..username.alongside.the.number.of.comments.posted.",
+        "Issue.labels"
+      ],
+      "rows": 1008,
+      "sha256": "1ab20b6b454f75fcaf1be700d8ec13c76015ae573fe26beed7b864cd9e8b2572",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/pytorch_perf_bugs_information.csv"
+    },
+    "pytorch_perf_fixes_information.csv": {
+      "bytes": 17204,
+      "columns": [
+        "Issue.ID",
+        "Number.of.issue.solving.commits.found",
+        "Total.additions.made.to.fix.the.issue",
+        "Total.deletions.made.to.fix.the.issue",
+        "Total.changes.made.to.fix.the.issue",
+        "Commits..commit.hashcode..date.of.commit..commit.s.author..number.of.additions.made.by.the.commit..number.of.deletions.made.by.the.commit..number.of.total.changes.made.by.the.commit..approach.used.to.find.the.commit."
+      ],
+      "rows": 113,
+      "sha256": "344e2eaaca63221d378896da189108254cd60ec40a619bb4c0405e46808b206e",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/pytorch_perf_fixes_information.csv"
+    },
+    "tensorflow_perf_bugs_information.csv": {
+      "bytes": 247023,
+      "columns": [
+        "Issue.ID",
+        "Author",
+        "Date.Opened",
+        "Number.of.Comment.s.",
+        "Date.of.first.comment",
+        "Date.of.last.time.closed",
+        "Time.before.first.comment..in.minutes.",
+        "Time.before.issue.last.closed..in.minutes.",
+        "Number.of.participants..including.the.author.and.people.who.did.not.comment.on.the.issue.thread.",
+        "Number.of.commentators",
+        "Commentators..username.alongside.the.number.of.comments.posted.",
+        "Issue.labels"
+      ],
+      "rows": 1253,
+      "sha256": "a5e0cee5f08f790659bca4ed02a04e002d17f8c171ff089cca158efb49b25cc2",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/tensorflow_perf_bugs_information.csv"
+    },
+    "tensorflow_perf_fixes_information.csv": {
+      "bytes": 8652,
+      "columns": [
+        "Issue.ID",
+        "Number.of.issue.solving.commits.found",
+        "Total.additions.made.to.fix.the.issue",
+        "Total.deletions.made.to.fix.the.issue",
+        "Total.changes.made.to.fix.the.issue",
+        "Commits..commit.hashcode..date.of.commit..commit.s.author..number.of.additions.made.by.the.commit..number.of.deletions.made.by.the.commit..number.of.total.changes.made.by.the.commit..approach.used.to.find.the.commit."
+      ],
+      "rows": 47,
+      "sha256": "31fd6b525a7a04e2073673a8fe8001cc670dd4def88d33d424f1ff954f750103",
+      "url": "https://raw.githubusercontent.com/dlframeworkperfbugs/performance-bugs-in-dl-frameworks/24a19cd03a607a5051686ea2e275ac9dad511626/tensorflow_perf_fixes_information.csv"
+    }
+  },
+  "resolved_commit_sha": "24a19cd03a607a5051686ea2e275ac9dad511626"
+}

@@ -1,0 +1,8 @@
+stage,record_id,repository,issue_number,expected,observed,retained
+stage1,icse2022_an_empirical_study_on_performance:c9cc393d5b7c9690,pytorch/pytorch,12276,5,4,4
+stage1,icse2022_an_empirical_study_on_performance:f7b69c1f5cdf0ec9,pytorch/pytorch,1893,16,11,11
+stage1,icse2022_an_empirical_study_on_performance:89e4db87624252c3,pytorch/pytorch,31556,5,4,4
+stage1,icse2022_an_empirical_study_on_performance:4dfa6267993f97ec,pytorch/pytorch,6419,10,9,9
+stage1,icse2022_an_empirical_study_on_performance:1051576cc809b48b,tensorflow/tensorflow,38689,9,6,6
+stage2,icse2022_an_empirical_study_on_performance:f7b69c1f5cdf0ec9,pytorch/pytorch,1893,16,11,11
+stage2,icse2022_an_empirical_study_on_performance:1051576cc809b48b,tensorflow/tensorflow,38689,9,6,6

@@ -10,6 +10,7 @@ This directory is the dataset entry point for AutoEmpirical. It contains the uni
 | `stage2.csv` | Unified human-filtered bug-relevant records |
 | `stage3.csv` | Unified final human-labeled records |
 | `by_paper/<paper_id>/` | Per-paper stage splits for paper-level experiments |
+| `evidence/icse2022_dl_performance_evidence.jsonl` | Structured issue, retained-comment, and fixing-commit evidence for the ICSME 2022 DL-performance cohort |
 | `../metadata/dataset_metadata.csv` | Paper-level metadata, counts, paths, and notes |
 | `../metadata/data_dictionary.md` | Field definitions |
 | `../reports/dataset_health_report.md` | Human-readable data quality report |
@@ -53,6 +54,14 @@ original_label_json, source_file, source_sheet, source_row_index
 ```
 
 See `../metadata/data_dictionary.md` and `../metadata/stage1_label_dictionary.md` for field definitions.
+
+For `icse2022_an_empirical_study_on_performance`, the stage CSVs contain
+reconstructed current GitHub title/body/comment fields. The structured sidecar
+supports `issue_only`, `issue_discussion`, and `full_fix_evidence` inputs.
+Cohort membership and historical comment counts are anchored to the author
+artifact; GitHub text is current and unversioned, not an exact February 2021
+snapshot. See `../reports/dl_performance_reconstruction/README.md` for provenance
+and audit details.
 
 ## Data Health
 

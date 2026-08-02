@@ -1,0 +1,4 @@
+repository,cohort_records,issue_success_records,title_nonempty_records,body_nonempty_records,expected_comments,observed_comments,retained_comments,comment_mismatch_records,stage3_records,successful_commit_records,author_commit_targets,successful_commit_targets,commit_files,patch_available_files,patch_unavailable_files
+pytorch/pytorch,5581,5575,5575,5540,24416,27256,24392,4,95,94,110,110,484,483,1
+tensorflow/tensorflow,1254,1254,1254,1253,10350,11879,10347,1,41,41,63,63,226,226,0
+ALL,6835,6829,6829,6793,34766,39135,34739,5,136,135,173,173,710,709,1
