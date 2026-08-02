@@ -1,0 +1,105 @@
+{
+  "evidence_version": "current_unversioned",
+  "generated_at": "2026-08-02T14:56:07.718751Z",
+  "paper_id": "fse2021_an_exploratory_study_of_autopilot",
+  "source_artifact": {
+    "doi": "10.5281/zenodo.4898868",
+    "duplicate_urls": {
+      "https://github.com/PX4/Firmware/issues/3264": 2,
+      "https://github.com/PX4/Firmware/issues/7696": 2
+    },
+    "filename": "bugSetAndTaxonomy-3 2.zip",
+    "md5": "118b8494d9c7aecb2435c586ca272f65",
+    "row_count": 569,
+    "unique_url_count": 567
+  },
+  "stages": {
+    "stage1": {
+      "enriched_fields": [
+        "title",
+        "body",
+        "comments",
+        "created_at",
+        "updated_at",
+        "state"
+      ],
+      "identity_and_gold_sha256_after": "cfc2918b51e8d82707329cb5d21fcbe4e1f37dfacdf607702c8465258eb37316",
+      "identity_and_gold_sha256_before": "cfc2918b51e8d82707329cb5d21fcbe4e1f37dfacdf607702c8465258eb37316",
+      "non_target_logical_sha256_after": "71a518d1e651274dfa73affe5028980302df3463d2e872e35fb99c19063ff06d",
+      "non_target_logical_sha256_before": "db077012d63d3e350664780e198909bc2b021ee73b834361dcb79196a8b8cc0a",
+      "non_target_rows_unchanged": false,
+      "approved_non_target_security_redactions": 1,
+      "record_ids_unique": true,
+      "row_count": 567,
+      "target_count": 567,
+      "target_identity_and_gold_sha256_after": "cfc2918b51e8d82707329cb5d21fcbe4e1f37dfacdf607702c8465258eb37316",
+      "target_identity_and_gold_sha256_before": "cfc2918b51e8d82707329cb5d21fcbe4e1f37dfacdf607702c8465258eb37316"
+    },
+    "stage2": {
+      "enriched_fields": [
+        "title",
+        "body",
+        "comments",
+        "created_at",
+        "updated_at",
+        "state"
+      ],
+      "identity_and_gold_sha256_after": "63ce6fb421088f8f0ce7bb5f8c3dbdc946e489a2af9a4f4fb67edd5966bb3e56",
+      "identity_and_gold_sha256_before": "63ce6fb421088f8f0ce7bb5f8c3dbdc946e489a2af9a4f4fb67edd5966bb3e56",
+      "non_target_logical_sha256_after": "21b3e3932248f7e1bc0795f0f35c920fc1bf20b08fcf938a90df68a1be4577d1",
+      "non_target_logical_sha256_before": "47b412bf095173702dabbd92e1fbcda1e0da750c0589586b861e084148936afb",
+      "non_target_rows_unchanged": false,
+      "approved_non_target_security_redactions": 1,
+      "record_ids_unique": true,
+      "row_count": 168,
+      "target_count": 168,
+      "target_identity_and_gold_sha256_after": "63ce6fb421088f8f0ce7bb5f8c3dbdc946e489a2af9a4f4fb67edd5966bb3e56",
+      "target_identity_and_gold_sha256_before": "63ce6fb421088f8f0ce7bb5f8c3dbdc946e489a2af9a4f4fb67edd5966bb3e56"
+    },
+    "stage3": {
+      "enriched_fields": [
+        "title",
+        "body",
+        "comments",
+        "created_at",
+        "updated_at",
+        "state"
+      ],
+      "identity_and_gold_sha256_after": "b76ffab6138b508ee0048449b6901b834b95207709771e70addda99a2f7c4467",
+      "identity_and_gold_sha256_before": "b76ffab6138b508ee0048449b6901b834b95207709771e70addda99a2f7c4467",
+      "non_target_logical_sha256_after": "7eb9e297bbe6b96edab7439c14c8f0e087422b5bbd9d97053c04b25ebcdde45a",
+      "non_target_logical_sha256_before": "7eb9e297bbe6b96edab7439c14c8f0e087422b5bbd9d97053c04b25ebcdde45a",
+      "non_target_rows_unchanged": true,
+      "record_ids_unique": true,
+      "row_count": 142,
+      "target_count": 142,
+      "target_identity_and_gold_sha256_after": "b76ffab6138b508ee0048449b6901b834b95207709771e70addda99a2f7c4467",
+      "target_identity_and_gold_sha256_before": "b76ffab6138b508ee0048449b6901b834b95207709771e70addda99a2f7c4467"
+    }
+  },
+  "status_counts": {
+    "ok": 566,
+    "ok_inferred_url_correction": 1
+  },
+  "post_reconstruction_security_remediation": {
+    "affected_non_autopilot_record_id": "icse2022_an_empirical_study_on_performance:13a5324a0ba080fb",
+    "affected_stages": [
+      "stage1",
+      "stage2"
+    ],
+    "approved": true,
+    "audit_path": "reports/dl_performance_reconstruction/audit/credential_redaction.json",
+    "changed_field": "comments",
+    "gold_labels_changed": false,
+    "record_identity_changed": false
+  },
+  "unresolved": [],
+  "url_corrections": [
+    {
+      "basis": "replication_package_url_typo_inferred_from_numeric_order",
+      "record_id": "fse2021_an_exploratory_study_of_autopilot:8120b475048c69c9",
+      "resolved_url": "https://github.com/PX4/PX4-Autopilot/issues/7132",
+      "source_url": "https://github.com/PX4/Firmware/issues/71325"
+    }
+  ]
+}

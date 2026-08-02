@@ -142640,8 +142640,7 @@ You can compare CPU vs CPU implementation by setting `CUDA_VISIBLE_DEVICES=` bef
 ---
 
 [vslobody | 2017-09-22T02:43:43Z]
-When I profile the code, I see that numpy is spreading the load across all 8 CPU cores ( Intel i7 ), so I was somewhat expecting to see the benefit of having so many (2560) CUDA cores.
-looks like earlier there were some efforts to take advantage of GPU showing 5x improvement over Intel MKL - https://s3.amazonaws.com/academia.edu.documents/30806706/Sheetal09Singular.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1506052362&Signature=gCpal%2Fk2dCnhAUXgYE4sgjqPNOo%3D&response-content-disposition=inline%3B%20filename%3DSingular_value_decomposition_on_GPU_usin.pdf
+[REDACTED: credential-bearing public comment body removed by repository push-protection remediation; source=https://github.com/tensorflow/tensorflow/issues/13222#issuecomment-331335377]
 
 ---
 
