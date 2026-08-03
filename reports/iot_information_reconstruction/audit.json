@@ -1,0 +1,102 @@
+{
+  "result": "PASS",
+  "baseline": "origin/main",
+  "paper_id": "icse2021_iot_bugs_and_development_challenges",
+  "evidence_version": "current_unversioned",
+  "evidence_records": 5548,
+  "status_counts": {
+    "ok": 3728,
+    "ok_zero_comments": 1110,
+    "source_unavailable": 710
+  },
+  "kind_counts": {
+    "github_issue": 4697,
+    "github_pull_request": 851
+  },
+  "evidence_contains_gold_label_keys": false,
+  "raw_secret_findings": {
+    "aws_access_key": 0,
+    "azure_iot_shared_access_key": 0,
+    "private_key_header": 0
+  },
+  "credential_redactions": {
+    "aws_access_key": 1,
+    "azure_iot_shared_access_key": 2,
+    "private_key": 1
+  },
+  "body_credential_redactions": {
+    "aws_access_key": 0,
+    "azure_iot_shared_access_key": 3,
+    "private_key": 0
+  },
+  "published_raw_secret_findings": {
+    "aws_access_key": 0,
+    "azure_iot_shared_access_key": 0,
+    "private_key_header": 0
+  },
+  "per_paper_unified_comments_match": true,
+  "files": [
+    {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage1.csv",
+      "rows": 5548,
+      "target_rows": 5548,
+      "changed_rows": 4438,
+      "changed_fields": [
+        "body",
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    },
+    {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage2.csv",
+      "rows": 320,
+      "target_rows": 320,
+      "changed_rows": 274,
+      "changed_fields": [
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    },
+    {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage3.csv",
+      "rows": 320,
+      "target_rows": 320,
+      "changed_rows": 274,
+      "changed_fields": [
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    },
+    {
+      "path": "Dataset/stage1.csv",
+      "rows": 35391,
+      "target_rows": 5548,
+      "changed_rows": 4438,
+      "changed_fields": [
+        "body",
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    },
+    {
+      "path": "Dataset/stage2.csv",
+      "rows": 4197,
+      "target_rows": 320,
+      "changed_rows": 274,
+      "changed_fields": [
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    },
+    {
+      "path": "Dataset/stage3.csv",
+      "rows": 2041,
+      "target_rows": 320,
+      "changed_rows": 274,
+      "changed_fields": [
+        "comments"
+      ],
+      "unrelated_changed_rows": 0
+    }
+  ]
+}

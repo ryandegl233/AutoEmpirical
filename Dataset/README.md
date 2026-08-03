@@ -10,6 +10,7 @@ This directory is the dataset entry point for AutoEmpirical. It contains the uni
 | `stage2.csv` | Unified human-filtered bug-relevant records |
 | `stage3.csv` | Unified final human-labeled records |
 | `by_paper/<paper_id>/` | Per-paper stage splits for paper-level experiments |
+| `evidence/icse2021_iot_discussion_evidence.jsonl` | Structured GitHub issue and pull-request discussion evidence for all 5,548 ICSE 2021 IoT candidates |
 | `evidence/icse2022_dl_performance_evidence.jsonl` | Structured issue, retained-comment, and fixing-commit evidence for the ICSME 2022 DL-performance cohort |
 | `evidence/icse2024_transaction_bugs_stage1_evidence.jsonl` | Structured discussion evidence and retrieval status for all 7,775 ICSE 2024 Transaction Bugs Stage 1 candidates |
 | `evidence/icse2024_transaction_bugs_evidence.jsonl` | Structured discussion evidence and retrieval status for the ICSE 2024 Transaction Bugs cohort |
@@ -72,6 +73,14 @@ for the complete candidate pool, so recovered text is classified as
 `current_unversioned`. See
 `../reports/txbug_stage1_information_reconstruction/README.md` for coverage,
 sentinel semantics, and integrity checks.
+
+For `icse2021_iot_bugs_and_development_challenges`, the author artifact anchors
+historical URL, title, body, and date fields but does not include developer
+comments. Current public GitHub discussion was therefore reconstructed for all
+5,548 records, including issue comments plus pull-request conversation, reviews,
+and review comments. The text is classified as `current_unversioned`; deleted or
+disabled sources use `comments_unavailable_in_source`. See
+`../reports/iot_information_reconstruction/README.md`.
 
 ## Data Health
 
