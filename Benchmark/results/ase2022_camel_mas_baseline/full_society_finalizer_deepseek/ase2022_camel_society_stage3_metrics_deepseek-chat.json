@@ -1,0 +1,69 @@
+{
+  "task": "ase2022_camel_society_stage3",
+  "architecture": "camel_roleplaying_society",
+  "model": "deepseek-chat",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "config_hash": "609e529389622f2a8827bfbd443bd781bbd31f759a5129efbe4be60a5935904d",
+  "max_turns": 10,
+  "final": {
+    "n": 50,
+    "valid_count": 50,
+    "invalid_count": 0,
+    "invalid_rate": 0.0,
+    "symptom_correct": 29,
+    "root_cause_correct": 16,
+    "joint_correct": 10,
+    "symptom_accuracy": 0.58,
+    "root_cause_accuracy": 0.32,
+    "joint_accuracy": 0.2
+  },
+  "http_single_llm_control": {
+    "metrics_path": "Benchmark\\results\\ase2022_llm_baseline\\paper_models_50\\ase2022_stage3_llm_metrics_deepseek-chat.json",
+    "metrics": {
+      "model": "deepseek-chat",
+      "base_url": "https://yunwu.ai/v1",
+      "wire_api": "chat_completions",
+      "responses_path": "",
+      "http_client": "urllib",
+      "resumed_count": 0,
+      "processed_count": 50,
+      "max_retries": 3,
+      "n": 50,
+      "valid_count": 50,
+      "invalid_count": 0,
+      "invalid_rate": 0.0,
+      "symptom_accuracy": 0.72,
+      "root_cause_accuracy": 0.4,
+      "both_exact_match_accuracy": 0.32
+    }
+  },
+  "society": {
+    "n": 79,
+    "valid_count": 79,
+    "invalid_count": 0,
+    "total_turn_count": 290,
+    "average_turn_count": 3.670886075949367,
+    "early_stop_count": 69,
+    "early_stop_rate": 0.8734177215189873,
+    "stop_reason_counts": {
+      "valid_json": 69,
+      "forced_finalizer_json": 10
+    },
+    "final_answer_turn_counts": {
+      "9": 2,
+      "2": 47,
+      "8": 1,
+      "none": 10,
+      "3": 10,
+      "4": 6,
+      "5": 2,
+      "6": 1
+    },
+    "total_api_requests": 679,
+    "total_tokens": 895857,
+    "total_latency_seconds": 1346.601891899947,
+    "format_normalized_count": 63,
+    "token_usage_incomplete_role_count": 10
+  }
+}

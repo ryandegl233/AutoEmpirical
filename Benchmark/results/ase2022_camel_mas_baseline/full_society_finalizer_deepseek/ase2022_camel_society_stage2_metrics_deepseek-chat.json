@@ -1,0 +1,57 @@
+{
+  "task": "ase2022_camel_society_stage2",
+  "architecture": "camel_roleplaying_society",
+  "model": "deepseek-chat",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "config_hash": "84ae043c82606ef7e648cf083547a36aa182cedacb6dcc7ee759ff506960867a",
+  "max_turns": 10,
+  "final": {
+    "n": 100,
+    "valid_count": 100,
+    "invalid_count": 0,
+    "valid_denominator": 100,
+    "true_positive": 45,
+    "false_positive": 29,
+    "true_negative": 21,
+    "false_negative": 5,
+    "accuracy": 0.66,
+    "precision": 0.6081081081081081,
+    "recall": 0.9,
+    "f1": 0.7258064516129032,
+    "specificity": 0.42,
+    "balanced_accuracy": 0.66,
+    "invalid_rate": 0.0
+  },
+  "http_single_llm_control": {
+    "metrics_path": "Benchmark\\results\\ase2022_camel_mas_baseline\\full_society_finalizer_deepseek\\single_llm_control\\ase2022_stage2_filter_metrics_deepseek-chat.json",
+    "metrics": null
+  },
+  "society": {
+    "n": 100,
+    "valid_count": 100,
+    "invalid_count": 0,
+    "total_turn_count": 247,
+    "average_turn_count": 2.47,
+    "early_stop_count": 95,
+    "early_stop_rate": 0.95,
+    "stop_reason_counts": {
+      "valid_json": 95,
+      "forced_finalizer_json": 5
+    },
+    "final_answer_turn_counts": {
+      "2": 40,
+      "1": 33,
+      "3": 9,
+      "4": 9,
+      "5": 3,
+      "6": 1,
+      "none": 5
+    },
+    "total_api_requests": 604,
+    "total_tokens": 556181,
+    "total_latency_seconds": 1113.3065019997302,
+    "format_normalized_count": 70,
+    "token_usage_incomplete_role_count": 5
+  }
+}
