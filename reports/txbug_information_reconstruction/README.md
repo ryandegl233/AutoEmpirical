@@ -4,6 +4,10 @@ This reconstruction restores public discussion evidence for the 140-record
 Stage 2/3 cohort while preserving record identity, stage membership, and all
 gold labels.
 
+The complete 7,775-record Stage 1 reconstruction is documented separately in
+`../txbug_stage1_information_reconstruction/README.md` and backed by
+`Dataset/evidence/icse2024_transaction_bugs_stage1_evidence.jsonl`.
+
 ## Version semantics
 
 The author artifact does not contain a frozen copy of every source discussion.

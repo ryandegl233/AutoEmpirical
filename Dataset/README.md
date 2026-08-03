@@ -11,6 +11,7 @@ This directory is the dataset entry point for AutoEmpirical. It contains the uni
 | `stage3.csv` | Unified final human-labeled records |
 | `by_paper/<paper_id>/` | Per-paper stage splits for paper-level experiments |
 | `evidence/icse2022_dl_performance_evidence.jsonl` | Structured issue, retained-comment, and fixing-commit evidence for the ICSME 2022 DL-performance cohort |
+| `evidence/icse2024_transaction_bugs_stage1_evidence.jsonl` | Structured discussion evidence and retrieval status for all 7,775 ICSE 2024 Transaction Bugs Stage 1 candidates |
 | `evidence/icse2024_transaction_bugs_evidence.jsonl` | Structured discussion evidence and retrieval status for the ICSE 2024 Transaction Bugs cohort |
 | `../metadata/dataset_metadata.csv` | Paper-level metadata, counts, paths, and notes |
 | `../metadata/data_dictionary.md` | Field definitions |
@@ -63,6 +64,14 @@ Cohort membership and historical comment counts are anchored to the author
 artifact; GitHub text is current and unversioned, not an exact February 2021
 snapshot. See `../reports/dl_performance_reconstruction/README.md` for provenance
 and audit details.
+
+For `icse2024_understanding_transaction_bugs_in_database`, Stage 1 discussion
+evidence has been reconstructed for all 7,775 candidates. The public author
+artifact releases the final 140-bug set but not a frozen discussion snapshot
+for the complete candidate pool, so recovered text is classified as
+`current_unversioned`. See
+`../reports/txbug_stage1_information_reconstruction/README.md` for coverage,
+sentinel semantics, and integrity checks.
 
 ## Data Health
 

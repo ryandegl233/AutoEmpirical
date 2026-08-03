@@ -1,0 +1,40 @@
+{
+  "task": "icse2024_transaction_bugs_full_stage1_discussion_reconstruction",
+  "generated_at": "2026-08-03T09:55:00.388710Z",
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "evidence_version": "current_unversioned",
+  "stage1_rows": 7775,
+  "evidence_rows_ready": 7775,
+  "pending_github_rows": 0,
+  "source_counts": {
+    "github_issue": 4336,
+    "mysql_bugs": 775,
+    "mariadb_jira": 2652,
+    "postgresql_mail_thread": 6,
+    "sqlite_fossil_ticket": 6
+  },
+  "status_counts": {
+    "ok": 6825,
+    "ok_zero_comments": 948,
+    "source_unavailable": 2
+  },
+  "record_id_unique": true,
+  "issue_url_unique": true,
+  "high_confidence_secret_findings": [],
+  "files": [
+    {
+      "path": "D:/AutoEmpirical/Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage1.csv",
+      "target_rows": 7775,
+      "updated_rows": 4612,
+      "immutable_projection_sha256_before": "f0f1964e7e392d57be3c552822c7878ac89a95f1107fbce95f2dbb3b4aa66c5c",
+      "immutable_projection_sha256_after": "f0f1964e7e392d57be3c552822c7878ac89a95f1107fbce95f2dbb3b4aa66c5c"
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/stage1.csv",
+      "target_rows": 7775,
+      "updated_rows": 4612,
+      "immutable_projection_sha256_before": "5ed286e2ee87aaa17f7beb0262a43390c6f3a25d2b48a05c8f98b61578bc3ded",
+      "immutable_projection_sha256_after": "5ed286e2ee87aaa17f7beb0262a43390c6f3a25d2b48a05c8f98b61578bc3ded"
+    }
+  ]
+}
