@@ -1,0 +1,75 @@
+{
+  "task": "issta2024_camel_evidence_anchored_stage2",
+  "architecture": "camel_roleplaying_evidence_anchored",
+  "society_mode": "evidence_anchored",
+  "model": "deepseek-v4-flash",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "config_hash": "2a3f3b19bee510aa62eda2245f4746e56f6e1e04bed9abec4aa5c4bf28dbd140",
+  "max_turns": 10,
+  "require_valid_json": true,
+  "final": {
+    "n": 100,
+    "valid_count": 100,
+    "invalid_count": 0,
+    "valid_denominator": 100,
+    "true_positive": 47,
+    "false_positive": 14,
+    "true_negative": 36,
+    "false_negative": 3,
+    "accuracy": 0.83,
+    "precision": 0.7704918032786885,
+    "recall": 0.94,
+    "f1": 0.8468468468468469,
+    "specificity": 0.72,
+    "balanced_accuracy": 0.83,
+    "invalid_rate": 0.0
+  },
+  "http_single_llm_control": {
+    "metrics_path": "Benchmark\\results\\issta2024_bugs_in_pods_baseline\\full_code_diff_deepseek_v4_flash\\single_llm_control\\issta2024_stage2_filter_metrics_deepseek-v4-flash.json",
+    "metrics": {
+      "model": "deepseek-v4-flash",
+      "task": "issta2024_stage2_filter",
+      "wire_api": "chat_completions",
+      "http_client": "urllib",
+      "resumed_count": 0,
+      "processed_count": 100,
+      "max_retries": 3,
+      "n": 100,
+      "valid_count": 100,
+      "invalid_count": 0,
+      "valid_denominator": 100,
+      "true_positive": 48,
+      "false_positive": 14,
+      "true_negative": 36,
+      "false_negative": 2,
+      "accuracy": 0.84,
+      "precision": 0.7741935483870968,
+      "recall": 0.96,
+      "f1": 0.8571428571428571,
+      "specificity": 0.72,
+      "balanced_accuracy": 0.84,
+      "invalid_rate": 0.0
+    }
+  },
+  "society": {
+    "n": 100,
+    "valid_count": 100,
+    "invalid_count": 0,
+    "total_turn_count": 100,
+    "average_turn_count": 1.0,
+    "early_stop_count": 100,
+    "early_stop_rate": 1.0,
+    "stop_reason_counts": {
+      "valid_json": 100
+    },
+    "final_answer_turn_counts": {
+      "1": 100
+    },
+    "total_api_requests": 200,
+    "total_tokens": 1427259,
+    "total_latency_seconds": 1288.6799929999688,
+    "format_normalized_count": 0,
+    "token_usage_incomplete_role_count": 0
+  }
+}

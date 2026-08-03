@@ -1,0 +1,70 @@
+{
+  "task": "issta2024_camel_society_stage3",
+  "architecture": "camel_roleplaying_society",
+  "society_mode": "native",
+  "model": "deepseek-v4-flash",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "config_hash": "1eb975bffa65caef23e5da513fcd8ef0f9aaf59351f3d2f57279e324dc0b08b5",
+  "max_turns": 10,
+  "require_valid_json": true,
+  "final": {
+    "n": 50,
+    "valid_count": 50,
+    "invalid_count": 0,
+    "invalid_rate": 0.0,
+    "symptom_correct": 15,
+    "root_cause_correct": 14,
+    "joint_correct": 6,
+    "symptom_accuracy": 0.3,
+    "root_cause_accuracy": 0.28,
+    "joint_accuracy": 0.12
+  },
+  "http_single_llm_control": {
+    "metrics_path": "Benchmark\\results\\issta2024_bugs_in_pods_baseline\\full_code_diff_deepseek_v4_flash\\single_llm_control\\issta2024_stage3_llm_metrics_deepseek-v4-flash.json",
+    "metrics": {
+      "model": "deepseek-v4-flash",
+      "base_url": "https://api.deepseek.com",
+      "wire_api": "chat_completions",
+      "responses_path": "",
+      "http_client": "urllib",
+      "resumed_count": 0,
+      "processed_count": 50,
+      "max_retries": 3,
+      "n": 50,
+      "valid_count": 50,
+      "invalid_count": 0,
+      "invalid_rate": 0.0,
+      "symptom_accuracy": 0.36,
+      "root_cause_accuracy": 0.26,
+      "both_exact_match_accuracy": 0.14,
+      "task": "issta2024_stage3_classification"
+    }
+  },
+  "society": {
+    "n": 64,
+    "valid_count": 64,
+    "invalid_count": 0,
+    "total_turn_count": 177,
+    "average_turn_count": 2.765625,
+    "early_stop_count": 64,
+    "early_stop_rate": 1.0,
+    "stop_reason_counts": {
+      "valid_json": 64
+    },
+    "final_answer_turn_counts": {
+      "2": 41,
+      "5": 4,
+      "7": 2,
+      "3": 10,
+      "4": 3,
+      "6": 3,
+      "1": 1
+    },
+    "total_api_requests": 418,
+    "total_tokens": 1494052,
+    "total_latency_seconds": 9521.336071900063,
+    "format_normalized_count": 7,
+    "token_usage_incomplete_role_count": 0
+  }
+}

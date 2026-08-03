@@ -18,3 +18,5 @@ fixcode/
 Benchmark/results/ase2022_camel_mas_baseline/smoke/
 Benchmark/results/ase2022_camel_mas_baseline/smoke_counted/
 Benchmark/results/issta2024_bugs_in_pods_baseline/evidence_enriched/raw/
+Benchmark/results/issta2024_bugs_in_pods_baseline/commit_message_repaired/graphql_cache/
+Benchmark/results/issta2024_bugs_in_pods_baseline/commit_message_repaired/diff_cache

@@ -5,3 +5,6 @@ reports/txbug_stage1_reconstruction/**/*.csv filter=lfs diff=lfs merge=lfs -text
 reports/pytorch_stage1_reconstruction/**/*.csv filter=lfs diff=lfs merge=lfs -text
 Dataset/evidence/icse2022_dl_performance_evidence.jsonl filter=lfs diff=lfs merge=lfs -text
 reports/dl_performance_reconstruction/raw/*.jsonl filter=lfs diff=lfs merge=lfs -text
+Benchmark/results/issta2024_bugs_in_pods_baseline/code_diff_repaired/issta2024_stage2_filter_sample.csv -text
+Benchmark/results/issta2024_bugs_in_pods_baseline/code_diff_repaired/issta2024_stage3_llm_sample.csv -text
+Benchmark/results/issta2024_bugs_in_pods_baseline/full_code_diff_deepseek_v4_flash/** -text
