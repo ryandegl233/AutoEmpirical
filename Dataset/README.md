@@ -1,108 +1,131 @@
 # AutoEmpirical Dataset
 
-This directory is the dataset entry point for AutoEmpirical. It contains the unified stage files and per-paper splits. Metadata and health reports remain in the top-level `metadata/` and `reports/` directories.
+_Dataset documentation updated on 2026-08-03._
 
-## Dataset Layout
+This directory is the canonical entry point for the unified three-stage dataset,
+the seven paper-level splits, and reconstructed evidence sidecars. Metadata and
+audits are stored in the repository-level `metadata/` and `reports/`
+directories.
+
+## 📁 Layout
 
 | Location | Purpose |
 | --- | --- |
-| `stage1.csv` | Unified raw candidate records before human filtering |
-| `stage2.csv` | Unified human-filtered bug-relevant records |
-| `stage3.csv` | Unified final human-labeled records |
-| `by_paper/<paper_id>/` | Per-paper stage splits for paper-level experiments |
-| `evidence/icse2021_iot_discussion_evidence.jsonl` | Structured GitHub issue and pull-request discussion evidence for all 5,548 ICSE 2021 IoT candidates |
-| `evidence/icse2022_dl_performance_evidence.jsonl` | Structured issue, retained-comment, and fixing-commit evidence for the ICSME 2022 DL-performance cohort |
-| `evidence/icse2024_transaction_bugs_stage1_evidence.jsonl` | Structured discussion evidence and retrieval status for all 7,775 ICSE 2024 Transaction Bugs Stage 1 candidates |
-| `evidence/icse2024_transaction_bugs_evidence.jsonl` | Structured discussion evidence and retrieval status for the ICSE 2024 Transaction Bugs cohort |
-| `../metadata/dataset_metadata.csv` | Paper-level metadata, counts, paths, and notes |
+| `stage1.csv` | Unified candidate records before paper-specific filtering |
+| `stage2.csv` | Unified records retained as study-relevant bugs |
+| `stage3.csv` | Unified records with final human taxonomy labels |
+| `by_paper/<paper_id>/` | Per-paper Stage 1, Stage 2, and Stage 3 files |
+| `evidence/*.jsonl` | Structured reconstructed evidence and retrieval status |
+| `../metadata/dataset_metadata.csv` | Paper counts, paths, and study notes |
 | `../metadata/data_dictionary.md` | Field definitions |
-| `../reports/dataset_health_report.md` | Human-readable data quality report |
-| `../reports/data_quality_metrics.csv` | Machine-readable quality metrics |
-| `../reports/duplicate_key_rows.csv` | Duplicate `record_id` and `issue_url` evidence |
-| `../reports/SHA256SUMS.txt` | File checksums for the frozen dataset package |
+| `../reports/dataset_health_report.md` | Dataset-wide quality report |
+| `../reports/SHA256SUMS.txt` | Checksums for tracked dataset and report artifacts |
 
-## Workflow Stages
+## 🔄 Workflow stages
 
-| Stage | File | Meaning | Rows |
+| Stage | Rows | Intended task |
+| --- | ---: | --- |
+| Stage 1 | 35,391 | Candidate collection and Stage 2 filtering |
+| Stage 2 | 4,197 | Study-relevant cohort and Stage 3 labeling input |
+| Stage 3 | 2,041 | Gold taxonomy labels and final evaluation cohort |
+
+Stage membership and labels are gold information. Experiment builders must
+construct task-specific inputs that exclude the target membership or taxonomy
+fields; loading a later-stage CSV directly into a model prompt can leak the
+answer.
+
+## 🔎 Included studies and research objects
+
+| Paper ID | Venue | Primary research object | Stage 1 / 2 / 3 |
 | --- | --- | --- | ---: |
-| Stage 1 Raw | `stage1.csv` | Raw candidate records before human filtering | 35,391 |
-| Stage 2 Filtered | `stage2.csv` | Human-filtered bug-relevant records | 4,197 |
-| Stage 3 Annotated | `stage3.csv` | Final human-labeled records | 2,041 |
+| `ase2022_towards_understanding_the_faults_of` | ASE 2022 | GitHub issues | 4,184 / 683 / 682 |
+| `fse2021_an_exploratory_study_of_autopilot` | FSE 2021 | GitHub issues and pull requests | 567 / 168 / 142 |
+| `icse2021_iot_bugs_and_development_challenges` | ICSE 2021 | GitHub issues and pull requests | 5,548 / 320 / 320 |
+| `icse2022_an_empirical_study_on_performance` | ICSME 2022 | GitHub issues plus fixing commits | 6,835 / 2,265 / 136 |
+| `icse2023_an_empirical_study_on_bugs` | ICSE 2023 | PyTorch GitHub issues | 2,207 / 194 / 194 |
+| `icse2024_understanding_transaction_bugs_in_database` | ICSE 2024 | Bug reports, issues, and mailing-list threads | 7,775 / 140 / 140 |
+| `issta2024_bugs_in_pods_understanding_bugs` | ISSTA 2024 | Commits | 8,275 / 427 / 427 |
 
-Use Stage 1 to Stage 2 for filtering or verification experiments. Use Stage 2 to Stage 3 for label prediction experiments.
+ISSTA 2024 is commit-only: its core evidence is the commit URL and
+`code_diff`; issue comments are not part of that paper's research-object
+definition.
 
-## Included Studies
+## 🧱 Schema
 
-| Paper ID | Venue | Stage 1 | Stage 2 | Stage 3 |
-| --- | --- | ---: | ---: | ---: |
-| `ase2022_towards_understanding_the_faults_of` | ASE | 4,184 | 683 | 682 |
-| `icse2021_iot_bugs_and_development_challenges` | ICSE | 5,548 | 320 | 320 |
-| `issta2024_bugs_in_pods_understanding_bugs` | ISSTA | 8,275 | 427 | 427 |
-| `icse2023_an_empirical_study_on_bugs` | ICSE | 2,207 | 194 | 194 |
-| `icse2024_understanding_transaction_bugs_in_database` | ICSE | 7,775 | 140 | 140 |
-| `fse2021_an_exploratory_study_of_autopilot` | FSE | 567 | 168 | 142 |
-| `icse2022_an_empirical_study_on_performance` | ICSME | 6,835 | 2,265 | 136 |
-
-Two earlier candidate studies were excluded because their Stage 1 to Stage 2 filtering rate was 0%, which made them unsuitable for the current filtering-task formulation.
-
-## Schema
-
-All three stage files use the same 23-column schema:
+The three unified stage files have the same 24 columns:
 
 ```text
 record_id, paper_id, source_project, issue_url, title, body, comments,
 created_at, updated_at, state, symptom, root_cause, bug_type, component,
 sub_component, trigger_condition, consequence, fix_type, severity_or_impact,
-original_label_json, source_file, source_sheet, source_row_index
+original_label_json, source_file, source_sheet, source_row_index, code_diff
 ```
 
-See `../metadata/data_dictionary.md` and `../metadata/stage1_label_dictionary.md` for field definitions.
+The six issue/report-oriented paper splits retain the 23-column common schema.
+The ISSTA 2024 per-paper files have the same 24 columns as the unified files
+because `code_diff` is part of that commit-only study's primary evidence.
 
-For `icse2022_an_empirical_study_on_performance`, the stage CSVs contain
-reconstructed current GitHub title/body/comment fields. The structured sidecar
-supports `issue_only`, `issue_discussion`, and `full_fix_evidence` inputs.
-Cohort membership and historical comment counts are anchored to the author
-artifact; GitHub text is current and unversioned, not an exact February 2021
-snapshot. See `../reports/dl_performance_reconstruction/README.md` for provenance
-and audit details.
+See [the data dictionary](../metadata/data_dictionary.md) and
+[Stage 1 label dictionary](../metadata/stage1_label_dictionary.md) for field
+semantics.
 
-For `icse2024_understanding_transaction_bugs_in_database`, Stage 1 discussion
-evidence has been reconstructed for all 7,775 candidates. The public author
-artifact releases the final 140-bug set but not a frozen discussion snapshot
-for the complete candidate pool, so recovered text is classified as
-`current_unversioned`. See
-`../reports/txbug_stage1_information_reconstruction/README.md` for coverage,
-sentinel semantics, and integrity checks.
+## 🧾 Evidence sidecars
 
-For `icse2021_iot_bugs_and_development_challenges`, the author artifact anchors
-historical URL, title, body, and date fields but does not include developer
-comments. Current public GitHub discussion was therefore reconstructed for all
-5,548 records, including issue comments plus pull-request conversation, reviews,
-and review comments. The text is classified as `current_unversioned`; deleted or
-disabled sources use `comments_unavailable_in_source`. See
-`../reports/iot_information_reconstruction/README.md`.
+| Sidecar | Coverage |
+| --- | --- |
+| `evidence/fse2021_autopilot_evidence.jsonl` | Current public issue/PR evidence for 567 Autopilot records |
+| `evidence/icse2021_iot_discussion_evidence.jsonl` | Current discussion evidence for 5,548 IoT records |
+| `evidence/icse2022_dl_performance_evidence.jsonl` | Issue, retained-comment, and fixing-commit evidence for 6,835 DL records |
+| `evidence/icse2024_transaction_bugs_stage1_evidence.jsonl` | Multi-source discussion status for all 7,775 Transaction Bugs candidates |
+| `evidence/icse2024_transaction_bugs_evidence.jsonl` | Multi-source discussion status for the final 140-record cohort |
 
-## Data Health
+`no_comments_in_source` means the source explicitly exposed zero discussion.
+`comments_unavailable_in_source` means discussion could not be recovered and
+must not be treated as a verified zero.
 
-The latest health check was run on 2026-06-25.
+## ✅ Reconstruction status and limitations
 
-| Stage | Schema OK | Papers | `record_id` unique | Duplicate `record_id` rows | `issue_url` unique | Duplicate `issue_url` rows | Final-label coverage |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Stage 1 | yes | 7 | 35,391 / 35,391 | 0 | 35,054 / 35,391 | 337 | partial |
-| Stage 2 | yes | 7 | 4,197 / 4,197 | 0 | 4,183 / 4,197 | 14 | partial |
-| Stage 3 | yes | 7 | 2,041 / 2,041 | 0 | 2,032 / 2,041 | 9 | 100% |
+- **Autopilot:** 567/567 records resolved, with one source-URL correction.
+- **IoT:** 3,728 records have discussion, 1,110 have verified zero discussion,
+  and 710 have unavailable sources.
+- **DL performance:** all 6,835 cohort records have structured evidence; six
+  current issue URLs return 404, five unique issues expose fewer comments than
+  the author snapshot, and one Stage 3 row is absent from the author fixing
+  tables. All 173 unique referenced fixing commits were recovered.
+- **PyTorch:** Stage 1 integrates an exact-count 2,205 convergence
+  reconstruction plus two Stage 2 lineage supplements. The exact-count cutoff
+  conflicts with the paper's stated date, so the set is not represented as the
+  original frozen author snapshot.
+- **Transaction Bugs:** Stage 1 retrieval status is 6,825 with discussion, 948
+  verified zero, and two unavailable; the final cohort is 127 with discussion,
+  11 verified zero, and two unavailable.
+- **ISSTA 2024:** all Stage 1/2/3 rows have non-empty commit diffs; comment
+  sentinels are not missing-data indicators for this commit-only study.
 
-Stage 3 is analysis-ready for label prediction experiments. Stage 1 and Stage 2 intentionally contain partial labels because they preserve earlier human workflow stages.
+Reconstructed web evidence is generally classified as `current_unversioned`.
+Consult the corresponding `../reports/*_reconstruction/README.md` before
+making claims about historical content.
 
-The 2026-06-25 check also cleaned timestamp fields: numeric `updated_at` values
-that came from TXBug confirmed-duration fields were replaced with source-backed
-timestamps when available, or `not_available_in_source` when no authoritative
-local timestamp was available. Details are in `../reports/timestamp_repairs.csv`.
+## 🩺 Data health
 
-## Experimental Design Notes
+The latest dataset-wide health report was generated on 2026-06-25:
+
+| Stage | Papers | Unique `record_id` | Duplicate `record_id` rows | Duplicate `issue_url` rows | Final-label coverage |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Stage 1 | 7 | 35,391 / 35,391 | 0 | 337 | Partial by design |
+| Stage 2 | 7 | 4,197 / 4,197 | 0 | 14 | Partial by design |
+| Stage 3 | 7 | 2,041 / 2,041 | 0 | 9 | 100% |
+
+The later information reconstructions preserve row counts, record identities,
+stage membership, and gold labels. Their paper-specific integration audits are
+the authoritative checks for changed evidence fields.
+
+## 🧪 Experimental design
 
 - Use paper-level splits for cross-paper generalization.
-- Use grouped `issue_url` splits when evaluating within a mixed-paper setting.
-- Avoid row-level random splits because duplicate issue URLs can leak across train and test.
-- `record_id` is globally unique after duplicate-key cleanup; `issue_url` remains a cross-paper grouping key, not a global row key.
-- If a strict experiment grouping key is needed, combine `paper_id` with `issue_url` or derive a grouped experiment ID explicitly.
+- Use grouped `paper_id` + `issue_url` splits within a paper or mixed corpus.
+- Do not use unrestricted row-level random splits.
+- Treat `record_id` as the global row key and `issue_url` as a grouping key.
+- Select an explicit evidence mode for DL experiments: `issue_only`,
+  `issue_discussion`, or `full_fix_evidence`.
+- For ISSTA, use commit diffs rather than issue-discussion assumptions.

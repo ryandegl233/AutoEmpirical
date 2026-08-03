@@ -1,29 +1,33 @@
-# TXBug MariaDB JIRA Stage 1 reconstruction
+# TXBug MariaDB JIRA Stage 1 Reconstruction
 
-This directory contains a reconstructed Stage 1 candidate set for the MariaDB JIRA portion of TXBug.
+_Retained as source-specific provenance after the full 7,775-record
+integration._
 
-## Method
+## 🔎 Method
 
 - Source: `https://jira.mariadb.org` REST API.
-- Projects: `MDEV, MCOL`.
-- Created window: `2018-01-01` to `2022-12-31`.
-- JIRA text keywords: `transaction`, `transactions`, `rollback`, `roll back`, `isolation level`, `serializable`, `read committed`, `repeatable read`, `XA`, `deadlock`, `commit transaction`, `abort transaction`.
-- Candidate rows are deduplicated by JIRA issue URL; `matched_keywords` records all keywords that matched each issue.
-- `body` is the JIRA description. `comments` concatenates public JIRA comments with timestamp/author markers.
+- Projects: `MDEV` and `MCOL`.
+- Created window: 2018-01-01 through 2022-12-31.
+- Keywords cover transactions, rollback, isolation, XA, deadlock, and
+  transaction commit/abort variants.
+- Rows are deduplicated by JIRA issue URL.
+- `body` is the JIRA description; `comments` concatenates public comments with
+  timestamp and author markers.
 
-## Output
+## 📊 Outputs and counts
 
-- `txbug_mariadb_candidates.csv`: 4113 unique candidate rows.
-- `txbug_mariadb_candidates.raw.jsonl`: raw REST payloads plus matched keywords.
-- `fetch_manifest.json`: query totals and fetch parameters.
-- `mariadb_final_coverage_audit.csv`: coverage of the local final TXBug MariaDB rows.
+| Artifact or group | Count |
+| --- | ---: |
+| `txbug_mariadb_candidates.csv` | 4,113 |
+| MariaDB candidates | 3,918 |
+| MariaDB ColumnStore candidates | 195 |
+| Final cohort coverage | 24 / 24 |
 
-## Counts
+The directory also retains raw REST payloads, a fetch manifest, and
+`mariadb_final_coverage_audit.csv`.
 
-- mariadb: 3918
-- mariadb_columnstore: 195
+## ✅ Completion status
 
-## Coverage against local final TXBug MariaDB rows
-
-- Covered: 24/24
-- Missing: 0
+The full multi-source Stage 1 discussion repair was subsequently integrated.
+See the canonical
+[integration report](../../txbug_stage1_information_reconstruction/README.md).

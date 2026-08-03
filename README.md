@@ -1,100 +1,77 @@
 # AutoEmpirical: Benchmarking Automated Empirical Software Fault Analysis
 
-AutoEmpirical is a dataset-first benchmark project for studying whether LLMs and later multi-agent systems can reproduce key steps in empirical software fault studies. The current repository contains a frozen cross-paper dataset, metadata, health reports, and a baseline-first experimental roadmap.
+_Repository status updated on 2026-08-03._
 
-This repository is organized into two main parts:
+AutoEmpirical is a dataset-first benchmark for evaluating whether automated
+methods can reproduce the collection, filtering, and taxonomy-labeling steps of
+empirical software fault studies. The repository contains a repaired
+three-stage dataset for seven papers, source-evidence sidecars, provenance
+audits, and executable single-LLM and multi-agent baselines for the ASE 2022 and
+ISSTA 2024 cohorts.
 
-1. [The AutoEmpirical Dataset](./Dataset/)
-2. [The AutoEmpirical Benchmark](./Benchmark/)
+## 📋 Workflow
 
-The detailed data files are kept in `Dataset/`. Metadata tables, health reports, and the research plan are kept in `metadata/`, `reports/`, and `research/`.
-
-This repository is still under active development. The current project state is dataset-ready and benchmark-planning-ready; baseline implementation has not started yet.
-
-## Overview
-
-Empirical software fault studies usually involve three labor-intensive steps:
-
-1. Collecting candidate software fault records.
-2. Filtering candidates into a study-specific valid bug set.
-3. Assigning human taxonomy labels such as symptom, root cause, bug type, component, and fix type.
-
-AutoEmpirical turns these steps into a unified three-stage dataset so automated methods can be evaluated against human empirical-study workflows.
-
-## Content
-
-### The AutoEmpirical Dataset
-
-The dataset contains seven retained empirical software fault studies and three workflow stages:
-
-| Stage | File | Meaning | Rows |
+| Stage | Research operation | Unified file | Rows |
 | --- | --- | --- | ---: |
-| Stage 1 Raw | `Dataset/stage1.csv` | Raw candidate records before human filtering | 35,391 |
-| Stage 2 Filtered | `Dataset/stage2.csv` | Human-filtered bug-relevant records | 4,197 |
-| Stage 3 Annotated | `Dataset/stage3.csv` | Final human-labeled records | 2,041 |
+| Stage 1 | Collect candidate research objects | `Dataset/stage1.csv` | 35,391 |
+| Stage 2 | Retain study-relevant bugs | `Dataset/stage2.csv` | 4,197 |
+| Stage 3 | Assign study taxonomies | `Dataset/stage3.csv` | 2,041 |
 
-See [Dataset/README.md](./Dataset/README.md) for the dataset layout, included studies, schema notes, and data health summary.
+The research object is paper-specific. Six studies primarily analyze issues,
+pull requests, or other bug-report records; ISSTA 2024 BugsInPy analyzes
+commits. See the [dataset guide](./Dataset/README.md) for the exact object and
+evidence boundary of every paper.
 
-### The AutoEmpirical Benchmark
+## 📊 Current coverage
 
-The benchmark is intended to evaluate two tasks:
+| Area | Status |
+| --- | --- |
+| Unified and per-paper datasets | Available for all seven retained studies |
+| Information reconstruction | Integrated for Autopilot, IoT, DL performance, PyTorch Stage 1, and Transaction Bugs |
+| Commit diffs | Integrated for all ISSTA 2024 stages |
+| Single-LLM experiments | Implemented for ASE 2022 and ISSTA 2024 |
+| Multi-agent experiments | Implemented for ASE 2022 and ISSTA 2024 |
+| Other paper-specific baselines | Not yet implemented |
 
-| Task | Input | Gold target | Purpose |
-| --- | --- | --- | --- |
-| Stage 2 filtering | `Dataset/stage1.csv` | Membership in `Dataset/stage2.csv` | Predict whether a candidate record should be accepted as bug-relevant |
-| Stage 3 labeling | `Dataset/stage2.csv` | Labels in `Dataset/stage3.csv` | Predict empirical-study labels such as `symptom`, `root_cause`, `bug_type`, `component`, and `fix_type` |
+The repository records retrieval limitations explicitly. Reconstructed public
+discussion is generally `current_unversioned`, not a claim that GitHub or other
+sources still expose the exact historical text seen by the original authors.
 
-Before designing a new MAS, the project should run simpler baselines first: majority and heuristic baselines, TF-IDF classifiers, single-LLM zero-shot and few-shot baselines, self-consistency, and retrieval-augmented single-LLM baselines.
-
-See [Benchmark/README.md](./Benchmark/README.md) and [research/baseline_research_plan.md](./research/baseline_research_plan.md) for the benchmark plan.
-
-## Repository Structure
+## 📁 Repository structure
 
 ```text
 AutoEmpirical/
-  README.md
   Dataset/
-    README.md
     stage1.csv
     stage2.csv
     stage3.csv
     by_paper/
-      <paper_id>/
-        stage1.csv
-        stage2.csv
-        stage3.csv
+    evidence/
   Benchmark/
-    README.md
-    configs/
     scripts/
     src/
     results/
   metadata/
     dataset_metadata.csv
-    dataset_metadata.md
-    paper_dataset_summary.csv
-    paper_dataset_overview.md
     data_dictionary.md
-    stage1_label_dictionary.md
     prompts.yaml
   reports/
     dataset_health_report.md
-    data_quality_metrics.csv
-    duplicate_key_rows.csv
+    *_reconstruction/
     SHA256SUMS.txt
   research/
     baseline_research_plan.md
 ```
 
-## Quick Start
+## ⚡ Quick start
 
-Install minimal analysis dependencies:
+Install the minimal analysis dependencies:
 
 ```powershell
 python -m pip install pandas scikit-learn pyyaml
 ```
 
-Verify that the dataset loads:
+Verify the unified dataset:
 
 ```powershell
 @'
@@ -109,34 +86,52 @@ for stage in ["stage1", "stage2", "stage3"]:
 Expected output:
 
 ```text
-stage1 (35391, 23) 7
-stage2 (4197, 23) 7
-stage3 (2041, 23) 7
+stage1 (35391, 24) 7
+stage2 (4197, 24) 7
+stage3 (2041, 24) 7
 ```
 
-## Current Status
+Run the repository tests with:
 
-| Area | Status | Notes |
-| --- | --- | --- |
-| Dataset consolidation | Complete | Three-stage dataset and per-paper splits are present |
-| Metadata | Complete | Paper-level metadata and data dictionary are present |
-| Health check | Complete | Latest report is under `reports/` |
-| Baseline plan | Ready | Baseline sequence is documented under `research/` |
-| Baseline implementation | Not started | Next engineering step |
-| MAS redesign | Blocked by baselines | Should wait for measured baseline failures |
+```powershell
+python -m pytest -q
+```
 
-## Important Notes
+For the implemented experiment commands and provider settings, see the
+[benchmark guide](./Benchmark/README.md). CAMEL-based runs additionally require:
 
-- Keep this repository dataset-first and baseline-first.
-- Do not continue the previous MAS v2 design as the default next step.
-- Do not claim a new MAS contribution before baseline experiments have been run.
-- Use paper-level splits or grouped `issue_url` splits to avoid issue-level leakage.
-- Treat `record_id` as globally unique. `issue_url` is unique within each paper but can repeat across papers; use paper-level or grouped-URL splits to avoid leakage.
-- Preserve `reports/SHA256SUMS.txt` or regenerate it whenever dataset files change.
+```powershell
+python -m pip install -r Benchmark/requirements-mas.txt
+```
 
-## Citation
+## ⚠️ Experimental safeguards
 
-If you use this repository, please cite the related AutoEmpirical paper when the final citation is available.
+- Build Stage 2 targets from membership in the gold Stage 2 cohort, but do not
+  expose Stage 2 or Stage 3 labels in model inputs.
+- Build Stage 3 inputs only from the information fields permitted by the chosen
+  evidence mode; keep gold taxonomy fields evaluation-only.
+- Use paper-level splits for cross-paper generalization and grouped
+  `paper_id` + `issue_url` splits for within-paper evaluation.
+- Treat `record_id` as the global row key. An `issue_url` may repeat across
+  papers and must not cross train/test boundaries.
+- Keep sentinel values such as `no_comments_in_source` distinct from
+  `comments_unavailable_in_source`.
+- Regenerate `reports/SHA256SUMS.txt` whenever a tracked dataset or report file
+  changes.
+
+## 📚 Documentation
+
+- [Dataset layout, object types, and provenance](./Dataset/README.md)
+- [Benchmark implementations and results](./Benchmark/README.md)
+- [Field definitions](./metadata/data_dictionary.md)
+- [Paper-level metadata](./metadata/dataset_metadata.md)
+- [Dataset health report](./reports/dataset_health_report.md)
+- [Baseline research plan](./research/baseline_research_plan.md)
+
+## 📝 Citation
+
+If you use this repository, please cite the related AutoEmpirical paper when
+the final citation is available.
 
 ```bibtex
 @article{yu2025autoempirical,
@@ -147,7 +142,8 @@ If you use this repository, please cite the related AutoEmpirical paper when the
 }
 ```
 
-## Contact
+## 👤 Contact
 
 Maintainer: Yanjie Yu
+
 Email: Ryandegl@outlook.com

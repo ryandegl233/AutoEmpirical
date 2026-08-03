@@ -1,43 +1,46 @@
-# ICSE 2024 Transaction Bugs discussion reconstruction
+# ICSE 2024 Transaction Bugs Discussion Reconstruction
 
-This reconstruction restores public discussion evidence for the 140-record
-Stage 2/3 cohort while preserving record identity, stage membership, and all
-gold labels.
+_Integrated into `main`; status verified on 2026-08-03._
 
-The complete 7,775-record Stage 1 reconstruction is documented separately in
-`../txbug_stage1_information_reconstruction/README.md` and backed by
-`Dataset/evidence/icse2024_transaction_bugs_stage1_evidence.jsonl`.
+This reconstruction restores public discussion for the 140-record Stage 2/3
+cohort while preserving identity, membership, and gold labels. The full
+7,775-record Stage 1 repair is documented in
+[`../txbug_stage1_information_reconstruction/README.md`](../txbug_stage1_information_reconstruction/README.md).
 
-## Version semantics
+## 🕰️ Version semantics
 
 The author artifact does not contain a frozen copy of every source discussion.
-Recovered source text is therefore classified as `current_unversioned`. It is
-currently visible public evidence, not a claim that every comment existed at
-the paper's original collection cutoff.
+Recovered text is `current_unversioned`: currently visible or retained public
+evidence, not a claim that every comment existed at the original cutoff.
 
-## Source coverage
+## 🔎 Source coverage
 
-- `github_issue`: 71 records, 68 with discussion
-- `mariadb_jira`: 24 records, 19 with discussion
-- `mysql_bugs`: 33 records, 31 with discussion
-- `postgresql_mail_thread`: 6 records, 6 with discussion
-- `sqlite_fossil_ticket`: 6 records, 3 with discussion
+| Source type | Records | With discussion |
+| --- | ---: | ---: |
+| GitHub issue | 71 | 68 |
+| MariaDB JIRA | 24 | 19 |
+| MySQL Bugs | 33 | 31 |
+| PostgreSQL mail thread | 6 | 6 |
+| SQLite Fossil ticket | 6 | 3 |
 
-## Retrieval status
+## ✅ Retrieval status
 
-- `ok`: 127
-- `ok_zero_comments`: 11
-- `source_unavailable`: 2
+- `ok`: 127.
+- `ok_zero_comments`: 11.
+- `source_unavailable`: 2.
 
-`no_comments_in_source` means the authoritative source or retained source
-reconstruction exposes zero comments. `comments_unavailable_in_source` means
-the discussion could not be recovered and must not be interpreted as zero.
+`no_comments_in_source` means authoritative evidence exposes zero comments.
+`comments_unavailable_in_source` means evidence could not be recovered and is
+not a verified zero.
 
-## Integrity
+The reconstruction is integrated into unified and per-paper Stage 2/3 files.
+The canonical sidecar is
+`../../Dataset/evidence/icse2024_transaction_bugs_evidence.jsonl`.
 
-- Evidence records: 140
-- Unique record IDs: true
-- Unique issue URLs: true
-- Non-empty reconstructed discussions: 127
-- High-confidence secret findings: 0
-- Immutable identity and label projections preserved for every rewritten file
+## 🧾 Integrity
+
+- Evidence records: 140.
+- Record IDs and issue URLs are unique.
+- Non-empty reconstructed discussions: 127.
+- High-confidence secret findings: 0.
+- Identity, membership, and label projections are preserved.

@@ -1,58 +1,55 @@
 # PyTorch Stage 1 Reconstruction
 
-Generated on 2026-06-22.
+_Generated on 2026-06-22; selected reconstruction integrated into `main` and
+status updated on 2026-08-03._
 
-This directory contains a first-pass reconstruction of the Stage 1 candidate issue set for:
+This directory preserves a broad methodological replay of the Stage 1 candidate
+issue set for `icse2023_an_empirical_study_on_bugs`.
 
-```text
-icse2023_an_empirical_study_on_bugs
-```
+## 📋 Paper rule implemented
 
-## Paper Rule Implemented
-
-The PyTorch paper describes its automatic candidate filtering as:
-
-- PyTorch GitHub repository issues
-- closed issues
-- labeled `triaged`
-- having a linked pull request
-- as of 2022-10-20
-
-The current reconstruction uses GitHub Search API with:
+The paper describes closed PyTorch GitHub issues labeled `triaged`, having a
+linked pull request, as of 2022-10-20. The broad replay uses:
 
 ```text
 repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-10-20
 ```
 
-The script splits the query by `created:` date windows to avoid GitHub Search API's 1,000-result paging limit.
+Date-window subqueries avoid GitHub Search API's 1,000-result paging limit.
 
-## Outputs
+## 📁 Outputs
 
 | File | Meaning |
 | --- | --- |
-| `pytorch_stage1_candidates.csv` | Normalized candidate issue table |
-| `pytorch_stage1_candidates.raw.jsonl` | Raw GitHub Search API issue payloads |
-| `fetch_manifest.json` | Query, date windows, and reported counts |
+| `pytorch_stage1_candidates.csv` | Normalized broad-query candidates |
+| `pytorch_stage1_candidates.raw.jsonl` | Raw GitHub Search issue payloads |
+| `fetch_manifest.json` | Query windows and reported counts |
 
-## Current Result
+## 📊 Broad-query result
 
 | Item | Count |
 | --- | ---: |
 | Paper-reported Stage 1 candidates | 2,205 |
-| Current GitHub API reconstruction | 2,676 |
+| Current broad-query reconstruction | 2,676 |
 | Difference | +471 |
 | Local labeled PyTorch records covered | 192 / 194 |
 
-Two local labeled records were not returned by the current GitHub query:
+The two uncovered local labeled records are issue `48841`, currently closed
+after the cutoff, and issue `39007`, currently open without a pull-request
+object. Current GitHub metadata is therefore not an exact historical snapshot.
 
-| Issue | Current GitHub state observed during audit |
-| --- | --- |
-| `https://github.com/pytorch/pytorch/issues/48841` | Closed in 2023, after the 2022-10-20 cutoff |
-| `https://github.com/pytorch/pytorch/issues/39007` | Currently open and has no `pull_request` object in the issue payload |
+## ✅ Integration outcome
 
-This indicates that current GitHub metadata is not an exact historical snapshot of the paper's data-collection state. The reconstructed set is therefore a close methodological replay, not a byte-for-byte recovery of the authors' original Stage 1 artifact.
+The dataset uses the exact-count 2,205-row convergence set documented in
+[`convergence/README.md`](./convergence/README.md), plus two explicit Stage 2
+lineage supplements for the uncovered labeled records. The integrated PyTorch
+Stage 1 cohort contains 2,207 rows.
 
-## Reproduction Command
+The exact-count cutoff conflicts with the paper's stated date. It is a
+transparent convergence reconstruction, not a claim to be the authors' frozen
+artifact. Exact historical provenance requires that original snapshot.
+
+## 🔁 Reproduction command
 
 ```powershell
 python scripts\fetch_pytorch_stage1_candidates.py

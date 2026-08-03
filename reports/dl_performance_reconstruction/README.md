@@ -1,53 +1,55 @@
 # DL Performance Evidence Reconstruction
 
+_Integrated into `main`; status verified on 2026-08-03._
+
 This directory documents the evidence reconstruction for
-`icse2022_an_empirical_study_on_performance`.
+`icse2022_an_empirical_study_on_performance`. It preserves the 6,835 / 2,265 /
+136 stage cohorts and changes no membership, `record_id`, `issue_url`, or gold
+label.
 
-The reconstruction preserves the existing benchmark cohorts:
+## 🔎 Evidence sources
 
-- Stage 1: 6,835 records
-- Stage 2: 2,265 records
-- Stage 3: 136 records
-
-No record membership, `record_id`, `issue_url`, or gold-label field is changed.
-
-## Evidence sources
-
-`source/` contains the six author-artifact CSV files used by this reconstruction.
-`source/source_manifest.json` pins the author repository commit and records the
-SHA256, byte size, row count, and schema of each source file.
-
-`raw/issues.jsonl` contains the current GitHub issue responses used for
-normalization. `raw/commits.jsonl` contains normalized author-identified fixing
-commit responses. Raw commit payloads are deliberately omitted from the
-committed package because GitHub includes author email addresses that are not
-needed by the benchmark.
+`source/` contains six author-artifact CSVs. Its manifest pins the author
+repository commit and records each file's SHA256, byte size, row count, and
+schema. `raw/issues.jsonl` contains current GitHub issue responses;
+`raw/commits.jsonl` contains normalized author-identified fixing commits.
+Unneeded raw GitHub email fields are not included in the committed package.
 
 The author artifact anchors cohort membership and historical comment counts.
-Issue titles, bodies, comment text, commit messages, and patches were reconstructed
-from the current GitHub API and are marked `current_unversioned`; they must not be
-described as exact February 2021 snapshots.
+Issue text, current comments, commit messages, and patches are
+`current_unversioned`, not exact February 2021 snapshots.
 
-## Outputs
+## 📁 Outputs
 
-- `Dataset/evidence/icse2022_dl_performance_evidence.jsonl` stores one evidence
-  object per Stage 1 `record_id`.
-- `preview/` stores the validated per-paper rows used by the guarded apply step.
-- `audit/integration_audit.csv` records the issue/comment/commit status of every
-  stage row.
-- `audit/evidence_coverage.csv` reports PyTorch, TensorFlow, and overall coverage.
-- `audit/comment_count_mismatches.csv` identifies cases where currently visible
-  comments are fewer than the author snapshot count.
-- `audit/missing_author_commits.csv` records Stage 3 rows absent from the author's
+- `../../Dataset/evidence/icse2022_dl_performance_evidence.jsonl`: one evidence
+  object per Stage 1 record.
+- `preview/`: validated per-paper rows used by the guarded integration.
+- `audit/integration_audit.csv`: issue, comment, and commit status for stage
+  rows.
+- `audit/evidence_coverage.csv`: PyTorch, TensorFlow, and overall coverage.
+- `audit/comment_count_mismatches.csv`: current comment counts below the author
+  snapshot count.
+- `audit/missing_author_commits.csv`: Stage 3 rows absent from the author's
   fixing-commit tables.
-- `audit/reconstruction_manifest.json` records input hashes, preview hashes,
+- `audit/reconstruction_manifest.json`: input hashes, output hashes,
   provenance policy, and completion counts.
 
-## Evidence modes
+## ✅ Integrated coverage
 
-- `issue_only`: use `title` and `body`.
-- `issue_discussion`: add the retained comments stored in `comments` or the
-  structured `issue.retained_comments` sidecar field.
-- `full_fix_evidence`: additionally use `fixing_commits` from the sidecar.
+- Evidence records: 6,835 / 6,835.
+- Current issue responses unavailable with stable 404: 6.
+- Unique author-referenced fixing commits recovered: 173 / 173.
+- Changed-file entries retained: 710, including 709 patches and one
+  source-unavailable patch.
+- Five unique issues currently expose fewer comments than the author snapshot.
+- One Stage 3 row is absent from the author fixing-commit tables.
 
-Gold labels remain in Stage 3 CSV fields and are not copied into the sidecar.
+These limitations are explicit provenance states, not silently filled fields.
+
+## 🧪 Evidence modes
+
+- `issue_only`: title and body.
+- `issue_discussion`: title, body, and retained comments.
+- `full_fix_evidence`: issue discussion plus fixing commits.
+
+Gold labels remain in Stage 3 and are not copied into the evidence sidecar.

@@ -1,29 +1,32 @@
-# TXBug PostgreSQL Stage 1 reconstruction
+# TXBug PostgreSQL Stage 1 Reconstruction
 
-This directory contains a reconstructed Stage 1 candidate set for PostgreSQL bug-report emails.
+_Retained as source-specific provenance after the full 7,775-record
+integration._
 
-## Method
+## 🔎 Method
 
-- Source: `https://www.postgresql.org/list/pgsql-bugs` monthly `pgsql-bugs` archives.
-- Archive window: `2018-01` through `2022-12`.
-- Initial candidate universe: original `BUG #...` reports, excluding `Re:` replies.
-- Keyword filter over title + message body: `transaction`, `transactions`, `rollback`, `roll back`, `isolation level`, `serializable`, `read committed`, `repeatable read`, `XA`, `deadlock`, `commit transaction`, `abort transaction`.
-- `body` is the original bug-report email content. `comments` concatenates response emails linked by the archive page.
+- Source: monthly `pgsql-bugs` archives from 2018-01 through 2022-12.
+- Candidate universe: original `BUG #...` reports, excluding `Re:` replies.
+- Keyword filter: transaction, rollback, isolation levels, XA, deadlock, and
+  transaction commit/abort variants.
+- `body` is the original report; `comments` concatenates linked replies.
 
-## Output
+## 📁 Outputs
 
-- `txbug_postgresql_candidates.csv`: 437 unique candidate rows.
-- `txbug_postgresql_candidates.raw.jsonl`: raw parsed message payloads.
-- `fetch_manifest.json`: fetch parameters and counts.
-- `postgresql_final_coverage_audit.csv`: coverage of local final TXBug PostgreSQL rows.
+- `txbug_postgresql_candidates.csv`: 437 unique candidates.
+- `txbug_postgresql_candidates.raw.jsonl`: parsed message payloads.
+- `fetch_manifest.json`: parameters and counts.
+- `postgresql_final_coverage_audit.csv`: final-cohort coverage.
 
-## Coverage against local final TXBug PostgreSQL rows
+## 📊 Initial coverage
 
-- Covered: 0/6
-- Missing: 6
-  - https://www.postgresql.org/message-id/15875-76bf5472863f6ce3@postgresql.org
-  - https://www.postgresql.org/message-id/15946-5c7570a2884a26cf@postgresql.org
-  - https://www.postgresql.org/message-id/16676-fd62c3c835880da6@postgresql.org
-  - https://www.postgresql.org/message-id/16771-cbef7d97ba93f4b9@postgresql.org
-  - https://www.postgresql.org/message-id/17116-d6ca217acc180e30@postgresql.org
-  - https://www.postgresql.org/message-id/17385-9ee529fb091f0ce5@postgresql.org
+The initial keyword reconstruction covered 0/6 final PostgreSQL rows. Those
+six mailing-list message IDs are retained in the coverage audit.
+
+## ✅ Completion status
+
+The six final mailing-list threads were incorporated during the later full
+discussion reconstruction; the integrated final cohort reports discussion for
+all six. See the canonical
+[Stage 1 report](../../txbug_stage1_information_reconstruction/README.md) and
+[Stage 2/3 report](../../txbug_information_reconstruction/README.md).

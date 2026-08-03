@@ -1,51 +1,46 @@
-# ICSE 2024 Transaction Bugs Stage 1 discussion reconstruction
+# ICSE 2024 Transaction Bugs Stage 1 Discussion Reconstruction
+
+_Integrated into `main`; status verified on 2026-08-03._
 
 This reconstruction restores discussion evidence for all 7,775 Stage 1
-candidates while preserving record identity, stage membership, and every field
-other than `comments`.
+candidates while preserving identity, membership, and every CSV field other
+than `comments`.
 
-## Source boundary and version semantics
+## 🔎 Source boundary and version semantics
 
-The public author repository releases the final 140-bug `TXBug Set.xlsx` and
-describes screening 7,775 issues, but it does not release a frozen discussion
-snapshot for the complete candidate pool. The Stage 1 candidate identities in
-this repository therefore remain the cohort anchor, while recovered discussion
-text is classified as `current_unversioned`: it is currently available or
-retained public-source evidence, not a claim that every comment existed at the
-paper's original collection cutoff.
+The author repository releases the final 140-bug set and reports screening
+7,775 candidates, but it does not release a frozen discussion snapshot for the
+complete pool. Dataset identities remain the cohort anchor. Recovered GitHub,
+MariaDB JIRA, MySQL Bugs, PostgreSQL mailing-list, and SQLite Fossil discussion
+is `current_unversioned`.
 
-Evidence was reconstructed from GitHub Issues, MariaDB JIRA, MySQL Bugs,
-PostgreSQL mailing-list threads, and SQLite Fossil tickets. The structured
-sidecar is
-`Dataset/evidence/icse2024_transaction_bugs_stage1_evidence.jsonl`.
+The canonical sidecar is
+`../../Dataset/evidence/icse2024_transaction_bugs_stage1_evidence.jsonl`.
 
-## Coverage
+## ✅ Coverage
 
-- Evidence records: 7,775
-- `ok`: 6,825
-- `ok_zero_comments`: 948
-- `source_unavailable`: 2
-- Stage 1 rows changed: 4,612
-  - Previously blank discussions completed: 4,610
-  - Previously truncated MariaDB discussions completed: 2
+- Evidence records: 7,775.
+- `ok`: 6,825.
+- `ok_zero_comments`: 948.
+- `source_unavailable`: 2.
+- Stage 1 rows changed: 4,612, including 4,610 previously blank and two
+  truncated MariaDB discussions.
 
-`no_comments_in_source` means the retrieved or retained source evidence
-explicitly reports zero comments. `comments_unavailable_in_source` means the
-discussion could not be recovered and must not be interpreted as zero.
+The unavailable records are MySQL Bugs `104833` and `92993`.
+`no_comments_in_source` is a verified zero;
+`comments_unavailable_in_source` is an unrecovered source and is not zero.
 
-The two unavailable records are:
+The repaired comments are integrated into unified and per-paper Stage 1. The
+source-specific directories under `../txbug_stage1_reconstruction/` are
+retained as provenance, not pending work.
 
-- `https://bugs.mysql.com/bug.php?id=104833`
-- `https://bugs.mysql.com/bug.php?id=92993`
+## 🧾 Integrity
 
-## Integrity
-
-- Every one of the 7,775 Stage 1 records has exactly one evidence record.
-- Record IDs and issue URLs are unique within the evidence sidecar.
+- Every Stage 1 record has exactly one evidence record.
+- Sidecar record IDs and issue URLs are unique.
 - The only changed CSV field is `comments`.
-- No non-Transaction-Bugs rows changed in the unified Stage 1 file.
-- Per-paper and unified Stage 2/3 files are unchanged.
-- The evidence sidecar contains no gold-label keys.
-- High-confidence secret scan findings: 0.
+- No non-Transaction-Bugs Stage 1 row changed.
+- Per-paper and unified Stage 2/3 files are unchanged by this Stage 1 repair.
+- The sidecar has no gold-label keys and no high-confidence secret findings.
 
-Machine-readable audit results are in `audit.json`.
+Machine-readable results are in `audit.json`.
