@@ -8,3 +8,4 @@ reports/dl_performance_reconstruction/raw/*.jsonl filter=lfs diff=lfs merge=lfs 
 Benchmark/results/issta2024_bugs_in_pods_baseline/code_diff_repaired/issta2024_stage2_filter_sample.csv -text
 Benchmark/results/issta2024_bugs_in_pods_baseline/code_diff_repaired/issta2024_stage3_llm_sample.csv -text
 Benchmark/results/issta2024_bugs_in_pods_baseline/full_code_diff_deepseek_v4_flash/** -text
+Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/** -text
