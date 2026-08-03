@@ -11,6 +11,7 @@ This directory is the dataset entry point for AutoEmpirical. It contains the uni
 | `stage3.csv` | Unified final human-labeled records |
 | `by_paper/<paper_id>/` | Per-paper stage splits for paper-level experiments |
 | `evidence/icse2022_dl_performance_evidence.jsonl` | Structured issue, retained-comment, and fixing-commit evidence for the ICSME 2022 DL-performance cohort |
+| `evidence/icse2024_transaction_bugs_evidence.jsonl` | Structured discussion evidence and retrieval status for the ICSE 2024 Transaction Bugs cohort |
 | `../metadata/dataset_metadata.csv` | Paper-level metadata, counts, paths, and notes |
 | `../metadata/data_dictionary.md` | Field definitions |
 | `../reports/dataset_health_report.md` | Human-readable data quality report |

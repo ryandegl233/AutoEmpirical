@@ -34,7 +34,7 @@ Primary bug report body, description, reproduction text, or source-record conten
 ## `comments`
 
 Concatenated comments, discussion text, extracted source detail, or a source
-placeholder such as `no_comments_in_source` when comments were unavailable.
+placeholder `no_comments_in_source` when the source exposes zero comments, or `comments_unavailable_in_source` when authoritative discussion evidence could not be recovered.
 
 ## `created_at`
 

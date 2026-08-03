@@ -1,0 +1,110 @@
+{
+  "task": "icse2024_transaction_bugs_discussion_reconstruction",
+  "generated_at": "2026-08-03T07:55:22.343091Z",
+  "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+  "evidence_version": "current_unversioned",
+  "record_count": 140,
+  "record_id_unique": true,
+  "issue_url_unique": true,
+  "source_counts": {
+    "mysql_bugs": 33,
+    "github_issue": 71,
+    "mariadb_jira": 24,
+    "postgresql_mail_thread": 6,
+    "sqlite_fossil_ticket": 6
+  },
+  "status_counts": {
+    "ok": 127,
+    "source_unavailable": 2,
+    "ok_zero_comments": 11
+  },
+  "nonempty_discussion_counts": {
+    "mysql_bugs": 31,
+    "github_issue": 68,
+    "mariadb_jira": 19,
+    "postgresql_mail_thread": 6,
+    "sqlite_fossil_ticket": 3
+  },
+  "nonempty_discussion_total": 127,
+  "high_confidence_secret_findings": [],
+  "files": [
+    {
+      "path": "D:/AutoEmpirical/Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage1.csv",
+      "row_count": 7775,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "cbb1d5224bcf76a6cafff29c3693641f7c6e7238cfadacab20122908e9c4ce8f",
+      "immutable_projection_sha256_after": "cbb1d5224bcf76a6cafff29c3693641f7c6e7238cfadacab20122908e9c4ce8f",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/stage1.csv",
+      "row_count": 35391,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "aa9ba88615eaac67745eb486ea5830290696e0d86400e69ee87b4fa3d7f10aaf",
+      "immutable_projection_sha256_after": "aa9ba88615eaac67745eb486ea5830290696e0d86400e69ee87b4fa3d7f10aaf",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage2.csv",
+      "row_count": 140,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "7c848396ed9b04c57c106490d53e3bf2276e07abba46f22495a6f884e85e8313",
+      "immutable_projection_sha256_after": "7c848396ed9b04c57c106490d53e3bf2276e07abba46f22495a6f884e85e8313",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/stage2.csv",
+      "row_count": 4197,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "cdf9465529e3474cff9b6a29cfaac36456a5e82b1705c4a87ac533cdf227fb31",
+      "immutable_projection_sha256_after": "cdf9465529e3474cff9b6a29cfaac36456a5e82b1705c4a87ac533cdf227fb31",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage3.csv",
+      "row_count": 140,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "9064a8401c7c2926914a220af185079b8f29ad0b938f74849cbf83901069d61a",
+      "immutable_projection_sha256_after": "9064a8401c7c2926914a220af185079b8f29ad0b938f74849cbf83901069d61a",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    },
+    {
+      "path": "D:/AutoEmpirical/Dataset/stage3.csv",
+      "row_count": 2041,
+      "target_rows": 140,
+      "updated_rows": 129,
+      "immutable_projection_sha256_before": "7890762c6f59bce0959f47bc8149394f833fb6adbf6ca65799a792de428fc71d",
+      "immutable_projection_sha256_after": "7890762c6f59bce0959f47bc8149394f833fb6adbf6ca65799a792de428fc71d",
+      "status_counts": {
+        "ok": 127,
+        "source_unavailable": 2,
+        "ok_zero_comments": 11
+      }
+    }
+  ]
+}
