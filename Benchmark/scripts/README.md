@@ -2,7 +2,7 @@
 
 _Script inventory updated on 2026-08-03._
 
-## 🧰 Entry points
+## Entry points
 
 | Script | Purpose |
 | --- | --- |
@@ -19,7 +19,7 @@ _Script inventory updated on 2026-08-03._
 | `run_issta2024_camel_mas_baseline.py` | Run ISSTA native or evidence-anchored CAMEL MAS |
 | `list_teacher_models.py` | Inspect models exposed by the configured provider |
 
-## ⚡ Usage
+## Usage
 
 Run any entry point with `--help` before launching a job:
 

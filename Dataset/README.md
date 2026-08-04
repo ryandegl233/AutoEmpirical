@@ -7,7 +7,7 @@ the seven paper-level splits, and reconstructed evidence sidecars. Metadata and
 audits are stored in the repository-level `metadata/` and `reports/`
 directories.
 
-## 📁 Layout
+## Layout
 
 | Location | Purpose |
 | --- | --- |
@@ -21,7 +21,7 @@ directories.
 | `../reports/dataset_health_report.md` | Dataset-wide quality report |
 | `../reports/SHA256SUMS.txt` | Checksums for tracked dataset and report artifacts |
 
-## 🔄 Workflow stages
+## Workflow stages
 
 | Stage | Rows | Intended task |
 | --- | ---: | --- |
@@ -34,7 +34,7 @@ construct task-specific inputs that exclude the target membership or taxonomy
 fields; loading a later-stage CSV directly into a model prompt can leak the
 answer.
 
-## 🔎 Included studies and research objects
+## Included studies and research objects
 
 | Paper ID | Venue | Primary research object | Stage 1 / 2 / 3 |
 | --- | --- | --- | ---: |
@@ -50,7 +50,7 @@ ISSTA 2024 is commit-only: its core evidence is the commit URL and
 `code_diff`; issue comments are not part of that paper's research-object
 definition.
 
-## 🧱 Schema
+## Schema
 
 The three unified stage files have the same 24 columns:
 
@@ -69,7 +69,7 @@ See [the data dictionary](../metadata/data_dictionary.md) and
 [Stage 1 label dictionary](../metadata/stage1_label_dictionary.md) for field
 semantics.
 
-## 🧾 Evidence sidecars
+## Evidence sidecars
 
 | Sidecar | Coverage |
 | --- | --- |
@@ -83,7 +83,7 @@ semantics.
 `comments_unavailable_in_source` means discussion could not be recovered and
 must not be treated as a verified zero.
 
-## ✅ Reconstruction status and limitations
+## Reconstruction status and limitations
 
 - **Autopilot:** 567/567 records resolved, with one source-URL correction.
 - **IoT:** 3,728 records have discussion, 1,110 have verified zero discussion,
@@ -106,7 +106,7 @@ Reconstructed web evidence is generally classified as `current_unversioned`.
 Consult the corresponding `../reports/*_reconstruction/README.md` before
 making claims about historical content.
 
-## 🩺 Data health
+## Data health
 
 The latest dataset-wide health report was generated on 2026-06-25:
 
@@ -120,7 +120,7 @@ The later information reconstructions preserve row counts, record identities,
 stage membership, and gold labels. Their paper-specific integration audits are
 the authoritative checks for changed evidence fields.
 
-## 🧪 Experimental design
+## Experimental design
 
 - Use paper-level splits for cross-paper generalization.
 - Use grouped `paper_id` + `issue_url` splits within a paper or mixed corpus.

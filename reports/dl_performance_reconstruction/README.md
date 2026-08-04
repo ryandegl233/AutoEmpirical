@@ -7,7 +7,7 @@ This directory documents the evidence reconstruction for
 136 stage cohorts and changes no membership, `record_id`, `issue_url`, or gold
 label.
 
-## 🔎 Evidence sources
+## Evidence sources
 
 `source/` contains six author-artifact CSVs. Its manifest pins the author
 repository commit and records each file's SHA256, byte size, row count, and
@@ -19,7 +19,7 @@ The author artifact anchors cohort membership and historical comment counts.
 Issue text, current comments, commit messages, and patches are
 `current_unversioned`, not exact February 2021 snapshots.
 
-## 📁 Outputs
+## Outputs
 
 - `../../Dataset/evidence/icse2022_dl_performance_evidence.jsonl`: one evidence
   object per Stage 1 record.
@@ -34,7 +34,7 @@ Issue text, current comments, commit messages, and patches are
 - `audit/reconstruction_manifest.json`: input hashes, output hashes,
   provenance policy, and completion counts.
 
-## ✅ Integrated coverage
+## Integrated coverage
 
 - Evidence records: 6,835 / 6,835.
 - Current issue responses unavailable with stable 404: 6.
@@ -46,7 +46,7 @@ Issue text, current comments, commit messages, and patches are
 
 These limitations are explicit provenance states, not silently filled fields.
 
-## 🧪 Evidence modes
+## Evidence modes
 
 - `issue_only`: title and body.
 - `issue_discussion`: title, body, and retained comments.

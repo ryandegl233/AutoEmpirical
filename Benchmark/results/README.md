@@ -6,7 +6,7 @@ This directory contains the selected experiment artifacts retained for audit
 and reproduction. It is not a claim that every paper or every planned baseline
 has been run.
 
-## 📊 Committed result families
+## Committed result families
 
 | Path | Contents |
 | --- | --- |
@@ -18,7 +18,7 @@ has been run.
 | `issta2024_bugs_in_pods_baseline/full_code_diff_deepseek_v4_flash/` | ISSTA single-LLM control, MAS native, and MAS evidence-anchored outputs |
 | `ase2022_baseline_results_summary.md` | Human-readable ASE result summary |
 
-## 🧾 Interpretation rules
+## Interpretation rules
 
 - Read each run manifest before comparing metrics; sample, model, prompt,
   evidence mode, and validation policy can differ.
@@ -31,7 +31,7 @@ has been run.
 - Older smoke outputs and runs produced before the corresponding data repair
   are intentionally not part of the retained result set.
 
-## ➕ Adding results
+## Adding results
 
 Retain the cohort or record IDs, preparation manifest, prompt/taxonomy
 provenance, model parameters, prediction output, validation audit, and metrics.

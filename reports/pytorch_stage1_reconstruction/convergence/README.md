@@ -6,7 +6,7 @@ status updated on 2026-08-03._
 These experiments reconcile the paper's 2,205 Stage 1 candidates with current
 GitHub Search state.
 
-## 📊 Baseline reconstruction
+## Baseline reconstruction
 
 The paper-described current-metadata query returns 2,676 records and covers
 192/194 local labeled issues:
@@ -18,14 +18,14 @@ repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-10
 The missing local records are issues `39007` and `48841`, whose current
 metadata differs from the paper-era state.
 
-## 🏷️ Label-exclusion experiment
+## Label-exclusion experiment
 
 Excluding `module: docs` and `enhancement` yields 2,252 candidates but covers
 only 179/194 labeled records. It is numerically close but not suitable for
 integration. The broader search is stored in
 `offline_label_exclusion_search.csv`.
 
-## 📅 Exact-count cutoff experiment
+## Exact-count cutoff experiment
 
 Changing only the current `closed` cutoff yields:
 
@@ -40,7 +40,7 @@ repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-03
 This date conflicts with the paper's stated 2022-10-20 cutoff and may reflect
 snapshot drift, collection lag, or numerical coincidence.
 
-## 📁 Generated files
+## Generated files
 
 | File | Meaning |
 | --- | --- |
@@ -51,7 +51,7 @@ snapshot drift, collection lag, or numerical coincidence.
 | `closed_cutoff_2022_03_09_exact_2205_manifest.json` | Exact-count manifest |
 | `offline_label_exclusion_search.csv` | Offline exclusion search |
 
-## ✅ Integration outcome
+## Integration outcome
 
 The exact-count set replaced the placeholder reconstruction. Two local Stage 2
 records absent from the query are retained as lineage supplements, producing

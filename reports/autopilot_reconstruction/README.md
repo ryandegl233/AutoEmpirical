@@ -6,7 +6,7 @@ This reconstruction restores current public GitHub issue and pull-request
 evidence while preserving record identities, stage membership, provenance, and
 gold labels.
 
-## 🕰️ Version semantics
+## Version semantics
 
 The source artifact does not publish a historical acquisition cutoff. Retrieved
 GitHub content is therefore `current_unversioned`: it is currently visible
@@ -14,7 +14,7 @@ public content, not a claim that the text exactly matches the authors'
 collection date. Each sidecar record stores its retrieval timestamp and
 resolved GitHub URL.
 
-## ✅ Coverage
+## Coverage
 
 - Stage counts: 567 / 168 / 142.
 - Successful GitHub acquisitions: 567 / 567.
@@ -29,7 +29,7 @@ stage files. The canonical sidecar is
 `../../Dataset/evidence/fse2021_autopilot_evidence.jsonl`; machine-readable
 invariants are in `audit.json`. The sidecar contains no gold taxonomy labels.
 
-## 🔎 Source cohort audit
+## Source cohort audit
 
 The author replication package is archived at Zenodo DOI
 `10.5281/zenodo.4898868`. The retrieved `bugSetAndTaxonomy-3 2.zip` has MD5
@@ -38,7 +38,7 @@ The author replication package is archived at Zenodo DOI
 The dataset's 567-record Stage 1 cohort covers every unique source URL; the
 difference is deduplication, not missing objects.
 
-## 🔐 Approved security remediation
+## Approved security remediation
 
 The final integration also redacts one credential-bearing public comment body
 in the previously integrated DL dataset. The approved non-Autopilot change is

@@ -9,7 +9,7 @@ three-stage dataset for seven papers, source-evidence sidecars, provenance
 audits, and executable single-LLM and multi-agent baselines for the ASE 2022 and
 ISSTA 2024 cohorts.
 
-## 📋 Workflow
+## Workflow
 
 | Stage | Research operation | Unified file | Rows |
 | --- | --- | --- | ---: |
@@ -22,7 +22,7 @@ pull requests, or other bug-report records; ISSTA 2024 BugsInPy analyzes
 commits. See the [dataset guide](./Dataset/README.md) for the exact object and
 evidence boundary of every paper.
 
-## 📊 Current coverage
+## Current coverage
 
 | Area | Status |
 | --- | --- |
@@ -37,7 +37,7 @@ The repository records retrieval limitations explicitly. Reconstructed public
 discussion is generally `current_unversioned`, not a claim that GitHub or other
 sources still expose the exact historical text seen by the original authors.
 
-## 📁 Repository structure
+## Repository structure
 
 ```text
 AutoEmpirical/
@@ -63,7 +63,7 @@ AutoEmpirical/
     baseline_research_plan.md
 ```
 
-## ⚡ Quick start
+## Quick start
 
 Install the minimal analysis dependencies:
 
@@ -104,7 +104,7 @@ For the implemented experiment commands and provider settings, see the
 python -m pip install -r Benchmark/requirements-mas.txt
 ```
 
-## ⚠️ Experimental safeguards
+## Experimental safeguards
 
 - Build Stage 2 targets from membership in the gold Stage 2 cohort, but do not
   expose Stage 2 or Stage 3 labels in model inputs.
@@ -119,7 +119,7 @@ python -m pip install -r Benchmark/requirements-mas.txt
 - Regenerate `reports/SHA256SUMS.txt` whenever a tracked dataset or report file
   changes.
 
-## 📚 Documentation
+## Documentation
 
 - [Dataset layout, object types, and provenance](./Dataset/README.md)
 - [Benchmark implementations and results](./Benchmark/README.md)
@@ -128,7 +128,7 @@ python -m pip install -r Benchmark/requirements-mas.txt
 - [Dataset health report](./reports/dataset_health_report.md)
 - [Baseline research plan](./research/baseline_research_plan.md)
 
-## 📝 Citation
+## Citation
 
 If you use this repository, please cite the related AutoEmpirical paper when
 the final citation is available.
@@ -142,7 +142,7 @@ the final citation is available.
 }
 ```
 
-## 👤 Contact
+## Contact
 
 Maintainer: Yanjie Yu
 

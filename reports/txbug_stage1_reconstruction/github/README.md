@@ -7,13 +7,13 @@ This pass covers GitHub issues from `pingcap/tidb` and
 `cockroachdb/cockroach`. The paper's other candidates come from MySQL Bugs,
 MariaDB JIRA, PostgreSQL, and SQLite sources.
 
-## 🧭 Query scope
+## Query scope
 
 Broad words such as `commit` and `abort` were too noisy for GitHub Search.
 The selected set combines transaction-specific keyword queries with TiDB's
 `sig/transaction` label.
 
-## 📊 Result
+## Result
 
 | Candidate set | Total | TiDB | CockroachDB | Final GitHub cohort coverage |
 | --- | ---: | ---: | ---: | ---: |
@@ -23,14 +23,14 @@ The selected set combines transaction-specific keyword queries with TiDB's
 The uncovered final issue is `pingcap/tidb#39851`; current metadata uses
 `sig/planner`, so it was later retained through explicit Stage 2 lineage.
 
-## 📁 Files
+## Files
 
 | Path | Meaning |
 | --- | --- |
 | `core/` | Core keyword candidate set, raw payloads, and manifest |
 | `core_plus_tidb_label/` | Selected merged set, label payloads, and manifest |
 
-## 🔁 Reproduction
+## Reproduction
 
 ```powershell
 python scripts\fetch_txbug_github_stage1_candidates.py --keyword-mode core
@@ -42,7 +42,7 @@ The label supplement used:
 repo:pingcap/tidb is:issue created:2018-01-01..2022-12-31 label:"sig/transaction"
 ```
 
-## ✅ Completion status
+## Completion status
 
 All source families were subsequently reconciled and the complete Stage 1
 discussion repair was integrated. See the canonical

@@ -2,7 +2,7 @@
 
 _Module inventory updated on 2026-08-03._
 
-## 🧩 Modules
+## Modules
 
 | Module | Responsibility |
 | --- | --- |
@@ -12,7 +12,7 @@ _Module inventory updated on 2026-08-03._
 | `issta2024_bugs_in_pods_baseline.py` | ISSTA commit-diff preparation, task prompts, validation, and metrics |
 | `issta2024_evidence_collection.py` | ISSTA commit evidence retrieval and normalization |
 
-## 🧭 Design boundary
+## Design boundary
 
 Files in this directory are reusable implementation modules; executable
 entry points live in `../scripts/`, and committed run artifacts live in

@@ -6,7 +6,7 @@ This reconstruction restores discussion evidence for all 7,775 Stage 1
 candidates while preserving identity, membership, and every CSV field other
 than `comments`.
 
-## 🔎 Source boundary and version semantics
+## Source boundary and version semantics
 
 The author repository releases the final 140-bug set and reports screening
 7,775 candidates, but it does not release a frozen discussion snapshot for the
@@ -17,7 +17,7 @@ is `current_unversioned`.
 The canonical sidecar is
 `../../Dataset/evidence/icse2024_transaction_bugs_stage1_evidence.jsonl`.
 
-## ✅ Coverage
+## Coverage
 
 - Evidence records: 7,775.
 - `ok`: 6,825.
@@ -34,7 +34,7 @@ The repaired comments are integrated into unified and per-paper Stage 1. The
 source-specific directories under `../txbug_stage1_reconstruction/` are
 retained as provenance, not pending work.
 
-## 🧾 Integrity
+## Integrity
 
 - Every Stage 1 record has exactly one evidence record.
 - Sidecar record IDs and issue URLs are unique.

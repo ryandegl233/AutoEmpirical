@@ -3,7 +3,7 @@
 _Retained as source-specific provenance after the full 7,775-record
 integration._
 
-## 🔎 Method
+## Method
 
 - Source: monthly `pgsql-bugs` archives from 2018-01 through 2022-12.
 - Candidate universe: original `BUG #...` reports, excluding `Re:` replies.
@@ -11,19 +11,19 @@ integration._
   transaction commit/abort variants.
 - `body` is the original report; `comments` concatenates linked replies.
 
-## 📁 Outputs
+## Outputs
 
 - `txbug_postgresql_candidates.csv`: 437 unique candidates.
 - `txbug_postgresql_candidates.raw.jsonl`: parsed message payloads.
 - `fetch_manifest.json`: parameters and counts.
 - `postgresql_final_coverage_audit.csv`: final-cohort coverage.
 
-## 📊 Initial coverage
+## Initial coverage
 
 The initial keyword reconstruction covered 0/6 final PostgreSQL rows. Those
 six mailing-list message IDs are retained in the coverage audit.
 
-## ✅ Completion status
+## Completion status
 
 The six final mailing-list threads were incorporated during the later full
 discussion reconstruction; the integrated final cohort reports discussion for

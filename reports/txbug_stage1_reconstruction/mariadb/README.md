@@ -3,7 +3,7 @@
 _Retained as source-specific provenance after the full 7,775-record
 integration._
 
-## 🔎 Method
+## Method
 
 - Source: `https://jira.mariadb.org` REST API.
 - Projects: `MDEV` and `MCOL`.
@@ -14,7 +14,7 @@ integration._
 - `body` is the JIRA description; `comments` concatenates public comments with
   timestamp and author markers.
 
-## 📊 Outputs and counts
+## Outputs and counts
 
 | Artifact or group | Count |
 | --- | ---: |
@@ -26,7 +26,7 @@ integration._
 The directory also retains raw REST payloads, a fetch manifest, and
 `mariadb_final_coverage_audit.csv`.
 
-## ✅ Completion status
+## Completion status
 
 The full multi-source Stage 1 discussion repair was subsequently integrated.
 See the canonical

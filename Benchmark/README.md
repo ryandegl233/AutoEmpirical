@@ -7,7 +7,7 @@ multi-agent experiments. The currently committed implementations cover ASE
 2022 Faults of DL Systems and ISSTA 2024 BugsInPy; the other five dataset
 domains do not yet have equivalent benchmark runners.
 
-## 🎯 Tasks
+## Tasks
 
 | Task | Model input | Evaluation target |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ Gold membership and taxonomy fields must remain evaluation-only. Preparation
 scripts create task-specific cohorts and manifests so later-stage answers are
 not copied into prompts.
 
-## 🧪 Implemented experiment families
+## Implemented experiment families
 
 | Paper | Single LLM | CAMEL MAS | Committed result families |
 | --- | --- | --- | --- |
@@ -27,7 +27,7 @@ not copied into prompts.
 
 The repository does not claim full seven-paper benchmark coverage yet.
 
-## 📁 Layout
+## Layout
 
 | Path | Contents |
 | --- | --- |
@@ -39,7 +39,7 @@ The repository does not claim full seven-paper benchmark coverage yet.
 
 See the README in each subdirectory for an exact inventory.
 
-## ⚡ Representative commands
+## Representative commands
 
 Prepare and run the ASE 2022 single-LLM baselines:
 
@@ -69,7 +69,7 @@ python Benchmark/scripts/run_issta2024_camel_mas_baseline.py --help
 Use `--help` as the source of truth for model, stage, cohort, output, retry,
 resume, and validation options.
 
-## 🔐 Provider configuration
+## Provider configuration
 
 Do not store credentials in configs, manifests, or result files.
 
@@ -87,7 +87,7 @@ $env:OPENAI_API_KEY = "<temporary-key>"
 $env:LLM_BASE_URL = "https://example.invalid/v1"
 ```
 
-## 📏 Output and audit expectations
+## Output and audit expectations
 
 Each committed experiment family should retain enough information to reproduce
 and audit the run:
@@ -103,7 +103,7 @@ and audit the run:
 Invalid model outputs must remain visible in audits. Do not silently drop,
 repair, or score them as valid predictions.
 
-## 📚 Related documentation
+## Related documentation
 
 - [Scripts](./scripts/README.md)
 - [Reusable source modules](./src/README.md)

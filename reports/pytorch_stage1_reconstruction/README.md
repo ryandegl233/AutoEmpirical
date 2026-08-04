@@ -6,7 +6,7 @@ status updated on 2026-08-03._
 This directory preserves a broad methodological replay of the Stage 1 candidate
 issue set for `icse2023_an_empirical_study_on_bugs`.
 
-## 📋 Paper rule implemented
+## Paper rule implemented
 
 The paper describes closed PyTorch GitHub issues labeled `triaged`, having a
 linked pull request, as of 2022-10-20. The broad replay uses:
@@ -17,7 +17,7 @@ repo:pytorch/pytorch is:issue is:closed label:triaged linked:pr closed:<=2022-10
 
 Date-window subqueries avoid GitHub Search API's 1,000-result paging limit.
 
-## 📁 Outputs
+## Outputs
 
 | File | Meaning |
 | --- | --- |
@@ -25,7 +25,7 @@ Date-window subqueries avoid GitHub Search API's 1,000-result paging limit.
 | `pytorch_stage1_candidates.raw.jsonl` | Raw GitHub Search issue payloads |
 | `fetch_manifest.json` | Query windows and reported counts |
 
-## 📊 Broad-query result
+## Broad-query result
 
 | Item | Count |
 | --- | ---: |
@@ -38,7 +38,7 @@ The two uncovered local labeled records are issue `48841`, currently closed
 after the cutoff, and issue `39007`, currently open without a pull-request
 object. Current GitHub metadata is therefore not an exact historical snapshot.
 
-## ✅ Integration outcome
+## Integration outcome
 
 The dataset uses the exact-count 2,205-row convergence set documented in
 [`convergence/README.md`](./convergence/README.md), plus two explicit Stage 2
@@ -49,7 +49,7 @@ The exact-count cutoff conflicts with the paper's stated date. It is a
 transparent convergence reconstruction, not a claim to be the authors' frozen
 artifact. Exact historical provenance requires that original snapshot.
 
-## 🔁 Reproduction command
+## Reproduction command
 
 ```powershell
 python scripts\fetch_pytorch_stage1_candidates.py

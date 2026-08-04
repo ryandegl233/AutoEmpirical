@@ -2,14 +2,14 @@
 
 _Status updated on 2026-08-03._
 
-## 📌 Current status
+## Current status
 
 No standalone declarative configuration files are currently committed in this
 directory. Experiment parameters are supplied through the command-line
 interfaces in `../scripts/`, while prepared cohorts and their frozen settings
 are recorded in `../results/`.
 
-## 🧭 Configuration policy
+## Configuration policy
 
 Future reusable configs should contain only non-secret settings such as dataset
 paths, split definitions, prompt versions, model identifiers, decoding

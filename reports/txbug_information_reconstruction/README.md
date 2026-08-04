@@ -7,13 +7,13 @@ cohort while preserving identity, membership, and gold labels. The full
 7,775-record Stage 1 repair is documented in
 [`../txbug_stage1_information_reconstruction/README.md`](../txbug_stage1_information_reconstruction/README.md).
 
-## 🕰️ Version semantics
+## Version semantics
 
 The author artifact does not contain a frozen copy of every source discussion.
 Recovered text is `current_unversioned`: currently visible or retained public
 evidence, not a claim that every comment existed at the original cutoff.
 
-## 🔎 Source coverage
+## Source coverage
 
 | Source type | Records | With discussion |
 | --- | ---: | ---: |
@@ -23,7 +23,7 @@ evidence, not a claim that every comment existed at the original cutoff.
 | PostgreSQL mail thread | 6 | 6 |
 | SQLite Fossil ticket | 6 | 3 |
 
-## ✅ Retrieval status
+## Retrieval status
 
 - `ok`: 127.
 - `ok_zero_comments`: 11.
@@ -37,7 +37,7 @@ The reconstruction is integrated into unified and per-paper Stage 2/3 files.
 The canonical sidecar is
 `../../Dataset/evidence/icse2024_transaction_bugs_evidence.jsonl`.
 
-## 🧾 Integrity
+## Integrity
 
 - Evidence records: 140.
 - Record IDs and issue URLs are unique.
