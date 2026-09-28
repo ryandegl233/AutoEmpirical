@@ -1,22 +1,38 @@
+# Publish code, tests, configs and inputs. All real model outputs stay local.
 __pycache__/
 *.pyc
+.pytest_cache/
 .env
-tests/
-!tests/
-tests/*
-!tests/test_ase2022_camel_mas_baseline.py
-!tests/test_run_ase2022_camel_mas_baseline.py
-!tests/test_issta2024_bugs_in_pods_baseline.py
+.env.*
+!.env.example
 .vscode/
+.worktrees/
+.superpowers/
+.firecrawl/
+.code-review-graph/
+/tmp/
 
+# Real model experiment outputs are excluded from this release.
+/Benchmark/results/
+/Benchmark/runs/
+/Benchmark/cache/
+/Dataset/cache/
+
+# Real-run diagnostics also occur outside results; replace with generic templates.
+/Benchmark/configs/baseline_trust/ase2022_dev50_mas_evidence_anchored_v1.json
+/Benchmark/configs/ase2022_issue_only_holdout_mas_baseline_error_categories.json
+
+# Keep legacy working directories local while extracting reviewed artifacts.
+/fixcode/
+/docs/superpowers/
+/reports/meeting_20260909/
+/reports/meeting_20260916/
+/reports/experiment_two/
+/reports/gemini_diagnostics/
 reports/txbug_stage1_reconstruction/**/*.jsonl
 reports/pytorch_stage1_reconstruction/**/*.jsonl
 reports/txbug_stage1_reconstruction/txbug_stage1_reconstructed_7775_preview.csv
-.firecrawl/
-fixcode/
 
-Benchmark/results/ase2022_camel_mas_baseline/smoke/
-Benchmark/results/ase2022_camel_mas_baseline/smoke_counted/
-Benchmark/results/issta2024_bugs_in_pods_baseline/evidence_enriched/raw/
-Benchmark/results/issta2024_bugs_in_pods_baseline/commit_message_repaired/graphql_cache/
-Benchmark/results/issta2024_bugs_in_pods_baseline/commit_message_repaired/diff_cache
+# Copy reviewed frozen inputs into Benchmark/inputs/ rather than force-adding
+# them from results. Do not upload real output archives under other paths.
+# Ignore never removes tracked paths; legacy tracked files remain tracked.
