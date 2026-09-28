@@ -1,0 +1,1 @@
+{"author_association":"MEMBER","body":"I initially thought your report was about the incorrect aspect ratio of the output image, but I've been able to reproduce the issue you're seeing on Safari. I'll take a look. Thanks!","canonical_uri":"https://github.com/tensorflow/tfjs/issues/4808","repository":"tensorflow/tfjs","updated_at":"2021-03-16T16:23:46Z"}

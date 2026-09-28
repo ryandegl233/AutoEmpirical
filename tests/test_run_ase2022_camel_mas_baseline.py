@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import json
 from io import StringIO
+from pathlib import Path
 
 import pytest
 
@@ -57,10 +58,25 @@ def test_resolve_run_config_allows_deepseek_endpoint_override() -> None:
     assert config["base_url"] == "https://deepseek-proxy.example/v1"
 
 
+def test_resolve_run_config_supports_official_gemini_api() -> None:
+    config = resolve_run_config(
+        {"GEMINI_API_KEY": "gemini-key"},
+        provider="gemini",
+    )
+
+    assert config == {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "api_key": "gemini-key",
+    }
+
+
 def test_resolve_model_uses_provider_default_and_honors_explicit_model() -> None:
     assert resolve_model("proxy", None) == "claude-3-5-sonnet-20241022"
     assert resolve_model("deepseek", None) == "deepseek-v4-flash"
     assert resolve_model("deepseek", "deepseek-chat") == "deepseek-chat"
+    assert resolve_model("gemini", "gemini-3.6-flash") == "gemini-3.6-flash"
+    with pytest.raises(SystemExit, match="explicit --model"):
+        resolve_model("gemini", None)
 
 
 def test_resolve_run_config_requires_endpoint_and_key() -> None:
@@ -79,6 +95,85 @@ def test_load_optional_json_reports_missing_control_and_loads_existing(tmp_path)
 
     assert _load_optional_json(missing) is None
     assert _load_optional_json(existing) == {"accuracy": 0.5}
+
+
+def _write_comparison_dir(path: Path, *, stage2_n: int = 100) -> None:
+    path.mkdir()
+    cohort_lines = ["record_id,decision"] + [
+        f"r{index},accepted_fault" for index in range(100)
+    ]
+    (path / "ase2022_issue_only_holdout_cohort.csv").write_text(
+        "\n".join(cohort_lines) + "\n", encoding="utf-8"
+    )
+    (path / "ase2022_issue_only_holdout_taxonomy.json").write_text(
+        json.dumps({"symptom": ["Crash"], "root_cause": ["Cause"]}),
+        encoding="utf-8",
+    )
+    single = path / "single_llm"
+    single.mkdir()
+    (single / "ase2022_stage2_filter_metrics_deepseek-v4-flash.json").write_text(
+        json.dumps({"model": "deepseek-v4-flash", "n": stage2_n}),
+        encoding="utf-8",
+    )
+    (single / "ase2022_stage3_llm_metrics_deepseek-v4-flash.json").write_text(
+        json.dumps({"model": "deepseek-v4-flash", "n": 50}),
+        encoding="utf-8",
+    )
+
+
+def test_comparison_dir_resolves_auditable_issue_holdout_paths(tmp_path) -> None:
+    comparison_dir = tmp_path / "holdout"
+    _write_comparison_dir(comparison_dir)
+    args = runner.build_parser(runner.ASE2022_PROFILE).parse_args(
+        ["--comparison-dir", str(comparison_dir)]
+    )
+
+    paths = runner.resolve_experiment_paths(
+        args,
+        runner.ASE2022_PROFILE,
+        model="deepseek-v4-flash",
+    )
+
+    assert paths.cohort == comparison_dir / "ase2022_issue_only_holdout_cohort.csv"
+    assert paths.taxonomy == comparison_dir / "ase2022_issue_only_holdout_taxonomy.json"
+    assert paths.output_dir == comparison_dir / "mas_evidence_anchored"
+    assert paths.single_stage2_metrics.parent == comparison_dir / "single_llm"
+    assert paths.single_stage3_metrics.parent == comparison_dir / "single_llm"
+
+
+def test_comparison_dir_rejects_wrong_single_llm_population(tmp_path) -> None:
+    comparison_dir = tmp_path / "holdout"
+    _write_comparison_dir(comparison_dir, stage2_n=99)
+    args = runner.build_parser(runner.ASE2022_PROFILE).parse_args(
+        ["--comparison-dir", str(comparison_dir)]
+    )
+
+    with pytest.raises(ValueError, match="Stage 2 metrics n=100"):
+        runner.resolve_experiment_paths(
+            args,
+            runner.ASE2022_PROFILE,
+            model="deepseek-v4-flash",
+        )
+
+
+def test_comparison_dir_rejects_conflicting_explicit_paths(tmp_path) -> None:
+    comparison_dir = tmp_path / "holdout"
+    _write_comparison_dir(comparison_dir)
+    args = runner.build_parser(runner.ASE2022_PROFILE).parse_args(
+        [
+            "--comparison-dir",
+            str(comparison_dir),
+            "--output-dir",
+            str(tmp_path / "other"),
+        ]
+    )
+
+    with pytest.raises(ValueError, match="cannot be combined"):
+        runner.resolve_experiment_paths(
+            args,
+            runner.ASE2022_PROFILE,
+            model="deepseek-v4-flash",
+        )
 
 
 def test_validate_max_turns_requires_positive_value() -> None:
@@ -201,6 +296,77 @@ def test_stage_metrics_record_strict_json_mode(
     metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
     assert observed["require_valid_json"] is True
     assert metrics["require_valid_json"] is True
+
+
+def test_all_metrics_record_experiment_input_paths(tmp_path, monkeypatch) -> None:
+    cohort = [
+        {
+            "record_id": "r1",
+            "decision": "accepted_fault",
+            "symptom": "Crash",
+            "root_cause": "Cause",
+        }
+    ]
+    taxonomy = {"symptom": ["Crash"], "root_cause": ["Cause"]}
+    monkeypatch.setattr(runner, "_load_env_file", lambda _path: None)
+    monkeypatch.setattr(runner, "load_unified_cohort", lambda _path: cohort)
+    monkeypatch.setattr(runner, "_load_taxonomy", lambda _path: taxonomy)
+    monkeypatch.setattr(
+        runner,
+        "resolve_run_config",
+        lambda *_args, **_kwargs: {
+            "base_url": "https://example.invalid",
+            "api_key": "key",
+        },
+    )
+    monkeypatch.setattr(
+        runner,
+        "make_runner_factories",
+        lambda *_args, **_kwargs: ("society", "finalizer"),
+    )
+    monkeypatch.setattr(runner, "configure_camel_logging", lambda *_args: None)
+
+    def run_records(*_args, **kwargs):
+        if kwargs["stage"] == "stage2":
+            prediction = {"decision": "accepted_fault"}
+        else:
+            prediction = {"symptom": "Crash", "root_cause": "Cause"}
+        return [
+            {
+                "record_id": "r1",
+                "invalid": False,
+                "final_prediction": prediction,
+                "society": {},
+            }
+        ]
+
+    monkeypatch.setattr(runner, "run_stage_records", run_records)
+    output_dir = tmp_path / "output"
+    runner.run_profile(
+        runner.ASE2022_PROFILE,
+        [
+            "--stage",
+            "all",
+            "--model",
+            "model",
+            "--output-dir",
+            str(output_dir),
+            "--no-progress",
+        ],
+    )
+
+    metrics_files = list(output_dir.glob("*metrics*.json"))
+    assert len(metrics_files) == 3
+    for path in metrics_files:
+        metrics = json.loads(path.read_text(encoding="utf-8"))
+        assert metrics["cohort_path"] == str(
+            Path(runner.ASE2022_PROFILE.default_cohort_path)
+        )
+        assert metrics["taxonomy_path"] == str(
+            Path(runner.ASE2022_PROFILE.default_taxonomy_path)
+        )
+        assert metrics["single_llm_stage2_metrics_path"]
+        assert metrics["single_llm_stage3_metrics_path"]
 
 
 def test_society_artifact_prefix_isolates_native_and_anchored_outputs() -> None:

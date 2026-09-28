@@ -1,0 +1,1 @@
+{"canonical_uri":"https://github.com/tensorflow/tfjs/blob/ed94a27288385f3babbc9a399e13cbbe29bbddaa/tfjs-layers/scripts/tsconfig.json","patch":"@@ -1,6 +0,0 @@\n-{\n-  \"extends\": \"../tsconfig.test\",\n-  \"compilerOptions\": {\n-    \"module\": \"commonjs\"\n-  }\n-}","repository":"tensorflow/tfjs","updated_at":"2021-10-04T02:17:29Z"}

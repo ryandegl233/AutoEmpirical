@@ -1,0 +1,476 @@
+{
+  "icse2021": {
+    "paper_id": "icse2021_iot_bugs_and_development_challenges",
+    "title": "IoT Bugs and Development Challenges",
+    "scope": "Bugs affecting IoT software, device integration, communication, configuration, firmware, services, or user-facing IoT functionality.",
+    "filter_policy": "Retain evidence-supported defects relevant to IoT systems. Reject records that only request new features, ask usage questions without a defect, describe expected behavior, or lack enough evidence to establish an in-scope fault. This is an operational approximation to membership in the released analyzed cohort; nonmembership does not prove absence of a bug.",
+    "requires_repair": false,
+    "annotation_modes": {
+      "symptom": "multi_label",
+      "root_cause": "single_label"
+    },
+    "labels": {
+      "symptom": [
+        "Auth issues",
+        "Boot/reboot or physical issues",
+        "Build and installation issues",
+        "Connection establishment issues",
+        "Device binding/association/ pairing issues",
+        "Device configuration issues",
+        "Device connection status issues",
+        "Device constraint issues",
+        "Device discovery and identification issues",
+        "Device incompatibility issues",
+        "Device properties status issues",
+        "Device registration and provisioning issues",
+        "Disconnetion issues",
+        "Firmware exception/hang issues",
+        "Firmware update issues",
+        "Message delivery issues",
+        "Message payload issues",
+        "Message timing/rate/order issues",
+        "Network discovery/set-up issues",
+        "Network reset/mode-change issues",
+        "Protocol incompatibility issues",
+        "Reconnection issues",
+        "Rule action execution issues",
+        "Rule condition issues",
+        "Rule trigger issues",
+        "Third-party incompatibility issues",
+        "Third-party issues",
+        "UI/usability issues",
+        "Unreliable network  issues",
+        "dev2",
+        "performance/crash issues"
+      ],
+      "root_cause": [
+        "Concurrency Issues",
+        "Configuration Issues",
+        "Dependency Issues",
+        "Error Checking Issues",
+        "Hardware Problems",
+        "Memory Issues",
+        "Semantic Issues",
+        "Software Implementation Problems",
+        "Software Implementation Problems (variant)",
+        "Timing/Multithreading Issues"
+      ]
+    },
+    "definitions": {
+      "symptom": {
+        "Auth issues": "Authentication or authorization behavior fails or is incorrect.",
+        "Boot/reboot or physical issues": "Device startup, restart, or physical operation is faulty.",
+        "Build and installation issues": "Building or installing the IoT software fails or behaves incorrectly.",
+        "Connection establishment issues": "An intended connection cannot be established correctly.",
+        "Device binding/association/ pairing issues": "Binding, associating, or pairing a device fails or is incorrect.",
+        "Device configuration issues": "Device configuration behavior is incorrect.",
+        "Device connection status issues": "The reported or maintained device connection status is incorrect.",
+        "Device constraint issues": "An issue concerns a device constraint or limitation; the precise source boundary is unspecified.",
+        "Device discovery and identification issues": "Discovery or identification of a device fails or returns incorrect information.",
+        "Device incompatibility issues": "A device is incompatible with another relevant system element.",
+        "Device properties status issues": "Device property values or their reported status are incorrect.",
+        "Device registration and provisioning issues": "Registering or provisioning a device fails or is incorrect.",
+        "Disconnetion issues": "A connection disconnects incorrectly; the original source spelling is retained.",
+        "Firmware exception/hang issues": "Firmware encounters an exception or stops responding.",
+        "Firmware update issues": "Updating device firmware fails or behaves incorrectly.",
+        "Message delivery issues": "Expected messages are not delivered correctly.",
+        "Message payload issues": "Message content or payload representation is incorrect.",
+        "Message timing/rate/order issues": "Message timing, transmission rate, or ordering is incorrect.",
+        "Network discovery/set-up issues": "Discovering or setting up a network fails or behaves incorrectly.",
+        "Network reset/mode-change issues": "Network reset or a network mode transition behaves incorrectly.",
+        "Protocol incompatibility issues": "Communication endpoints or software components use incompatible protocols or protocol versions.",
+        "Reconnection issues": "Re-establishing a previous connection fails or is incorrect.",
+        "Rule action execution issues": "An action selected by an IoT rule does not execute correctly.",
+        "Rule condition issues": "An IoT rule condition is evaluated or handled incorrectly.",
+        "Rule trigger issues": "An IoT rule triggers incorrectly or fails to trigger.",
+        "Third-party incompatibility issues": "A third-party component is incompatible with the system; no source boundary against Third-party issues is verified.",
+        "Third-party issues": "An issue concerns a third-party component; no narrower source definition is verified.",
+        "UI/usability issues": "User-interface behavior or usability is faulty.",
+        "Unreliable network  issues": "Network reliability is faulty; original internal spacing is retained.",
+        "dev2": "Unresolved native source code. No authoritative meaning has been recovered; do not infer a category from the code spelling.",
+        "performance/crash issues": "Poor performance or a crash is observed; this source category combines those outcomes."
+      },
+      "root_cause": {
+        "Concurrency Issues": "Concurrent operations interact incorrectly; the source distinction from Timing/Multithreading Issues is not independently defined.",
+        "Configuration Issues": "Configuration values or configuration handling cause the fault.",
+        "Dependency Issues": "A required software dependency or its integration causes the fault.",
+        "Error Checking Issues": "Missing or incorrect checking of errors or invalid conditions causes the fault.",
+        "Hardware Problems": "A hardware-related problem causes the fault.",
+        "Memory Issues": "Incorrect use or management of memory causes the fault.",
+        "Semantic Issues": "An implementation or integration violates the intended meaning or behavioral contract.",
+        "Software Implementation Problems": "An error in software implementation causes the fault.",
+        "Software Implementation Problems (variant)": "Native code SWP0; a software-implementation variant whose distinction from SWP has not been verified.",
+        "Timing/Multithreading Issues": "Timing or multiple-thread execution causes the fault; the source distinction from Concurrency Issues is not independently defined."
+      }
+    },
+    "provenance": {
+      "sourcepaths": [
+        "Dataset\\by_paper\\icse2021_iot_bugs_and_development_challenges\\stage3.csv"
+      ],
+      "source_hashes": {
+        "Dataset\\by_paper\\icse2021_iot_bugs_and_development_challenges\\stage3.csv": "6dfcd3c506c9b92ad84a0f5a268dfeef58629e5687858a673a01e1763f81effa"
+      },
+      "definition_status": "operational_gloss_from_literal_native_labels_not_official_paper_definitions",
+      "field_status": {
+        "symptom": "operational_gloss",
+        "root_cause": "operational_gloss"
+      },
+      "raw_labels_preserved": true,
+      "source_label_path": "stage3.csv original_label_json.bug_categories split at commas; root_cause_code/root_cause_full preserved"
+    },
+    "limitations": [
+      "Symptoms are native multilabel sets; CSV symptom has lost comma separators.",
+      "dev2 is an unresolved source code, not an interpretable symptom name.",
+      "SWP0 / Software Implementation Problems (variant) is preserved; no verified distinction from SWP is available.",
+      "Third-party issues and Third-party incompatibility issues remain separate native labels."
+    ]
+  },
+  "fse2021": {
+    "paper_id": "fse2021_an_exploratory_study_of_autopilot",
+    "title": "An Exploratory Study of Autopilot Software Bugs in Unmanned Aerial Vehicles",
+    "scope": "Defects in ArduPilot and PX4 autopilot software and their integration with unmanned aerial vehicle hardware.",
+    "filter_policy": "Retain evidence-supported autopilot defects in the studied ArduPilot/PX4 systems. Reject records that only propose a feature, discuss use without a defect, describe expected behavior, or lack sufficient evidence of a relevant fault. Treat this as an approximation to author retained-cohort membership.",
+    "requires_repair": false,
+    "annotation_modes": {
+      "symptom": "free_text",
+      "root_cause": "single_label"
+    },
+    "labels": {
+      "symptom": [],
+      "root_cause": [
+        "consistency",
+        "correction",
+        "hardware",
+        "initialization",
+        "initlization",
+        "innitialize",
+        "limit",
+        "limit,range",
+        "math",
+        "parameter",
+        "priority",
+        "priority,order"
+      ]
+    },
+    "definitions": {
+      "symptom": {},
+      "root_cause": {
+        "consistency": "An inconsistency in autopilot behavior, state, or implementation is implicated; source-specific boundaries are unavailable.",
+        "correction": "Native correction category; the exact scope is not defined in available local source metadata.",
+        "hardware": "A hardware-related condition or integration is implicated.",
+        "initialization": "Initialization behavior is implicated.",
+        "initlization": "Initialization-related native category with original spelling retained.",
+        "innitialize": "Initialization-related native category with original spelling retained.",
+        "limit": "Limit handling is implicated.",
+        "limit,range": "Limit or range handling is implicated; preserve this compound source category.",
+        "math": "A mathematical operation or calculation is implicated.",
+        "parameter": "Parameter handling is implicated.",
+        "priority": "Priority handling is implicated.",
+        "priority,order": "Priority or ordering is implicated; preserve this compound source category."
+      }
+    },
+    "provenance": {
+      "sourcepaths": [
+        "Dataset\\by_paper\\fse2021_an_exploratory_study_of_autopilot\\stage3.csv"
+      ],
+      "source_hashes": {
+        "Dataset\\by_paper\\fse2021_an_exploratory_study_of_autopilot\\stage3.csv": "e24efddee104db2425a0f9d58039c6ed3f74f4bd23431dbe1f192b149362eca5"
+      },
+      "definition_status": "operational_gloss_from_literal_native_labels_not_official_paper_definitions",
+      "field_status": {
+        "symptom": "free_text_not_a_shared_codebook",
+        "root_cause": "operational_gloss"
+      },
+      "raw_labels_preserved": true,
+      "source_label_path": "original_label_json.taxonomy.category for root cause; first_iteration_description excluded from codebook"
+    },
+    "limitations": [
+      "No discrete symptom taxonomy is available: preserve a generated symptom description for qualitative review, score only root cause.",
+      "Raw initialization spellings and compound categories are preserved; no automatic correction or label merge."
+    ]
+  },
+  "icse2022": {
+    "paper_id": "icse2022_an_empirical_study_on_performance",
+    "title": "An Empirical Study on Performance Bugs in Deep Learning Frameworks",
+    "scope": "Performance defects in the PyTorch and TensorFlow deep learning frameworks.",
+    "filter_policy": "Retain actual performance bugs, including excessive execution time or resource use, inefficient computation, memory inefficiency, or threading inefficiency in the studied deep learning frameworks. Reject nonperformance reports, normal performance expectations, usage questions without a demonstrated defect, and records without enough evidence to establish a performance fault. Do not use author perf/non_perf source-table names or fixing-commit availability as input.",
+    "requires_repair": false,
+    "annotation_modes": {
+      "symptom": "constant",
+      "root_cause": "single_label"
+    },
+    "labels": {
+      "symptom": [
+        "performance bug"
+      ],
+      "root_cause": [
+        "C/C++ abstraction",
+        "Hardware component communication overhead (Local communication overhead)",
+        "Hardware component communication overhead (Remote communication overhead)",
+        "Ineffcient caching",
+        "Inefficiency for certain input data types",
+        "Inefficient AI algorithm implementation",
+        "Inefficient hardware optimization (Lack of support for hardware optimization libraries)",
+        "Inefficient hardware optimization (Wrong device placement)",
+        "Matrix computation inefficiency (Inefficiency for certain size and shape)",
+        "Matrix computation inefficiency (Inefficient broadcasting)",
+        "Matrix computation inefficiency (Lack of vectorization)",
+        "Matrix computation inefficiency (Trade-off of using different linear libraries/operators)",
+        "Matrix computation inefficiency (Use of intermediate matrices)",
+        "Memory inefficiency (Unnecessary memory allocation)",
+        "Memory inefficiency (Unreleased memory resources)",
+        "Other",
+        "Threading inefficiency (Challenges in fine-tuning the optimum number of threads)",
+        "Threading inefficiency (Excessive usage of multithreading)",
+        "Threading inefficiency (Excessive usage of thread-local variables)",
+        "Threading inefficiency (Lack of parallelization)",
+        "Threading inefficiency (Thread not returning on time)",
+        "Traditional SE inefficiency",
+        "Unnecessary computation (Unnecessarily gradient computation)",
+        "Unnecessary computation (Unnecessary node creation)",
+        "Unnecessary computation (Unnecessary operation)"
+      ]
+    },
+    "definitions": {
+      "symptom": {
+        "performance bug": "Constant study scope: a performance bug. This value is not a discriminative symptom taxonomy and is excluded from symptom-accuracy claims."
+      },
+      "root_cause": {
+        "C/C++ abstraction": "Performance inefficiency attributed to the native mechanism named \"C/C++ abstraction\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Hardware component communication overhead (Local communication overhead)": "Performance inefficiency attributed to the native mechanism named \"Hardware component communication overhead (Local communication overhead)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Hardware component communication overhead (Remote communication overhead)": "Performance inefficiency attributed to the native mechanism named \"Hardware component communication overhead (Remote communication overhead)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Ineffcient caching": "Performance inefficiency attributed to the native mechanism named \"Ineffcient caching\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Inefficiency for certain input data types": "Performance inefficiency attributed to the native mechanism named \"Inefficiency for certain input data types\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Inefficient AI algorithm implementation": "Performance inefficiency attributed to the native mechanism named \"Inefficient AI algorithm implementation\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Inefficient hardware optimization (Lack of support for hardware optimization libraries)": "Performance inefficiency attributed to the native mechanism named \"Inefficient hardware optimization (Lack of support for hardware optimization libraries)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Inefficient hardware optimization (Wrong device placement)": "Performance inefficiency attributed to the native mechanism named \"Inefficient hardware optimization (Wrong device placement)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Matrix computation inefficiency (Inefficiency for certain size and shape)": "Performance inefficiency attributed to the native mechanism named \"Matrix computation inefficiency (Inefficiency for certain size and shape)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Matrix computation inefficiency (Inefficient broadcasting)": "Performance inefficiency attributed to the native mechanism named \"Matrix computation inefficiency (Inefficient broadcasting)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Matrix computation inefficiency (Lack of vectorization)": "Performance inefficiency attributed to the native mechanism named \"Matrix computation inefficiency (Lack of vectorization)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Matrix computation inefficiency (Trade-off of using different linear libraries/operators)": "Performance inefficiency attributed to the native mechanism named \"Matrix computation inefficiency (Trade-off of using different linear libraries/operators)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Matrix computation inefficiency (Use of intermediate matrices)": "Performance inefficiency attributed to the native mechanism named \"Matrix computation inefficiency (Use of intermediate matrices)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Memory inefficiency (Unnecessary memory allocation)": "Performance inefficiency attributed to the native mechanism named \"Memory inefficiency (Unnecessary memory allocation)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Memory inefficiency (Unreleased memory resources)": "Performance inefficiency attributed to the native mechanism named \"Memory inefficiency (Unreleased memory resources)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Other": "A performance root cause outside the listed native categories; use only after checking the specific categories.",
+        "Threading inefficiency (Challenges in fine-tuning the optimum number of threads)": "Performance inefficiency attributed to the native mechanism named \"Threading inefficiency (Challenges in fine-tuning the optimum number of threads)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Threading inefficiency (Excessive usage of multithreading)": "Performance inefficiency attributed to the native mechanism named \"Threading inefficiency (Excessive usage of multithreading)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Threading inefficiency (Excessive usage of thread-local variables)": "Performance inefficiency attributed to the native mechanism named \"Threading inefficiency (Excessive usage of thread-local variables)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Threading inefficiency (Lack of parallelization)": "Performance inefficiency attributed to the native mechanism named \"Threading inefficiency (Lack of parallelization)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Threading inefficiency (Thread not returning on time)": "Performance inefficiency attributed to the native mechanism named \"Threading inefficiency (Thread not returning on time)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Traditional SE inefficiency": "Performance inefficiency attributed to the native mechanism named \"Traditional SE inefficiency\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Unnecessary computation (Unnecessarily gradient computation)": "Performance inefficiency attributed to the native mechanism named \"Unnecessary computation (Unnecessarily gradient computation)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Unnecessary computation (Unnecessary node creation)": "Performance inefficiency attributed to the native mechanism named \"Unnecessary computation (Unnecessary node creation)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed.",
+        "Unnecessary computation (Unnecessary operation)": "Performance inefficiency attributed to the native mechanism named \"Unnecessary computation (Unnecessary operation)\". Interpret the parenthesized subtype literally where present; no additional mechanism or category precedence is assumed."
+      }
+    },
+    "provenance": {
+      "sourcepaths": [
+        "Dataset\\by_paper\\icse2022_an_empirical_study_on_performance\\stage3.csv",
+        "reports/dl_performance_reconstruction/source/perf_bugs_taxonomy.csv"
+      ],
+      "source_hashes": {
+        "Dataset\\by_paper\\icse2022_an_empirical_study_on_performance\\stage3.csv": "4ade123faa8e4fc9209b74a599afb666eee3c7d51898ae9088523cf6f2265902",
+        "reports/dl_performance_reconstruction/source/perf_bugs_taxonomy.csv": "63647539399e3f329fb569b13eb6bd5e456dd795fe95c1431b7f9f69ae159d68"
+      },
+      "definition_status": "operational_gloss_from_literal_native_labels_not_official_paper_definitions",
+      "field_status": {
+        "symptom": "constant_scope_not_discriminative",
+        "root_cause": "operational_gloss"
+      },
+      "raw_labels_preserved": true,
+      "source_label_path": "stage3.csv symptom/root_cause; original_label_json retained for native encoding interpretation only"
+    },
+    "limitations": [
+      "Only root-cause classification is discriminative; symptom has one constant native value.",
+      "Use issue and discussion for filtering; author-selected fixing commits/status can disclose cohort membership.",
+      "Raw native label spelling is retained, including Ineffcient caching."
+    ]
+  },
+  "icse2023": {
+    "paper_id": "icse2023_an_empirical_study_on_bugs",
+    "title": "An Empirical Study on Bugs Inside PyTorch: A Replication Study",
+    "scope": "Resolved bugs inside the PyTorch framework.",
+    "filter_policy": "The paper auto-selected closed triaged issues with a linked pull request, prioritized them by reactions, excluded duplicates, feature/documentation requests, nonbugs and reports developers could not reproduce, and retained reports fixed by the development team until approximately200 selected issues. Infer relevant resolved bugs from available report/discussion evidence. Outside-cohort candidates may be valid bugs excluded by ranking or sampling; this runner measures recorded cohort membership, not a definitive bug/nonbug truth.",
+    "requires_repair": false,
+    "annotation_modes": {
+      "symptom": "single_label",
+      "root_cause": "single_label"
+    },
+    "labels": {
+      "symptom": [
+        "Build failure",
+        "Crash",
+        "Functional error",
+        "Hang",
+        "Performance degradation",
+        "Warning-style error"
+      ],
+      "root_cause": [
+        "Algorithm",
+        "Concurrency",
+        "Configuration error",
+        "Corner case",
+        "Dimension mismatch",
+        "Inconsistency",
+        "Logic error",
+        "Memory",
+        "Processing",
+        "Referenced types error",
+        "Type confusion"
+      ]
+    },
+    "definitions": {
+      "symptom": {
+        "Build failure": "The program fails to compile or build.",
+        "Crash": "The program exits irregularly during execution, including an error that terminates execution.",
+        "Functional error": "The program runs but does not perform its intended function correctly.",
+        "Hang": "The program becomes stuck during execution without terminating or responding.",
+        "Performance degradation": "The program performs poorly or uses excessive computing resources.",
+        "Warning-style error": "An erroneous warning or error-style message is displayed while execution continues."
+      },
+      "root_cause": {
+        "Algorithm": "An algorithm is implemented incorrectly.",
+        "Concurrency": "Synchronization problems cause the fault.",
+        "Configuration error": "An incorrect configuration causes the fault.",
+        "Corner case": "A boundary or corner case is handled incorrectly.",
+        "Dimension mismatch": "Tensor dimensions are incompatible.",
+        "Inconsistency": "Changes in an API are inconsistent with other relevant code or interfaces.",
+        "Logic error": "Programming logic is incorrect.",
+        "Memory": "Memory is used incorrectly.",
+        "Processing": "A variable is initialized or assigned incorrectly.",
+        "Referenced types error": "A library import is incorrect; this preserves the dataset label spelling for the paper category Referenced type error.",
+        "Type confusion": "A type mismatch causes the fault."
+      }
+    },
+    "provenance": {
+      "sourcepaths": [
+        "Dataset\\by_paper\\icse2023_an_empirical_study_on_bugs\\stage3.csv",
+        "reports\\paper_sources\\pytorch.txt"
+      ],
+      "source_hashes": {
+        "Dataset\\by_paper\\icse2023_an_empirical_study_on_bugs\\stage3.csv": "1d3fed242c823ba6f4f119e86bf889d4957ef2f10de8c34ae0ca464fadb56cbd",
+        "reports\\paper_sources\\pytorch.txt": "67cabcf2179761f60b8cfbfa0b68c917f6d5b43d4a43422a1d56ef59906f26cd"
+      },
+      "definition_status": "paraphrased_from_locally_archived_primary_paper",
+      "field_status": {
+        "symptom": "paper_Table_II_and_section_IV",
+        "root_cause": "paper_Table_I"
+      },
+      "raw_labels_preserved": true,
+      "source_label_path": "stage3.csv symptom/root_cause; original_label_json retained for native encoding interpretation only",
+      "paper_sections": {
+        "filter_policy": "reports/paper_sources/pytorch.txt lines249-308",
+        "symptom": "reports/paper_sources/pytorch.txt lines640-694",
+        "root_cause": "reports/paper_sources/pytorch.txt lines451-466"
+      }
+    },
+    "limitations": [
+      "Stage1 is an exact-count convergence reconstruction with a different cutoff plus2 lineage supplements, not the original author snapshot.",
+      "The paper selected a ranked sample of resolved bugs; treating all unselected candidates as verified nonbugs would overstate gold validity."
+    ]
+  },
+  "icse2024": {
+    "paper_id": "icse2024_understanding_transaction_bugs_in_database",
+    "title": "Understanding Transaction Bugs in Database Systems",
+    "scope": "Database transaction bugs violating transaction semantics in MySQL, MariaDB, PostgreSQL, SQLite, TiDB and CockroachDB.",
+    "filter_policy": "Retain an understandable fault in transaction-processing mechanisms requiring at least one explicit or XA transaction, or at least two transactions to trigger. Exclude unrelated uses of transaction keywords and bugs triggered solely by a single automatic transaction. The original investigators also required shared understanding of the bug. Use primary descriptions/discussion evidence, not author root-cause/failure annotations or reconstructed annotation summaries.",
+    "requires_repair": false,
+    "annotation_modes": {
+      "symptom": "single_label",
+      "root_cause": "single_label"
+    },
+    "labels": {
+      "symptom": [
+        "Assertion failure",
+        "Crash",
+        "DBMS hang",
+        "Incorrect DBMS state",
+        "Incorrect database state",
+        "Incorrect query result",
+        "Low performance",
+        "Missing blocking",
+        "Missing error",
+        "Operation error",
+        "Unexpected error",
+        "Unnecessarily long blocking",
+        "Unnecessary blocking",
+        "Wrong error message"
+      ],
+      "root_cause": [
+        "Atomicity",
+        "Consistency: DBMS state",
+        "Consistency: application state",
+        "Consistency: data constraint",
+        "Excessive isolation",
+        "Insufficient isolation: Incorrect SELECT",
+        "Insufficient isolation: incorrect SELECT",
+        "Insufficient isolation: missing blocking",
+        "Read-only constraint",
+        "Statement correctness: assertion failure",
+        "Statement correctness: missing error",
+        "Statement correctness: unexpected error",
+        "Statement correctness: wrong error message"
+      ]
+    },
+    "definitions": {
+      "symptom": {
+        "Assertion failure": "The DBMS reports a failed assertion.",
+        "Crash": "The DBMS process terminates unexpectedly.",
+        "DBMS hang": "The DBMS stops responding and does not complete.",
+        "Incorrect DBMS state": "Internal DBMS execution information or management state is wrong; this refers to system state rather than user data.",
+        "Incorrect database state": "Wrong user data is stored in the database after the transaction execution.",
+        "Incorrect query result": "A query returns a wrong result; the paper separates cases whose primary effect is a corrupted stored database state.",
+        "Low performance": "Transaction execution has degraded performance.",
+        "Missing blocking": "A statement that should be blocked executes without the required blocking.",
+        "Missing error": "An error that should be reported is not reported.",
+        "Operation error": "A DBMS operation fails with an operational error.",
+        "Unexpected error": "An error is reported when the transaction statement should succeed.",
+        "Unnecessarily long blocking": "A transaction statement remains blocked for an unnecessarily long time.",
+        "Unnecessary blocking": "A statement is blocked although the required transaction semantics do not require it.",
+        "Wrong error message": "The DBMS reports an incorrect error message."
+      },
+      "root_cause": {
+        "Atomicity": "A transaction does not execute as an all-or-nothing unit, including changes not reverted by rollback.",
+        "Consistency: DBMS state": "Transaction execution corrupts or fails to maintain internal DBMS state or execution information.",
+        "Consistency: application state": "Transaction statements violate the application-expected integrity of data or execution effects.",
+        "Consistency: data constraint": "Transaction execution violates a defined database data constraint, such as a unique or primary-key constraint.",
+        "Excessive isolation": "Transactions are isolated more strongly than required, causing unnecessary blocking.",
+        "Insufficient isolation: Incorrect SELECT": "Insufficient transaction isolation permits an incorrect SELECT result; preserve this native capitalization variant.",
+        "Insufficient isolation: incorrect SELECT": "Insufficient transaction isolation permits an incorrect SELECT result.",
+        "Insufficient isolation: missing blocking": "Insufficient transaction isolation omits blocking that is required to prevent a conflicting concurrent execution.",
+        "Read-only constraint": "A read-only transaction is allowed to perform a prohibited modification.",
+        "Statement correctness: assertion failure": "A statement executes incorrectly in a transaction context and triggers an assertion failure, rather than one of the other named transaction-semantics violations.",
+        "Statement correctness: missing error": "A statement fails to report a required error in its transaction context, rather than one of the other named transaction-semantics violations.",
+        "Statement correctness: unexpected error": "A statement reports an unexpected error in its transaction context, rather than one of the other named transaction-semantics violations.",
+        "Statement correctness: wrong error message": "A statement reports an incorrect error message in its transaction context, rather than one of the other named transaction-semantics violations."
+      }
+    },
+    "provenance": {
+      "sourcepaths": [
+        "Dataset\\by_paper\\icse2024_understanding_transaction_bugs_in_database\\stage3.csv",
+        "reports\\paper_sources\\txbug.txt"
+      ],
+      "source_hashes": {
+        "Dataset\\by_paper\\icse2024_understanding_transaction_bugs_in_database\\stage3.csv": "b4fad16ae86694c207ad1c55ca6fe1f208852ba20090833c7bcd66d40b1342be",
+        "reports\\paper_sources\\txbug.txt": "a7cbe979e018db4b1f5bab5bbd76cac569d2b13adba5443d3af016a1f2cef75d"
+      },
+      "definition_status": "paraphrased_from_locally_archived_primary_paper_with_literal_native_leaf_glosses",
+      "field_status": {
+        "symptom": "paper_section6.1_plus_literal_native_leaf_names",
+        "root_cause": "paper_section5_plus_literal_native_leaf_names"
+      },
+      "raw_labels_preserved": true,
+      "source_label_path": "stage3.csv symptom/root_cause; original_label_json retained for native encoding interpretation only",
+      "paper_sections": {
+        "filter_policy": "reports/paper_sources/txbug.txt lines1390-1425",
+        "symptom": "reports/paper_sources/txbug.txt lines786-820",
+        "root_cause": "reports/paper_sources/txbug.txt lines628-768"
+      }
+    },
+    "limitations": [
+      "Root cause here is a violated transaction semantic, not a verified implementation-level code cause.",
+      "The14 raw symptom leaves and13 raw root strings preserve dataset granularity; the paper describes some at coarser aggregate levels.",
+      "Stage3 title/body contain authored summaries copied toStage1; use primary reconstructions where available and explicit discussion-only availability otherwise."
+    ]
+  }
+}

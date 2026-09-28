@@ -11,7 +11,11 @@ from typing import Callable
 
 import pandas as pd
 
-from Benchmark.src.ase2022_llm_baseline import _is_retryable_network_error, call_model
+from Benchmark.src.ase2022_llm_baseline import (
+    _is_retryable_network_error,
+    call_model,
+    model_evidence_fields,
+)
 
 
 ASE2022_PAPER_ID = "ase2022_towards_understanding_the_faults_of"
@@ -101,34 +105,42 @@ def select_balanced_sample(
     return sorted(selected, key=lambda row: row["record_id"])
 
 
-def build_system_prompt() -> str:
-    return """You are screening GitHub issue records for the ASE2022 empirical study of faults in JavaScript-based deep-learning systems.
+def build_system_prompt(*, output_contract: str | None = None) -> str:
+    output_instruction = (
+        "Return ONLY strict JSON with exactly one key named decision. Its value "
+        "must be accepted_fault or rejected_candidate. Do not add explanations, "
+        "Markdown, or other keys."
+        if output_contract is None
+        else output_contract
+    )
+    return f"""You are screening GitHub issue records for the ASE2022 empirical study of faults in JavaScript-based deep-learning systems.
 
 Decide whether the issue provides evidence of a real, identifiable fault in a JavaScript deep-learning framework, third-party library, or application.
 
 Retain reports of observable failures, incorrect behavior, crashes, build or initialization failures, performance faults, or documentation faults. Reject feature requests, general usage questions without fault evidence, irrelevant discussions, unclear or insufficient reports, and keyword matches that are not errors.
 
-Return ONLY strict JSON with exactly one key named decision. Its value must be accepted_fault or rejected_candidate. Do not add explanations, Markdown, or other keys.
+{output_instruction}
 """
 
 
 def build_user_prompt(example: dict[str, str]) -> str:
+    fields = model_evidence_fields(example)
     return f"""Classify this candidate issue.
 
 Title:
-{example.get("title", "")}
+{fields["title"]}
 
 State:
-{example.get("state", "")}
+{fields["state"]}
 
 Created At:
-{example.get("created_at", "")}
+{fields["created_at"]}
 
 Body:
-{example.get("body", "")}
+{fields["body"]}
 
 Comments:
-{example.get("comments", "")}
+{fields["comments"]}
 """
 
 

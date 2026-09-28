@@ -487,43 +487,60 @@ def _changed_files_for_prompt(record: dict[str, str]) -> list[str]:
     return files if isinstance(files, list) else []
 
 
-def _evidence_prompt(record: dict[str, str]) -> str:
+def model_evidence_fields(record: dict[str, str]) -> dict[str, str]:
+    """Return safe commit evidence exactly as rendered in the model prompt."""
+    fields = {field: str(record.get(field, "")) for field in SAFE_MODEL_FIELDS}
     files = _changed_files_for_prompt(record)
-    changed_files = "\n".join(f"- {path}" for path in files) or "- not available"
-    comments = record.get("comments", "").strip()
+    fields["changed_files"] = (
+        "\n".join(f"- {path}" for path in files) or "- not available"
+    )
+    comments = fields["comments"].strip()
     if comments in {"", "no_comments_in_source", "not_available_in_source"}:
         comments = "not available"
+    fields["comments"] = comments
+    return fields
+
+
+def _evidence_prompt(record: dict[str, str]) -> str:
+    fields = model_evidence_fields(record)
     return f"""Project:
-{record.get("source_project", "")}
+{fields["source_project"]}
 
 Commit URL:
-{record.get("issue_url", "")}
+{fields["issue_url"]}
 
 Commit Title:
-{record.get("title", "")}
+{fields["title"]}
 
 Commit State:
-{record.get("state", "")}
+{fields["state"]}
 
 Committed At:
-{record.get("created_at", "")}
+{fields["created_at"]}
 
 Commit Message:
-{record.get("body", "")}
+{fields["body"]}
 
 Available Discussion:
-{comments}
+{fields["comments"]}
 
 Changed Files:
-{changed_files}
+{fields["changed_files"]}
 
 Code Diff (unified diff from GitHub API):
-{record.get("code_diff", "")}
+{fields["code_diff"]}
 """
 
 
-def build_stage2_system_prompt() -> str:
-    return """You are reproducing the ISSTA2024 empirical study “Bugs in Pods” on container runtime systems.
+def build_stage2_system_prompt(*, output_contract: str | None = None) -> str:
+    output_instruction = (
+        "Return ONLY strict JSON with exactly one key named decision. Its value "
+        "must be accepted_fault or rejected_candidate. Do not add explanations, "
+        "Markdown, or other keys."
+        if output_contract is None
+        else output_contract
+    )
+    return f"""You are reproducing the ISSTA2024 empirical study “Bugs in Pods” on container runtime systems.
 
 Decide whether the supplied commit explicitly repairs a pre-existing software fault in runc, gVisor, containerd, or CRI-O. Accept commits that repair observable incorrect behavior, crashes, build failures, security or permission defects, configuration effects, resource/performance problems, or other identifiable implementation faults.
 
@@ -531,7 +548,7 @@ Reject feature additions without repair evidence, refactoring or cleanup, merge/
 
 Use only the supplied commit evidence. Do not infer dataset membership or request a gold label.
 
-Return ONLY strict JSON with exactly one key named decision. Its value must be accepted_fault or rejected_candidate. Do not add explanations, Markdown, or other keys.
+{output_instruction}
 """
 
 
@@ -548,7 +565,9 @@ def _taxonomy_prompt(
     return "\n".join(lines)
 
 
-def build_stage3_system_prompt(taxonomy: dict[str, list[str]]) -> str:
+def build_stage3_system_prompt(
+    taxonomy: dict[str, list[str]], *, output_contract: str | None = None
+) -> str:
     expected = build_issta2024_taxonomy()
     if taxonomy != expected:
         raise ValueError("taxonomy must match the fixed ISSTA2024 leaf labels")
@@ -557,6 +576,12 @@ def build_stage3_system_prompt(taxonomy: dict[str, list[str]]) -> str:
     )
     root_cause_section = _taxonomy_prompt(
         taxonomy["root_cause"], ROOT_CAUSE_DEFINITIONS
+    )
+    output_instruction = (
+        "Return ONLY strict JSON with exactly the keys symptom and root_cause. "
+        "Do not add explanations, Markdown, or other keys."
+        if output_contract is None
+        else output_contract
     )
     return f"""You are reproducing the ISSTA2024 “Bugs in Pods” taxonomy analysis of container runtime bugs.
 
@@ -568,7 +593,7 @@ Allowed symptom labels:
 Allowed root-cause labels:
 {root_cause_section}
 
-Use only the supplied commit evidence. Return ONLY strict JSON with exactly the keys symptom and root_cause. Do not add explanations, Markdown, or other keys.
+Use only the supplied commit evidence. {output_instruction}
 """
 
 
@@ -582,12 +607,20 @@ def build_society_task(
     record: dict[str, str],
     stage: str,
     taxonomy: dict[str, list[str]],
+    *,
+    output_contract: str | None = None,
 ) -> str:
     if stage == "stage2":
-        return build_stage2_system_prompt() + "\n" + build_stage2_user_prompt(record)
+        return (
+            build_stage2_system_prompt(output_contract=output_contract)
+            + "\n"
+            + build_stage2_user_prompt(record)
+        )
     if stage == "stage3":
-        return build_stage3_system_prompt(taxonomy) + "\n" + build_stage3_user_prompt(
-            record
+        return (
+            build_stage3_system_prompt(taxonomy, output_contract=output_contract)
+            + "\n"
+            + build_stage3_user_prompt(record)
         )
     raise ValueError("stage must be stage2 or stage3")
 

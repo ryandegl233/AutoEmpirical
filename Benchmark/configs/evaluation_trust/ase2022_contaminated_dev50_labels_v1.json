@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "artifact_id": "ase2022-contaminated-dev50-offline-labels-v1",
+  "domain": "ase2022",
+  "split_kind": "contaminated_development",
+  "label_source": {
+    "relative_path": "Benchmark/inputs/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_cohort.csv",
+    "sha256": "c15807393140f4c9b46a1e877c13d459bac44f07eb3c120f2d5604b752c928da",
+    "format": "csv",
+    "record_count": 100,
+    "record_ids_sha256": "154aeb07c8da06ac98201ae0fb575d2e6dcb56a37806573f851f067c1155d7c3"
+  },
+  "selection": {
+    "split_manifest_relative_path": "Benchmark/configs/splits/ase2022_stage3_contaminated_dev50/split_manifest.json",
+    "split_manifest_sha256": "e8163324ae142e330afec9e0c1bb95f4646e82943e0dd7d9a10d3df6368bfe6b",
+    "split_name": "development",
+    "record_count": 50,
+    "record_ids_sha256": "cee44ce2d2449ee8a2f9fe553765b01f3fd6bd18e89334364961caf14d073d04"
+  },
+  "access_policy": {
+    "runner_may_load": false,
+    "offline_evaluator_only": true,
+    "emit_aggregate_only": true
+  }
+}

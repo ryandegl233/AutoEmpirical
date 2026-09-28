@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
@@ -18,6 +20,16 @@ if str(REPO_ROOT) not in sys.path:
 from Benchmark.scripts.run_ase2022_llm_baseline import (  # noqa: E402
     _load_env_file,
     model_slug,
+)
+from Benchmark.src.llm_provider_config import (  # noqa: E402
+    GEMINI_PROVIDER_ALIASES,
+    canonical_provider,
+    resolve_gemini_config,
+)
+from Benchmark.src.mas_rationale import (  # noqa: E402
+    CONTRACT_VERSION,
+    ExplanationMode,
+    validate_mode,
 )
 from Benchmark.src.ase2022_camel_mas_baseline import (  # noqa: E402
     DEFAULT_MAX_TURNS,
@@ -54,6 +66,18 @@ class CamelMasCliProfile:
     default_single_stage3_metrics: str
     task_builder: TaskBuilder
     default_require_valid_json: bool = False
+    evidence_builder: Callable[[dict[str, str]], dict[str, str]] | None = None
+    default_explanation_mode: ExplanationMode = "label_only"
+    expected_paper_id: str | None = None
+
+
+@dataclass(frozen=True)
+class ExperimentPaths:
+    cohort: Path
+    taxonomy: Path
+    output_dir: Path
+    single_stage2_metrics: Path
+    single_stage3_metrics: Path
 
 
 ASE2022_PROFILE = CamelMasCliProfile(
@@ -86,6 +110,9 @@ def resolve_run_config(
     base_url_override: str | None = None,
     provider: str = "proxy",
 ) -> dict[str, str]:
+    provider = canonical_provider(provider)
+    if provider == "gemini":
+        return resolve_gemini_config(env, base_url_override=base_url_override)
     if provider == "deepseek":
         api_key = env.get("DEEPSEEK_API_KEY") or env.get("DEEPSEEK_API")
         if not api_key:
@@ -99,7 +126,7 @@ def resolve_run_config(
             "api_key": api_key,
         }
     if provider != "proxy":
-        raise ValueError("provider must be proxy or deepseek")
+        raise ValueError("provider must be proxy, deepseek, or gemini")
     base_url = (
         base_url_override
         or env.get("SELF_BASE_URL")
@@ -115,13 +142,16 @@ def resolve_run_config(
 
 
 def resolve_model(provider: str, model_override: str | None) -> str:
+    provider = canonical_provider(provider)
     if model_override:
         return model_override
+    if provider == "gemini":
+        raise SystemExit("--provider gemini requires an explicit --model")
     if provider == "deepseek":
         return "deepseek-v4-flash"
     if provider == "proxy":
         return DEFAULT_MODEL
-    raise ValueError("provider must be proxy or deepseek")
+    raise ValueError("provider must be proxy, deepseek, or gemini")
 
 
 def validate_max_turns(value: int) -> int:
@@ -134,11 +164,17 @@ def society_artifact_prefix(
     society_mode: SocietyMode,
     *,
     study_slug: str = "ase2022",
+    explanation_mode: ExplanationMode = "label_only",
 ) -> str:
     society_architecture(society_mode)
+    validate_mode(explanation_mode)
     if society_mode == "native":
-        return f"{study_slug}_camel_society"
-    return f"{study_slug}_camel_evidence_anchored"
+        prefix = f"{study_slug}_camel_society"
+    else:
+        prefix = f"{study_slug}_camel_evidence_anchored"
+    if explanation_mode == "evidence_rationale":
+        prefix += f"_rationale_v{CONTRACT_VERSION}"
+    return prefix
 
 
 def make_runner_factories(
@@ -150,12 +186,15 @@ def make_runner_factories(
     max_retries: int,
     timeout: float | None,
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
+    capture_trace: bool = False,
 ):
     options = {
         "temperature": temperature,
         "max_retries": max_retries,
         "timeout": timeout,
     }
+    if capture_trace:
+        options["capture_trace"] = True
     return (
         make_camel_society_factory(
             model,
@@ -270,12 +309,27 @@ def _write_json(path: Path, payload: dict[str, object]) -> None:
 
 
 def _load_taxonomy(path: str | Path) -> dict[str, list[str]]:
+    from Benchmark.src.annotation_contracts import annotation_mode
+
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not all(
-        isinstance(payload.get(key), list) and payload[key]
+        isinstance(payload.get(key), list)
+        and (payload[key] or annotation_mode(payload, key) == "free_text")
         for key in ("symptom", "root_cause")
     ):
         raise ValueError("taxonomy must contain non-empty symptom and root_cause lists")
+    if "annotation_modes" in payload:
+        for dimension in ("symptom", "root_cause"):
+            mode = annotation_mode(payload, dimension)
+            labels = payload[dimension]
+            if not all(isinstance(label, str) and label.strip() for label in labels):
+                raise ValueError(f"taxonomy {dimension} labels must be nonblank strings")
+            if len(labels) != len(set(labels)):
+                raise ValueError(f"taxonomy {dimension} contains duplicate labels")
+            if mode == "constant" and len(labels) != 1:
+                raise ValueError(f"taxonomy {dimension} constant mode requires one label")
+            if mode == "free_text" and labels:
+                raise ValueError(f"taxonomy {dimension} free_text mode must not enumerate descriptions")
     return payload
 
 
@@ -289,6 +343,237 @@ def _load_optional_json(path: str | Path) -> dict[str, object] | None:
     return payload
 
 
+def _preflight_rationale_outputs(
+    output_dir: Path,
+    *,
+    artifact_prefix: str,
+    slug: str,
+    stage: str,
+    run_id: str,
+) -> None:
+    stages = ("stage2", "stage3") if stage == "all" else (stage,)
+    outputs = [
+        output_dir / f"{artifact_prefix}_{current}_{kind}_{slug}.{extension}"
+        for current in stages
+        for kind, extension in (("predictions", "jsonl"), ("metrics", "json"))
+    ]
+    if stage == "all":
+        outputs.append(output_dir / f"{artifact_prefix}_end_to_end_metrics_{slug}.json")
+    for path in outputs:
+        if not path.exists():
+            continue
+        message = (
+            f"Existing rationale artifact {path} belongs to a different or unknown "
+            "run identity; use a new --output-dir to preserve the earlier run."
+        )
+        try:
+            content = path.read_text(encoding="utf-8")
+            payloads = (
+                [json.loads(line) for line in content.splitlines() if line.strip()]
+                if path.suffix == ".jsonl" else [json.loads(content)]
+            )
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            raise ValueError(message) from error
+        if any(not isinstance(row, dict) or row.get("run_id") != run_id for row in payloads):
+            raise ValueError(message)
+
+
+def _write_rationale_manifest(
+    args: argparse.Namespace,
+    paths: ExperimentPaths,
+    *,
+    artifact_prefix: str,
+    slug: str,
+    backend_id: str,
+    temperature: float | None,
+    stage2_path: Path,
+) -> tuple[Path, str]:
+    input_paths = {
+        "cohort": paths.cohort,
+        "taxonomy": paths.taxonomy,
+        "single_llm_stage2_metrics": paths.single_stage2_metrics,
+        "single_llm_stage3_metrics": paths.single_stage3_metrics,
+    }
+    if args.stage == "stage3":
+        input_paths["stage2_predictions"] = stage2_path
+    inputs = {
+        name: {
+            "path": str(path.resolve()),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()
+            if path.is_file() else None,
+        }
+        for name, path in input_paths.items()
+    }
+    source_paths = [
+        "Benchmark/scripts/run_ase2022_camel_mas_baseline.py",
+        "Benchmark/scripts/run_issta2024_camel_mas_baseline.py",
+        "Benchmark/scripts/run_ase2022_llm_baseline.py",
+        "Benchmark/src/ase2022_camel_mas_baseline.py",
+        "Benchmark/src/ase2022_llm_baseline.py",
+        "Benchmark/src/ase2022_stage2_filter_baseline.py",
+        "Benchmark/src/issta2024_bugs_in_pods_baseline.py",
+        "Benchmark/src/llm_provider_config.py",
+        "Benchmark/src/mas_rationale.py",
+        "Benchmark/src/mas_request_trace.py",
+        "Benchmark/scripts/run_paper_camel_mas_baseline.py",
+        "Benchmark/src/paper_benchmark.py",
+        "Benchmark/src/annotation_contracts.py",
+        "Benchmark/configs/paper_codebooks_v1.json",
+    ]
+    try:
+        revision = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT,
+            capture_output=True, text=True, check=False, timeout=10,
+        )
+        git_revision = revision.stdout.strip() if revision.returncode == 0 else None
+    except (OSError, subprocess.TimeoutExpired):
+        git_revision = None
+    # Persist an explicit allowlist, never the provider credential dictionary.
+    manifest: dict[str, object] = {
+        "manifest_version": 1,
+        "artifact_prefix": artifact_prefix,
+        "config": {
+            "stage": args.stage,
+            "model": args.model,
+            "provider": args.provider,
+            "backend_id_sha256": hashlib.sha256(backend_id.encode("utf-8")).hexdigest(),
+            "society_mode": args.society_mode,
+            "explanation_mode": args.explanation_mode,
+            "explanation_contract_version": CONTRACT_VERSION,
+            "temperature": temperature,
+            "max_turns": args.max_turns,
+            "max_retries": args.max_retries,
+            "timeout": args.timeout,
+            "require_valid_json": args.require_valid_json,
+            "record_ids": args.record_ids,
+            "limit": args.limit,
+        },
+        "inputs": inputs,
+        "code": {
+            "git_revision": git_revision,
+            "source_sha256": {
+                source: hashlib.sha256((REPO_ROOT / source).read_bytes()).hexdigest()
+                for source in source_paths if (REPO_ROOT / source).is_file()
+            },
+        },
+    }
+    run_id = hashlib.sha256(
+        json.dumps(manifest, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+    manifest["run_id"] = run_id
+    _preflight_rationale_outputs(
+        paths.output_dir, artifact_prefix=artifact_prefix, slug=slug,
+        stage=args.stage, run_id=run_id,
+    )
+    path = paths.output_dir / f"{artifact_prefix}_run_manifest_{slug}_{run_id[:16]}.json"
+    _write_json(path, manifest)
+    return path, run_id
+
+
+def _bind_run_identity(config_hash: str, run_id: str | None) -> str:
+    if run_id is None:
+        return config_hash
+    payload = {"stage_config_hash": config_hash, "run_id": run_id}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def resolve_experiment_paths(
+    args: argparse.Namespace,
+    profile: CamelMasCliProfile,
+    *,
+    model: str,
+) -> ExperimentPaths:
+    comparison_dir_value = getattr(args, "comparison_dir", None)
+    if not comparison_dir_value:
+        slug = model_slug(model)
+        return ExperimentPaths(
+            cohort=Path(args.cohort_path or profile.default_cohort_path),
+            taxonomy=Path(args.taxonomy_path or profile.default_taxonomy_path),
+            output_dir=Path(args.output_dir or profile.default_output_dir),
+            single_stage2_metrics=Path(
+                args.single_llm_stage2_metrics
+                or profile.default_single_stage2_metrics.format(slug=slug)
+            ),
+            single_stage3_metrics=Path(
+                args.single_llm_stage3_metrics
+                or profile.default_single_stage3_metrics.format(slug=slug)
+            ),
+        )
+
+    conflicting = [
+        option
+        for option, value in (
+            ("--cohort-path", args.cohort_path),
+            ("--taxonomy-path", args.taxonomy_path),
+            ("--output-dir", args.output_dir),
+            ("--single-llm-stage2-metrics", args.single_llm_stage2_metrics),
+            ("--single-llm-stage3-metrics", args.single_llm_stage3_metrics),
+        )
+        if value is not None
+    ]
+    if conflicting:
+        raise ValueError(
+            "--comparison-dir cannot be combined with " + ", ".join(conflicting)
+        )
+
+    comparison_dir = Path(comparison_dir_value)
+    slug = model_slug(model)
+    output_name = (
+        "mas_evidence_anchored"
+        if args.society_mode == "evidence_anchored"
+        else "mas_native"
+    )
+    paths = ExperimentPaths(
+        cohort=comparison_dir / "ase2022_issue_only_holdout_cohort.csv",
+        taxonomy=comparison_dir / "ase2022_issue_only_holdout_taxonomy.json",
+        output_dir=comparison_dir / output_name,
+        single_stage2_metrics=(
+            comparison_dir
+            / "single_llm"
+            / f"ase2022_stage2_filter_metrics_{slug}.json"
+        ),
+        single_stage3_metrics=(
+            comparison_dir
+            / "single_llm"
+            / f"ase2022_stage3_llm_metrics_{slug}.json"
+        ),
+    )
+    for label, path in (
+        ("cohort", paths.cohort),
+        ("taxonomy", paths.taxonomy),
+        ("Single LLM Stage 2 metrics", paths.single_stage2_metrics),
+        ("Single LLM Stage 3 metrics", paths.single_stage3_metrics),
+    ):
+        if not path.is_file():
+            raise FileNotFoundError(f"missing {label}: {path}")
+
+    cohort = load_unified_cohort(paths.cohort)
+    record_ids = [str(row.get("record_id", "")) for row in cohort]
+    if len(cohort) != 100:
+        raise ValueError(f"comparison cohort must contain 100 rows, got {len(cohort)}")
+    if not all(record_ids) or len(set(record_ids)) != 100:
+        raise ValueError("comparison cohort must contain 100 unique non-empty record IDs")
+
+    for label, path, expected_n in (
+        ("Stage 2", paths.single_stage2_metrics, 100),
+        ("Stage 3", paths.single_stage3_metrics, 50),
+    ):
+        metrics = _load_optional_json(path)
+        if metrics is None:
+            raise FileNotFoundError(f"missing Single LLM {label} metrics: {path}")
+        if metrics.get("n") != expected_n:
+            raise ValueError(
+                f"Single LLM {label} metrics n={expected_n} required, "
+                f"got {metrics.get('n')!r}"
+            )
+        if metrics.get("model") != model:
+            raise ValueError(
+                f"Single LLM {label} metrics model must be {model!r}, "
+                f"got {metrics.get('model')!r}"
+            )
+    return paths
+
+
 def build_parser(
     profile: CamelMasCliProfile = ASE2022_PROFILE,
 ) -> argparse.ArgumentParser:
@@ -296,20 +581,29 @@ def build_parser(
     parser.add_argument("--stage", choices=("stage2", "stage3", "all"), default="all")
     parser.add_argument(
         "--provider",
-        choices=("proxy", "deepseek"),
+        choices=("proxy", "deepseek", *sorted(GEMINI_PROVIDER_ALIASES)),
         default=profile.default_provider,
     )
     parser.add_argument("--model", default=None)
     parser.add_argument("--base-url", default=None)
+    if profile.study_slug == "ase2022":
+        parser.add_argument(
+            "--comparison-dir",
+            default=None,
+            help=(
+                "Resolve an ASE issue-only cohort, taxonomy, matching Single "
+                "LLM controls, and isolated MAS output from one directory."
+            ),
+        )
     parser.add_argument(
         "--cohort-path",
-        default=profile.default_cohort_path,
+        default=None,
     )
     parser.add_argument(
         "--taxonomy-path",
-        default=profile.default_taxonomy_path,
+        default=None,
     )
-    parser.add_argument("--output-dir", default=profile.default_output_dir)
+    parser.add_argument("--output-dir", default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument(
         "--record-ids",
@@ -328,6 +622,15 @@ def build_parser(
             "unmodified CAMEL RolePlaying Society baseline."
         ),
     )
+    parser.add_argument(
+        "--explanation-mode",
+        choices=("label_only", "evidence_rationale"),
+        default=profile.default_explanation_mode,
+        help=(
+            "Opt in to brief label rationales and cited source evidence. "
+            "Uses separate rationale_v1 artifacts; label_only preserves the baseline."
+        ),
+    )
     parser.add_argument("--timeout", type=float, default=None)
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--no-temperature", action="store_true")
@@ -340,8 +643,9 @@ def build_parser(
         dest="require_valid_json",
         action="store_true",
         help=(
-            "Abort before writing any record whose final prediction does not "
-            "pass the stage schema and taxonomy."
+            "Require final predictions to pass the stage schema, taxonomy, and "
+            "selected rationale contract. Rationale mode saves a failed record "
+            "before aborting."
         ),
     )
     validity.add_argument(
@@ -363,14 +667,22 @@ def run_profile(
     argv: list[str] | None = None,
 ) -> None:
     args = build_parser(profile).parse_args(argv)
+    args.provider = canonical_provider(args.provider)
     args.max_turns = validate_max_turns(args.max_turns)
 
     _load_env_file(REPO_ROOT / ".env")
     args.model = resolve_model(args.provider, args.model)
     config = resolve_run_config(os.environ, args.base_url, provider=args.provider)
-    cohort = load_unified_cohort(args.cohort_path)
-    taxonomy = _load_taxonomy(args.taxonomy_path)
+    paths = resolve_experiment_paths(args, profile, model=args.model)
+    cohort = load_unified_cohort(paths.cohort)
+    if profile.expected_paper_id is not None:
+        if not cohort or any(row.get("paper_id") != profile.expected_paper_id for row in cohort):
+            raise ValueError("cohort paper_id does not match the selected paper profile")
+    taxonomy = _load_taxonomy(paths.taxonomy)
     temperature = None if args.no_temperature else args.temperature
+    trace_options = (
+        {"capture_trace": True} if args.explanation_mode == "evidence_rationale" else {}
+    )
     society_factory, finalizer_factory = make_runner_factories(
         args.model,
         config["api_key"],
@@ -379,29 +691,48 @@ def run_profile(
         max_retries=args.max_retries,
         timeout=args.timeout,
         society_mode=args.society_mode,
+        **trace_options,
     )
     configure_camel_logging(args.show_camel_warnings)
-    output_dir = Path(args.output_dir)
+    output_dir = paths.output_dir
     slug = model_slug(args.model)
     artifact_prefix = society_artifact_prefix(
         args.society_mode,
         study_slug=profile.study_slug,
+        explanation_mode=args.explanation_mode,
     )
     architecture = society_architecture(args.society_mode)
-    single_stage2_path = Path(
-        args.single_llm_stage2_metrics
-        or profile.default_single_stage2_metrics.format(slug=slug)
-    )
-    single_stage3_path = Path(
-        args.single_llm_stage3_metrics
-        or profile.default_single_stage3_metrics.format(slug=slug)
-    )
+    single_stage2_path = paths.single_stage2_metrics
+    single_stage3_path = paths.single_stage3_metrics
+    experiment_inputs: dict[str, object] = {
+        "cohort_path": str(paths.cohort),
+        "taxonomy_path": str(paths.taxonomy),
+        "single_llm_stage2_metrics_path": str(single_stage2_path),
+        "single_llm_stage3_metrics_path": str(single_stage3_path),
+    }
 
     stage2_path = output_dir / f"{artifact_prefix}_stage2_predictions_{slug}.jsonl"
     stage3_path = output_dir / f"{artifact_prefix}_stage3_predictions_{slug}.jsonl"
     stage2_rows: list[dict[str, object]] = []
     stage3_rows: list[dict[str, object]] = []
     backend_id = f"{args.provider}:{config['base_url']}"
+    run_id = None
+    if args.explanation_mode == "evidence_rationale":
+        manifest_path, run_id = _write_rationale_manifest(
+            args,
+            paths,
+            artifact_prefix=artifact_prefix,
+            slug=slug,
+            backend_id=backend_id,
+            temperature=temperature,
+            stage2_path=stage2_path,
+        )
+        experiment_inputs.update({
+            "explanation_mode": args.explanation_mode,
+            "explanation_contract_version": CONTRACT_VERSION,
+            "run_manifest_path": str(manifest_path),
+            "run_id": run_id,
+        })
 
     if args.stage in {"stage2", "all"}:
         stage2_records = select_requested_records(cohort, args.record_ids, args.limit)
@@ -415,10 +746,12 @@ def run_profile(
             max_turns=args.max_turns,
             society_mode=args.society_mode,
             require_valid_json=args.require_valid_json,
+            explanation_mode=args.explanation_mode,
         )
+        stage2_hash = _bind_run_identity(stage2_hash, run_id)
 
         def run_stage2(record: dict[str, str]) -> dict[str, object]:
-            return run_roleplaying_society_record(
+            result = run_roleplaying_society_record(
                 record,
                 stage="stage2",
                 taxonomy=taxonomy,
@@ -431,7 +764,12 @@ def run_profile(
                 backend_id=backend_id,
                 society_mode=args.society_mode,
                 task_builder=profile.task_builder,
+                explanation_mode=args.explanation_mode,
+                model_evidence_builder=profile.evidence_builder,
             )
+            if run_id is not None:
+                result["run_id"] = run_id
+            return result
 
         stage2_progress = None if args.no_progress else ConsoleProgress("Stage 2")
         if stage2_progress is not None:
@@ -447,6 +785,7 @@ def run_profile(
             progress_callback=stage2_progress,
             require_valid_json=args.require_valid_json,
             taxonomy=taxonomy,
+            explanation_mode=args.explanation_mode,
         )
         _write_json(
             output_dir / f"{artifact_prefix}_stage2_metrics_{slug}.json",
@@ -460,6 +799,7 @@ def run_profile(
                 "config_hash": stage2_hash,
                 "max_turns": args.max_turns,
                 "require_valid_json": args.require_valid_json,
+                **experiment_inputs,
                 "final": evaluate_stage2(stage2_records, stage2_rows, source="final"),
                 "http_single_llm_control": {
                     "metrics_path": str(single_stage2_path),
@@ -492,10 +832,13 @@ def run_profile(
             max_turns=args.max_turns,
             society_mode=args.society_mode,
             require_valid_json=args.require_valid_json,
+            explanation_mode=args.explanation_mode,
         )
 
+        stage3_hash = _bind_run_identity(stage3_hash, run_id)
+
         def run_stage3(record: dict[str, str]) -> dict[str, object]:
-            return run_roleplaying_society_record(
+            result = run_roleplaying_society_record(
                 record,
                 stage="stage3",
                 taxonomy=taxonomy,
@@ -508,7 +851,12 @@ def run_profile(
                 backend_id=backend_id,
                 society_mode=args.society_mode,
                 task_builder=profile.task_builder,
+                explanation_mode=args.explanation_mode,
+                model_evidence_builder=profile.evidence_builder,
             )
+            if run_id is not None:
+                result["run_id"] = run_id
+            return result
 
         stage3_progress = None if args.no_progress else ConsoleProgress("Stage 3")
         if stage3_progress is not None:
@@ -524,6 +872,7 @@ def run_profile(
             progress_callback=stage3_progress,
             require_valid_json=args.require_valid_json,
             taxonomy=taxonomy,
+            explanation_mode=args.explanation_mode,
         )
         evaluated_ids = {row["record_id"] for row in stage3_records}
         positive_records = [
@@ -548,8 +897,9 @@ def run_profile(
                 "config_hash": stage3_hash,
                 "max_turns": args.max_turns,
                 "require_valid_json": args.require_valid_json,
+                **experiment_inputs,
                 "final": evaluate_stage3(
-                    positive_records, positive_stage3_rows, source="final"
+                    positive_records, positive_stage3_rows, source="final", taxonomy=taxonomy
                 ),
                 "http_single_llm_control": {
                     "metrics_path": str(single_stage3_path),
@@ -571,7 +921,8 @@ def run_profile(
                 "base_url": config["base_url"],
                 "max_turns": args.max_turns,
                 "require_valid_json": args.require_valid_json,
-                **evaluate_end_to_end(stage2_records, stage2_rows, stage3_rows),
+                **experiment_inputs,
+                **evaluate_end_to_end(stage2_records, stage2_rows, stage3_rows, taxonomy=taxonomy),
             },
         )
 

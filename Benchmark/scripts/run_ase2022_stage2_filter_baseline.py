@@ -15,11 +15,47 @@ from Benchmark.scripts.run_ase2022_llm_baseline import (  # noqa: E402
     model_slug,
 )
 from Benchmark.src.ase2022_stage2_filter_baseline import run_filter_prompts  # noqa: E402
+from Benchmark.src.llm_provider_config import (  # noqa: E402
+    GEMINI_PROVIDER_ALIASES,
+    canonical_provider,
+    resolve_gemini_config,
+    resolve_selected_models as _resolve_selected_models,
+)
 
 
 def resolve_run_config(
-    env: dict[str, str], base_url_override: str | None = None
+    env: dict[str, str],
+    base_url_override: str | None = None,
+    provider: str = "proxy",
 ) -> dict[str, object]:
+    provider = canonical_provider(provider)
+    if provider == "gemini":
+        gemini = resolve_gemini_config(env, base_url_override=base_url_override)
+        return {
+            "models": DEFAULT_MODELS,
+            **gemini,
+            "wire_api": "chat_completions",
+            "responses_path": "/responses",
+            "http_client": env.get("HTTP_CLIENT", "urllib"),
+        }
+    if provider == "deepseek":
+        api_key = env.get("DEEPSEEK_API_KEY") or env.get("DEEPSEEK_API")
+        if not api_key:
+            raise SystemExit("Missing DEEPSEEK_API_KEY in .env or environment")
+        return {
+            "models": DEFAULT_MODELS,
+            "base_url": (
+                base_url_override
+                or env.get("DEEPSEEK_BASE_URL")
+                or "https://api.deepseek.com"
+            ),
+            "api_key": api_key,
+            "wire_api": "chat_completions",
+            "responses_path": "/responses",
+            "http_client": env.get("HTTP_CLIENT", "urllib"),
+        }
+    if provider != "proxy":
+        raise ValueError("provider must be proxy, deepseek, or gemini")
     base_url = (
         base_url_override
         or env.get("SELF_BASE_URL")
@@ -45,6 +81,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the ASE2022 Stage 2 filtering baseline.")
     parser.add_argument("--base-url", default=None)
     parser.add_argument(
+        "--provider",
+        choices=("proxy", "deepseek", *sorted(GEMINI_PROVIDER_ALIASES)),
+        default="proxy",
+    )
+    parser.add_argument(
         "--prompts-path",
         default=(
             "Benchmark/results/ase2022_stage2_filter_baseline/"
@@ -63,10 +104,11 @@ def main() -> None:
     parser.add_argument("--responses-path", default=None)
     parser.add_argument("--http-client", choices=("urllib", "powershell"), default=None)
     args = parser.parse_args()
+    args.provider = canonical_provider(args.provider)
 
     _load_env_file(REPO_ROOT / ".env")
-    config = resolve_run_config(os.environ, args.base_url)
-    models = args.models or config["models"]
+    config = resolve_run_config(os.environ, args.base_url, provider=args.provider)
+    models = _resolve_selected_models(args.provider, args.models, config["models"])
     output_dir = Path(args.output_dir)
     for model in models:
         slug = model_slug(str(model))

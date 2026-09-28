@@ -1,0 +1,30 @@
+{
+  "schema_version": "ase-github-capture-request-v1",
+  "domain": "ase2022",
+  "bundle_id": "ase2022-dev50-r1-r3-harm-v2",
+  "split_id": "ase2022-stage3-contaminated-development-seed20260806-revision1",
+  "split_manifest_sha256": "dddad7490213c8161f6113176c447e8eef93841f8aebbea16c126b9f3da0b663",
+  "runner_cohort_sha256": "2636894f4d656cf278e9370b224a47acb7714d7a354d85f19ac8613956337e9f",
+  "reserved_entity_denylist_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "capture_policy_id": "github-one-hop-maintainer-pointer-v2",
+  "retrieved_at": "2026-08-19T06:09:07Z",
+  "retrieval_tool_name": "adaptive-empirical-frozen-github-capture",
+  "retrieval_tool_version": "task3-maintainer-pointer-v2",
+  "retrieval_tool_module_sha256": "1fd9aec912d629ad6a35e64138016341c1d349945540aae1206ebc372e6af5e8",
+  "records": [
+    {"record_id": "ase2022_towards_understanding_the_faults_of:2a5208a3df4eec74", "issue_url": "https://github.com/justadudewhohacks/face-api.js/issues/201"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:32ae23d9727d5093", "issue_url": "https://github.com/tensorflow/tfjs/issues/4808"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:40bb6dce12037e19", "issue_url": "https://github.com/tensorflow/tfjs/issues/5854"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:5386d681244ca925", "issue_url": "https://github.com/tensorflow/tfjs/issues/4727"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:53bd1ca154a158aa", "issue_url": "https://github.com/justadudewhohacks/face-api.js/issues/596"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:5a54b197ecd4d068", "issue_url": "https://github.com/tensorflow/tfjs/issues/5278"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:5b1cffb974ddbbb6", "issue_url": "https://github.com/tensorflow/tfjs/issues/5400"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:622611082d25a6f1", "issue_url": "https://github.com/justadudewhohacks/face-api.js/issues/228"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:73210f3efed8b6c4", "issue_url": "https://github.com/justadudewhohacks/face-api.js/issues/120"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:81e596760174916a", "issue_url": "https://github.com/justadudewhohacks/face-api.js/issues/734"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:8360c81d83d42fc1", "issue_url": "https://github.com/tensorflow/tfjs/issues/5866"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:9c9f1bf59a72d6fd", "issue_url": "https://github.com/tensorflow/tfjs/issues/5172"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:bfc31c239d338946", "issue_url": "https://github.com/tensorflow/tfjs/issues/5276"},
+    {"record_id": "ase2022_towards_understanding_the_faults_of:cb2aaf9e7123b878", "issue_url": "https://github.com/tensorflow/tfjs/issues/5573"}
+  ]
+}

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from Benchmark.scripts import run_ase2022_stage2_filter_baseline as runner
 from Benchmark.scripts.run_ase2022_stage2_filter_baseline import resolve_run_config
 from Benchmark.src import ase2022_stage2_filter_baseline as baseline
 
@@ -143,3 +144,38 @@ def test_resolve_run_config_accepts_self_credentials() -> None:
     config = resolve_run_config({"SELF_BASE_URL": "https://example.test/v1", "SELF_API": "key"})
     assert config["base_url"] == "https://example.test/v1"
     assert config["api_key"] == "key"
+
+
+def test_resolve_run_config_uses_deepseek_credentials_for_deepseek_provider() -> None:
+    config = resolve_run_config(
+        {
+            "SELF_API": "proxy-key",
+            "SELF_BASE_URL": "https://proxy.example/v1",
+            "DEEPSEEK_API_KEY": "deepseek-key",
+        },
+        provider="deepseek",
+    )
+
+    assert config["base_url"] == "https://api.deepseek.com"
+    assert config["api_key"] == "deepseek-key"
+
+
+def test_resolve_run_config_uses_official_gemini_credentials() -> None:
+    config = resolve_run_config(
+        {"GEMINI_API_KEY": "gemini-key"},
+        provider="gemini",
+    )
+
+    assert config["base_url"] == (
+        "https://generativelanguage.googleapis.com/v1beta/openai"
+    )
+    assert config["api_key"] == "gemini-key"
+
+
+def test_gemini_stage2_filter_requires_explicit_models() -> None:
+    with pytest.raises(SystemExit, match="--provider gemini requires explicit --models"):
+        runner._resolve_selected_models("gemini", None, ["proxy-default"])
+
+    assert runner._resolve_selected_models(
+        "genemi", ["gemini-3.6-flash"], ["proxy-default"]
+    ) == ["gemini-3.6-flash"]

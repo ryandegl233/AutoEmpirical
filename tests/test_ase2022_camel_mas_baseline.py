@@ -84,6 +84,209 @@ def test_build_unified_cohort_rejects_positive_without_stage3_labels(
         mas.build_unified_cohort(stage2_path, stage3_path, positives=1, negatives=1)
 
 
+def test_issue_only_holdout_excludes_prior_records_and_pull_requests() -> None:
+    examples = [
+        _record(
+            "old-positive",
+            issue_url="https://github.com/org/repo/issues/1",
+            decision=mas.ACCEPTED_FAULT,
+        ),
+        _record(
+            "positive-issue",
+            issue_url="https://github.com/org/repo/issues/2",
+            decision=mas.ACCEPTED_FAULT,
+        ),
+        _record(
+            "positive-pr",
+            issue_url="https://github.com/org/repo/pull/3",
+            decision=mas.ACCEPTED_FAULT,
+        ),
+        _record(
+            "old-negative",
+            issue_url="https://github.com/org/repo/issues/4",
+            decision=mas.REJECTED_CANDIDATE,
+        ),
+        _record(
+            "negative-issue",
+            issue_url="https://github.com/org/repo/issues/5",
+            decision=mas.REJECTED_CANDIDATE,
+        ),
+        _record(
+            "negative-pr",
+            issue_url="https://github.com/org/repo/pull/6",
+            decision=mas.REJECTED_CANDIDATE,
+        ),
+    ]
+    stage3_rows = [
+        _record(
+            "positive-issue",
+            symptom="Crash",
+            root_cause="Incorrect Code Logic",
+        ),
+        _record(
+            "positive-pr",
+            symptom="Poor Performance",
+            root_cause="WebGL Limits",
+        ),
+    ]
+
+    cohort = mas.select_issue_only_holdout(
+        examples,
+        stage3_rows,
+        excluded_record_ids={"old-positive", "old-negative"},
+        positives=1,
+        negatives=1,
+        seed=20260806,
+    )
+
+    assert [row["record_id"] for row in cohort] == [
+        "positive-issue",
+        "negative-issue",
+    ]
+    assert [row["decision"] for row in cohort] == [
+        mas.ACCEPTED_FAULT,
+        mas.REJECTED_CANDIDATE,
+    ]
+    assert cohort[0]["symptom"] == "Crash"
+    assert cohort[0]["root_cause"] == "Incorrect Code Logic"
+    assert cohort[1]["symptom"] == ""
+    assert all("/issues/" in row["issue_url"] for row in cohort)
+
+
+def test_issue_only_holdout_rejects_positive_without_stage3_labels() -> None:
+    examples = [
+        _record(
+            "positive",
+            issue_url="https://github.com/org/repo/issues/1",
+            decision=mas.ACCEPTED_FAULT,
+        ),
+        _record(
+            "negative",
+            issue_url="https://github.com/org/repo/issues/2",
+            decision=mas.REJECTED_CANDIDATE,
+        ),
+    ]
+
+    with pytest.raises(ValueError, match="Stage 3 labels"):
+        mas.select_issue_only_holdout(
+            examples,
+            [_record("positive", symptom="", root_cause="Cause")],
+            excluded_record_ids=set(),
+            positives=1,
+            negatives=1,
+            seed=20260806,
+        )
+
+
+def test_issue_only_holdout_keeps_issue_with_empty_text_fields() -> None:
+    positive = _record(
+        "positive",
+        issue_url="https://github.com/org/repo/issues/1",
+        title="",
+        body="",
+        comments="",
+        decision=mas.ACCEPTED_FAULT,
+    )
+    negative = _record(
+        "negative",
+        issue_url="https://github.com/org/repo/issues/2",
+        title="",
+        body="",
+        comments="",
+        decision=mas.REJECTED_CANDIDATE,
+    )
+
+    cohort = mas.select_issue_only_holdout(
+        [positive, negative],
+        [
+            _record(
+                "positive",
+                symptom="Crash",
+                root_cause="Incorrect Code Logic",
+            )
+        ],
+        excluded_record_ids=set(),
+        positives=1,
+        negatives=1,
+        seed=20260806,
+    )
+
+    assert [row["record_id"] for row in cohort] == ["positive", "negative"]
+
+
+def test_issue_only_holdout_uses_stable_sha256_ranking() -> None:
+    examples = [
+        _record(
+            record_id,
+            issue_url=f"https://github.com/org/repo/issues/{index}",
+            decision=decision,
+        )
+        for decision, prefix, start in (
+            (mas.ACCEPTED_FAULT, "p", 1),
+            (mas.REJECTED_CANDIDATE, "n", 4),
+        )
+        for index, record_id in enumerate(
+            (f"{prefix}1", f"{prefix}2", f"{prefix}3"),
+            start=start,
+        )
+    ]
+    stage3_rows = [
+        _record(
+            record_id,
+            symptom="Crash",
+            root_cause="Incorrect Code Logic",
+        )
+        for record_id in ("p1", "p2", "p3")
+    ]
+
+    cohort = mas.select_issue_only_holdout(
+        examples,
+        stage3_rows,
+        excluded_record_ids=set(),
+        positives=2,
+        negatives=2,
+        seed=20260806,
+    )
+
+    assert [row["record_id"] for row in cohort] == [
+        "p2",
+        "p3",
+        "n1",
+        "n3",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("source_uri", "expected"),
+    [
+        ("https://github.com/org/repo/issues/123", True),
+        ("https://github.com/org/repo/issues/123/", True),
+        ("https://github.com/org/repo/issues/123?x=1#note", True),
+        ("ftp://github.com/org/repo/issues/123", False),
+        ("https://www.github.com/org/repo/issues/123", False),
+        ("https://github.com/org/repo/issues/0", False),
+        ("https://github.com/org/repo/issues/123/files", False),
+        ("https://github.com/org/repo/pull/123", False),
+    ],
+)
+def test_github_issue_url_boundary(
+    source_uri: str,
+    expected: bool,
+) -> None:
+    assert mas._is_github_issue_url(source_uri) is expected
+
+
+def test_canonical_text_sha256_ignores_bom_and_line_endings(
+    tmp_path: Path,
+) -> None:
+    lf = tmp_path / "lf.txt"
+    crlf = tmp_path / "crlf.txt"
+    lf.write_bytes("one\ntwo\n".encode("utf-8"))
+    crlf.write_bytes(b"\xef\xbb\xbfone\r\ntwo\r\n")
+
+    assert mas._canonical_text_sha256(lf) == mas._canonical_text_sha256(crlf)
+
+
 def test_parse_role_output_accepts_markdown_fenced_json() -> None:
     parsed = mas.parse_role_output(
         '```json\n{"decision":"accepted_fault"}\n```',
@@ -1310,6 +1513,119 @@ def test_prepare_artifacts_writes_cohort_prompts_taxonomy_and_manifest(tmp_path:
     assert all("ground_truth" in row for row in stage2_prompts)
     assert all("ground_truth" not in row["user_prompt"] for row in stage2_prompts)
     assert all("ground_truth" not in row for row in stage3_prompts)
+
+
+def test_prepare_issue_only_holdout_writes_auditable_artifacts(
+    tmp_path: Path,
+) -> None:
+    stage1_path = tmp_path / "stage1.csv"
+    stage2_path = tmp_path / "stage2.csv"
+    stage3_path = tmp_path / "stage3.csv"
+    excluded_path = tmp_path / "prior.csv"
+    output_dir = tmp_path / "holdout"
+    positive = _record(
+        "positive",
+        issue_url="https://github.com/org/repo/issues/1",
+    )
+    negative = _record(
+        "negative",
+        issue_url="https://github.com/org/repo/issues/2",
+    )
+    old_positive = _record(
+        "old-positive",
+        issue_url="https://github.com/org/repo/issues/3",
+    )
+    old_negative = _record(
+        "old-negative",
+        issue_url="https://github.com/org/repo/issues/4",
+    )
+    pull_request = _record(
+        "pull-request",
+        issue_url="https://github.com/org/repo/pull/5",
+    )
+    _write_csv(
+        stage1_path,
+        [positive, negative, old_positive, old_negative, pull_request],
+    )
+    _write_csv(stage2_path, [positive, old_positive, pull_request])
+    _write_csv(
+        stage3_path,
+        [
+            {
+                **positive,
+                "symptom": "Crash",
+                "root_cause": "Incorrect Code Logic",
+            },
+            {
+                **old_positive,
+                "symptom": "Poor Performance",
+                "root_cause": "WebGL Limits",
+            },
+            {
+                **pull_request,
+                "symptom": "Crash",
+                "root_cause": "Dependency Error",
+            },
+        ],
+    )
+    _write_csv(excluded_path, [old_positive, old_negative])
+
+    paths = mas.prepare_issue_only_holdout_artifacts(
+        stage1_path=stage1_path,
+        stage2_path=stage2_path,
+        stage3_path=stage3_path,
+        excluded_cohort_path=excluded_path,
+        output_dir=output_dir,
+        positives=1,
+        negatives=1,
+        seed=20260806,
+    )
+
+    cohort = list(csv.DictReader(paths["cohort"].open(encoding="utf-8")))
+    manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+    assert [row["record_id"] for row in cohort] == ["positive", "negative"]
+    assert all("/issues/" in row["issue_url"] for row in cohort)
+    assert manifest["sampling"] == {
+        "seed": 20260806,
+        "algorithm": "sha256_rank_v1",
+        "positive_count": 1,
+        "negative_count": 1,
+        "issue_only": True,
+        "without_replacement": True,
+        "excluded_record_count": 2,
+        "overlap_with_excluded_count": 0,
+        "candidate_pool_counts": {
+            mas.ACCEPTED_FAULT: 1,
+            mas.REJECTED_CANDIDATE: 1,
+        },
+    }
+    assert manifest["cohort_sha256"]
+    assert set(manifest["source_sha256"]) == {
+        "stage1",
+        "stage2",
+        "stage3",
+        "excluded_cohort",
+    }
+    assert set(manifest["artifact_sha256"]) == {
+        "cohort",
+        "stage2_prompts",
+        "stage3_prompts",
+        "taxonomy",
+    }
+    assert manifest["artifact_sha256"]["cohort"] == mas._canonical_text_sha256(
+        paths["cohort"]
+    )
+    assert len(
+        paths["stage2_prompts"].read_text(encoding="utf-8").splitlines()
+    ) == 2
+    assert len(
+        paths["stage3_prompts"].read_text(encoding="utf-8").splitlines()
+    ) == 1
+    stage3_prompt = json.loads(
+        paths["stage3_prompts"].read_text(encoding="utf-8").splitlines()[0]
+    )
+    assert stage3_prompt["paper_id"] == positive["paper_id"]
+    assert stage3_prompt["issue_url"] == positive["issue_url"]
 
 
 def test_config_hash_is_stable_and_changes_with_experiment_inputs() -> None:

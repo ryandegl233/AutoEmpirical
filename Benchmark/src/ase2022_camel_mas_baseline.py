@@ -8,11 +8,17 @@ import re
 import time
 from pathlib import Path
 from typing import Any, Callable, Literal, Protocol, TypeVar
+from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from Benchmark.src import ase2022_llm_baseline as stage3_baseline
 from Benchmark.src import ase2022_stage2_filter_baseline as stage2_baseline
+from Benchmark.src import mas_rationale
+from Benchmark.src.annotation_contracts import (
+    annotation_guidance, annotation_metrics, annotation_mode, label_valid, labels_equal,
+)
+from Benchmark.src.mas_request_trace import capture_request, capture_response
 
 
 ASE2022_PAPER_ID = stage2_baseline.ASE2022_PAPER_ID
@@ -100,12 +106,20 @@ TaskBuilder = Callable[
 ]
 CONFIG_SCHEMA_VERSION = 7
 SocietyMode = Literal["native", "evidence_anchored"]
+ExplanationMode = mas_rationale.ExplanationMode
+EvidenceBuilder = Callable[[dict[str, str]], dict[str, str]]
 
 
 class RoleExecutionError(ValueError):
     def __init__(self, message: str, metadata: dict[str, Any]) -> None:
         super().__init__(message)
         self.metadata = metadata
+
+
+class SocietyInitializationError(RuntimeError):
+    def __init__(self, cause: Exception, role_stats: dict[str, dict[str, Any]]) -> None:
+        super().__init__(f"{type(cause).__name__}: {cause}")
+        self.role_stats = role_stats
 
 
 class _TrackedCallable:
@@ -116,10 +130,27 @@ class _TrackedCallable:
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self._stats["api_request_count"] += 1
         started = time.perf_counter()
+        trace = None
+        http_start = len(self._stats.get("http_exchange_trace", []))
+        if "request_trace" in self._stats:
+            trace = {"attempt": self._stats["api_request_count"],
+                     "request": capture_request(kwargs), "response": None, "error_type": None}
         try:
             response = self._target(*args, **kwargs)
+            if trace is not None:
+                trace["response"] = capture_response(response)
+        except Exception as error:
+            if trace is not None:
+                trace["error_type"] = type(error).__name__
+            raise
         finally:
             self._stats["latency_seconds"] += time.perf_counter() - started
+            if trace is not None:
+                trace["latency_seconds"] = time.perf_counter() - started
+                trace["http_exchanges"] = copy.deepcopy(
+                    self._stats.get("http_exchange_trace", [])[http_start:]
+                )
+                self._stats["request_trace"].append(trace)
         self._stats["usage_observed_request_count"] += 1
         usage = getattr(response, "usage", None)
         for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
@@ -163,7 +194,7 @@ class _BetaProxy:
 
 
 class _CountingOpenAIClient:
-    def __init__(self, client: Any) -> None:
+    def __init__(self, client: Any, *, capture_trace: bool = False) -> None:
         self._client = client
         self.request_stats = {
             "api_request_count": 0,
@@ -173,8 +204,32 @@ class _CountingOpenAIClient:
             "total_tokens": 0,
             "latency_seconds": 0.0,
         }
+        if capture_trace:
+            self.request_stats["request_trace"] = []
+            self.request_stats["http_exchange_trace"] = []
+            transport = getattr(client, "_client", None)
+            hooks = getattr(transport, "event_hooks", None)
+            if isinstance(hooks, dict):
+                hooks.setdefault("response", []).append(self._capture_http_response)
         self.chat = _ChatProxy(client.chat, self.request_stats)
         self.beta = _BetaProxy(client.beta, self.request_stats)
+
+    def _capture_http_response(self, response: Any) -> None:
+        """Keep visible answers before SDK structured parsing can discard them."""
+        exchange = {
+            "sdk_attempt": self.request_stats["api_request_count"],
+            "status_code": response.status_code,
+            "request": {}, "response": None, "read_error_type": None,
+        }
+        try:
+            request_body = json.loads(response.request.content)
+            exchange["request"] = capture_request(request_body)
+            # httpx caches read bodies, so the SDK still consumes the same bytes.
+            response.read()
+            exchange["response"] = capture_response(response.json())
+        except Exception as error:
+            exchange["read_error_type"] = type(error).__name__
+        self.request_stats["http_exchange_trace"].append(exchange)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -190,7 +245,9 @@ def build_config_hash(
     max_turns: int = DEFAULT_MAX_TURNS,
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
     require_valid_json: bool = False,
+    explanation_mode: ExplanationMode = "label_only",
 ) -> str:
+    mas_rationale.validate_mode(explanation_mode)
     if max_turns <= 0:
         raise ValueError("max_turns must be positive")
     architecture = society_architecture(society_mode)
@@ -207,6 +264,15 @@ def build_config_hash(
         "max_turns": max_turns,
         "require_valid_json": require_valid_json,
     }
+    if explanation_mode == "evidence_rationale":
+        payload.update({
+            "explanation_mode": explanation_mode,
+            "explanation_contract_version": mas_rationale.CONTRACT_VERSION,
+            "evidence_sha256": hashlib.sha256(json.dumps(
+                [{key: row.get(key, "") for key in sorted(mas_rationale.CITABLE_FIELDS)} for row in records],
+                ensure_ascii=False, sort_keys=True,
+            ).encode("utf-8")).hexdigest(),
+        })
     encoded = json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
 
@@ -227,6 +293,7 @@ def make_camel_agent_factory(
     temperature: float | None = 0.0,
     max_retries: int = 3,
     timeout: float | None = None,
+    capture_trace: bool = False,
 ) -> AgentFactory:
     from camel.agents import ChatAgent
     from camel.models import ModelFactory
@@ -243,7 +310,7 @@ def make_camel_agent_factory(
         }
         if timeout is not None:
             client_options["timeout"] = timeout
-        counting_client = _CountingOpenAIClient(OpenAI(**client_options))
+        counting_client = _CountingOpenAIClient(OpenAI(**client_options), capture_trace=capture_trace)
         backend = ModelFactory.create(
             model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
             model_type=model,
@@ -270,6 +337,7 @@ def make_camel_society_factory(
     max_retries: int = 3,
     timeout: float | None = None,
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
+    capture_trace: bool = False,
 ) -> SocietyFactory:
     from camel.models import ModelFactory
     from camel.societies import RolePlaying
@@ -287,7 +355,7 @@ def make_camel_society_factory(
         }
         if timeout is not None:
             client_options["timeout"] = timeout
-        counting_client = _CountingOpenAIClient(OpenAI(**client_options))
+        counting_client = _CountingOpenAIClient(OpenAI(**client_options), capture_trace=capture_trace)
         backend = ModelFactory.create(
             model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
             model_type=model,
@@ -325,9 +393,12 @@ def make_camel_society_factory(
             role_stats = {"task_specifier": task_stats, **role_stats}
         else:
             roleplaying_options["with_task_specify"] = False
-        society = RolePlaying(
-            **roleplaying_options,
-        )
+        try:
+            society = RolePlaying(**roleplaying_options)
+        except Exception as error:
+            if capture_trace:
+                raise SocietyInitializationError(error, role_stats) from error
+            raise
         society._mas_role_request_stats = role_stats
         return society
 
@@ -353,6 +424,140 @@ def _cohort_row(row: dict[str, str], decision: str) -> dict[str, str]:
         "symptom": row.get("symptom", "") if decision == ACCEPTED_FAULT else "",
         "root_cause": row.get("root_cause", "") if decision == ACCEPTED_FAULT else "",
     }
+
+
+def _is_github_issue_url(source_uri: str) -> bool:
+    parsed = urlparse(source_uri.strip())
+    segments = [segment for segment in parsed.path.split("/") if segment]
+    return (
+        parsed.scheme.casefold() == "https"
+        and parsed.netloc.casefold() == "github.com"
+        and len(segments) == 4
+        and segments[2].casefold() == "issues"
+        and segments[3].isdigit()
+        and int(segments[3]) > 0
+    )
+
+
+def _issue_only_candidate_pools(
+    examples: list[dict[str, str]],
+    stage3_rows: list[dict[str, str]],
+    excluded_record_ids: set[str],
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    stage3_by_id = {
+        row.get("record_id", ""): row
+        for row in stage3_rows
+    }
+    if len(stage3_by_id) != len(stage3_rows):
+        raise ValueError("Stage 3 contains duplicate record_id")
+    eligible = [
+        row
+        for row in examples
+        if row.get("record_id") not in excluded_record_ids
+        and _is_github_issue_url(row.get("issue_url", ""))
+    ]
+    positive_pool: list[dict[str, str]] = []
+    for row in eligible:
+        if row.get("decision") != ACCEPTED_FAULT:
+            continue
+        labels = stage3_by_id.get(row["record_id"])
+        if labels is None:
+            continue
+        if not labels.get("symptom", "").strip() or not labels.get(
+            "root_cause", ""
+        ).strip():
+            raise ValueError(
+                f"positive {row['record_id']} is missing Stage 3 labels"
+            )
+        positive_pool.append(
+            {
+                **row,
+                "symptom": labels["symptom"],
+                "root_cause": labels["root_cause"],
+            }
+        )
+    negative_pool = [
+        row
+        for row in eligible
+        if row.get("decision") == REJECTED_CANDIDATE
+    ]
+    return positive_pool, negative_pool
+
+
+def _sha256_ranked_sample(
+    pool: list[dict[str, str]],
+    *,
+    count: int,
+    seed: int,
+    decision: str,
+) -> list[dict[str, str]]:
+    def rank(row: dict[str, str]) -> tuple[str, str]:
+        record_id = row["record_id"]
+        payload = (
+            f"sha256_rank_v1:{seed}:{decision}:{record_id}"
+        ).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest(), record_id
+
+    return sorted(pool, key=rank)[:count]
+
+
+def select_issue_only_holdout(
+    examples: list[dict[str, str]],
+    stage3_rows: list[dict[str, str]],
+    *,
+    excluded_record_ids: set[str],
+    positives: int = 50,
+    negatives: int = 50,
+    seed: int = 20260806,
+) -> list[dict[str, str]]:
+    """Select a reproducible balanced holdout where the PR gate is inert."""
+
+    if positives <= 0 or negatives <= 0:
+        raise ValueError("positives and negatives must be positive")
+    positive_pool, negative_pool = _issue_only_candidate_pools(
+        examples,
+        stage3_rows,
+        excluded_record_ids,
+    )
+    if len(positive_pool) < positives:
+        raise ValueError(
+            f"requested {positives} positive issues but found "
+            f"{len(positive_pool)}"
+        )
+    if len(negative_pool) < negatives:
+        raise ValueError(
+            f"requested {negatives} negative issues but found "
+            f"{len(negative_pool)}"
+        )
+
+    selected_positives = _sha256_ranked_sample(
+        positive_pool,
+        count=positives,
+        seed=seed,
+        decision=ACCEPTED_FAULT,
+    )
+    selected_negatives = _sha256_ranked_sample(
+        negative_pool,
+        count=negatives,
+        seed=seed,
+        decision=REJECTED_CANDIDATE,
+    )
+    return [
+        *(
+            _cohort_row(row, ACCEPTED_FAULT)
+            for row in sorted(
+                selected_positives,
+                key=lambda row: row["record_id"],
+            )
+        ),
+        *(
+            _cohort_row(row, REJECTED_CANDIDATE)
+            for row in sorted(
+                selected_negatives,
+                key=lambda row: row["record_id"],
+            )
+        ),
+    ]
 
 
 def build_unified_cohort(
@@ -427,6 +632,8 @@ def _write_stage3_prompts(
                 continue
             row = {
                 "record_id": record["record_id"],
+                "paper_id": record["paper_id"],
+                "issue_url": record["issue_url"],
                 "system_prompt": system_prompt,
                 "user_prompt": stage3_baseline.build_user_prompt(record),
             }
@@ -440,6 +647,138 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _canonical_text_sha256(path: Path) -> str:
+    text = path.read_text(encoding="utf-8-sig")
+    canonical = text.replace("\r\n", "\n").replace("\r", "\n")
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def prepare_issue_only_holdout_artifacts(
+    *,
+    stage1_path: str | Path,
+    stage2_path: str | Path,
+    stage3_path: str | Path,
+    excluded_cohort_path: str | Path,
+    output_dir: str | Path,
+    positives: int = 50,
+    negatives: int = 50,
+    seed: int = 20260806,
+) -> dict[str, Path]:
+    """Prepare a frozen issue-only holdout and shared baseline inputs."""
+
+    sources = {
+        "stage1": Path(stage1_path),
+        "stage2": Path(stage2_path),
+        "stage3": Path(stage3_path),
+        "excluded_cohort": Path(excluded_cohort_path),
+    }
+    examples = stage2_baseline.load_ase2022_stage2_filter_examples(
+        stage1_path=sources["stage1"],
+        stage2_path=sources["stage2"],
+    )
+    stage3_rows = _read_csv(sources["stage3"])
+    excluded_rows = _read_csv(sources["excluded_cohort"])
+    excluded_ids = {
+        row.get("record_id", "")
+        for row in excluded_rows
+        if row.get("record_id", "")
+    }
+    cohort = select_issue_only_holdout(
+        examples,
+        stage3_rows,
+        excluded_record_ids=excluded_ids,
+        positives=positives,
+        negatives=negatives,
+        seed=seed,
+    )
+    selected_ids = {row["record_id"] for row in cohort}
+    overlap = selected_ids & excluded_ids
+    if overlap:
+        raise ValueError(
+            f"holdout overlaps excluded cohort: {sorted(overlap)[:5]}"
+        )
+    positive_pool, negative_pool = _issue_only_candidate_pools(
+        examples,
+        stage3_rows,
+        excluded_ids,
+    )
+
+    output = Path(output_dir)
+    taxonomy = {
+        "symptom": sorted(stage3_baseline.SYMPTOM_DEFINITIONS),
+        "root_cause": sorted(stage3_baseline.ROOT_CAUSE_DEFINITIONS),
+    }
+    cohort_path = write_unified_cohort(
+        cohort,
+        output / "ase2022_issue_only_holdout_cohort.csv",
+    )
+    stage2_prompts = stage2_baseline.write_prompts_jsonl(
+        cohort,
+        output / "ase2022_issue_only_holdout_stage2_prompts.jsonl",
+    )
+    stage3_prompts = _write_stage3_prompts(
+        cohort,
+        taxonomy,
+        output / "ase2022_issue_only_holdout_stage3_prompts.jsonl",
+    )
+    taxonomy_path = output / "ase2022_issue_only_holdout_taxonomy.json"
+    taxonomy_path.write_text(
+        json.dumps(taxonomy, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    manifest_path = output / "ase2022_issue_only_holdout_manifest.json"
+    manifest = {
+        "task": "ase2022_issue_only_holdout",
+        "paper_id": ASE2022_PAPER_ID,
+        "sampling": {
+            "seed": seed,
+            "algorithm": "sha256_rank_v1",
+            "positive_count": positives,
+            "negative_count": negatives,
+            "issue_only": True,
+            "without_replacement": True,
+            "excluded_record_count": len(excluded_ids),
+            "overlap_with_excluded_count": len(overlap),
+            "candidate_pool_counts": {
+                ACCEPTED_FAULT: len(positive_pool),
+                REJECTED_CANDIDATE: len(negative_pool),
+            },
+        },
+        "record_ids": [row["record_id"] for row in cohort],
+        "source_paths": {
+            name: str(path) for name, path in sources.items()
+        },
+        "source_sha256": {
+            name: _canonical_text_sha256(path)
+            for name, path in sources.items()
+        },
+        "cohort_sha256": _canonical_text_sha256(cohort_path),
+        "artifact_sha256": {
+            "cohort": _canonical_text_sha256(cohort_path),
+            "stage2_prompts": _canonical_text_sha256(stage2_prompts),
+            "stage3_prompts": _canonical_text_sha256(stage3_prompts),
+            "taxonomy": _canonical_text_sha256(taxonomy_path),
+        },
+        "model_input_fields": list(SAFE_TEXT_FIELDS),
+        "gold_fields_excluded_from_agent_prompts": [
+            "decision",
+            "symptom",
+            "root_cause",
+        ],
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "cohort": cohort_path,
+        "stage2_prompts": stage2_prompts,
+        "stage3_prompts": stage3_prompts,
+        "taxonomy": taxonomy_path,
+        "manifest": manifest_path,
+    }
 
 
 def prepare_artifacts(
@@ -560,15 +899,17 @@ def build_society_task(
     record: dict[str, str],
     stage: Literal["stage2", "stage3"],
     taxonomy: dict[str, list[str]],
+    *,
+    output_contract: str | None = None,
 ) -> str:
     if stage == "stage2":
         return (
-            f"{stage2_baseline.build_system_prompt()}\n\n"
+            f"{stage2_baseline.build_system_prompt(output_contract=output_contract)}\n\n"
             f"{stage2_baseline.build_user_prompt(record)}"
         )
     if stage == "stage3":
         return (
-            f"{stage3_baseline.build_system_prompt(taxonomy)}\n\n"
+            f"{stage3_baseline.build_system_prompt(taxonomy, output_contract=output_contract)}\n\n"
             f"{stage3_baseline.build_user_prompt(record)}"
         )
     raise ValueError("stage must be stage2 or stage3")
@@ -615,6 +956,8 @@ def _run_role(
     schema: type[SchemaT],
     max_retries: int,
     validator: Callable[[SchemaT], None] | None = None,
+    *,
+    capture_attempts: bool = False,
 ) -> tuple[SchemaT, dict[str, Any]]:
     errors: list[str] = []
     total_latency = 0.0
@@ -622,8 +965,11 @@ def _run_role(
     last_raw = ""
     request_stats = getattr(agent, "_mas_request_stats", None)
     initial_stats = dict(request_stats) if isinstance(request_stats, dict) else None
+    attempt_trace: list[dict[str, Any]] = []
+    trace_start = len(request_stats.get("request_trace", [])) if isinstance(request_stats, dict) else 0
     for attempt in range(1, max_retries + 2):
         started = time.perf_counter()
+        raw = ""
         try:
             response = agent.step(prompt, response_format=schema)
             raw = _response_content(response)
@@ -667,10 +1013,18 @@ def _run_role(
                 "output_format": parsed["output_format"],
                 "errors": errors,
             }
+            if capture_attempts:
+                attempt_trace.append({"attempt": attempt, "prompt": prompt,
+                    "raw_output": raw, "parsed_output": value.model_dump(), "error": ""})
+                metadata["attempt_trace"] = attempt_trace
+                metadata["request_trace"] = copy.deepcopy(request_stats.get("request_trace", [])[trace_start:]) if isinstance(request_stats, dict) else []
             return value, metadata
         except Exception as error:  # role errors are recorded and retried uniformly
             total_latency += time.perf_counter() - started
             errors.append(f"{type(error).__name__}: {error}")
+            if capture_attempts:
+                attempt_trace.append({"attempt": attempt, "prompt": prompt,
+                    "raw_output": raw, "parsed_output": {}, "error": errors[-1]})
     if initial_stats is not None:
         accumulated_usage = {
             key: int(request_stats.get(key, 0) - initial_stats.get(key, 0))
@@ -702,6 +1056,9 @@ def _run_role(
         "output_format": "invalid",
         "errors": errors,
     }
+    if capture_attempts:
+        metadata["attempt_trace"] = attempt_trace
+        metadata["request_trace"] = copy.deepcopy(request_stats.get("request_trace", [])[trace_start:]) if isinstance(request_stats, dict) else []
     raise RoleExecutionError("; ".join(errors), metadata)
 
 
@@ -710,9 +1067,9 @@ def _taxonomy_validator(taxonomy: dict[str, list[str]]) -> Callable[[BaseModel],
         payload = value.model_dump()
         symptom = payload.get("symptom", payload.get("suggested_symptom"))
         root_cause = payload.get("root_cause", payload.get("suggested_root_cause"))
-        if symptom not in taxonomy["symptom"]:
+        if not label_valid(taxonomy, "symptom", symptom):
             raise ValueError(f"unsupported symptom label: {symptom}")
-        if root_cause not in taxonomy["root_cause"]:
+        if not label_valid(taxonomy, "root_cause", root_cause):
             raise ValueError(f"unsupported root_cause label: {root_cause}")
 
     return validate
@@ -851,10 +1208,11 @@ def _society_response_metadata(response: Any) -> dict[str, Any]:
     }
 
 
-def _copy_society_role_stats(society: SocietyLike | None) -> dict[str, dict[str, Any]]:
-    if society is None:
-        return {}
-    stats = getattr(society, "_mas_role_request_stats", None)
+def _copy_society_role_stats(
+    society: SocietyLike | None,
+    initialization_stats: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    stats = getattr(society, "_mas_role_request_stats", initialization_stats)
     if not isinstance(stats, dict):
         return {}
     return {
@@ -880,8 +1238,11 @@ def _build_society_repair_feedback(
     stage: Literal["stage2", "stage3"],
     taxonomy: dict[str, list[str]],
     parse_error: str,
+    explanation_mode: ExplanationMode = "label_only",
 ) -> str:
-    if stage == "stage2":
+    if explanation_mode == "evidence_rationale":
+        schema_instruction = mas_rationale.output_contract(stage)
+    elif stage == "stage2":
         schema_instruction = (
             'Return exactly one of these strict JSON objects:\n'
             '{"decision":"accepted_fault"}\n'
@@ -897,6 +1258,11 @@ def _build_society_repair_feedback(
             f"Allowed symptom labels: {symptoms}\n"
             f"Allowed root_cause labels: {root_causes}"
         )
+    if stage == "stage3" and "annotation_modes" in taxonomy:
+        schema_instruction += "\n" + "\n".join(
+            annotation_guidance(taxonomy, dimension)
+            for dimension in ("symptom", "root_cause")
+        )
     return (
         "You are the AI User in a RolePlaying Society. The task is not "
         "complete because the previous AI Assistant response did not contain "
@@ -906,8 +1272,12 @@ def _build_society_repair_feedback(
         f"Parser error: {parse_error}\n"
         f"{schema_instruction}\n"
         "Preserve the classification already supported by the issue evidence. "
-        "Do not invent or map labels. Return only the JSON object, without "
-        "explanation, Markdown fences, or CAMEL_TASK_DONE."
+        "Do not invent or map labels. "
+        + (
+            "Return only the required JSON object with its rationale fields; no Markdown fences or CAMEL_TASK_DONE."
+            if explanation_mode == "evidence_rationale"
+            else "Return only the JSON object, without explanation, Markdown fences, or CAMEL_TASK_DONE."
+        )
     )
 
 
@@ -986,6 +1356,7 @@ def _build_forced_finalizer_prompt(
     stage: Literal["stage2", "stage3"],
     taxonomy: dict[str, list[str]],
     turns: list[dict[str, Any]],
+    explanation_mode: ExplanationMode = "label_only",
 ) -> str:
     last_turn = turns[-1] if turns else {}
     last_user = last_turn.get("user", {}).get("content", "")
@@ -994,6 +1365,7 @@ def _build_forced_finalizer_prompt(
         stage,
         taxonomy,
         "The Society reached its turn limit without valid JSON.",
+        explanation_mode=explanation_mode,
     )
     return (
         "Finalize the following empirical software fault analysis. Base the "
@@ -1019,13 +1391,26 @@ def run_roleplaying_society_record(
     backend_id: str = "",
     society_mode: SocietyMode = DEFAULT_SOCIETY_MODE,
     task_builder: TaskBuilder | None = None,
+    explanation_mode: ExplanationMode = "label_only",
+    model_evidence_builder: EvidenceBuilder | None = None,
 ) -> dict[str, Any]:
+    mas_rationale.validate_mode(explanation_mode)
     if max_turns <= 0:
         raise ValueError("max_turns must be positive")
     if finalizer_max_retries < 0:
         raise ValueError("finalizer_max_retries must be non-negative")
     architecture = society_architecture(society_mode)
-    task_prompt = (task_builder or build_society_task)(record, stage, taxonomy)
+    builder = task_builder or build_society_task
+    evidence_fields: dict[str, str] = {}
+    if explanation_mode == "evidence_rationale":
+        task_prompt = builder(record, stage, taxonomy, output_contract=mas_rationale.output_contract(stage))
+        evidence_builder = model_evidence_builder or stage3_baseline.model_evidence_fields
+        evidence_fields = mas_rationale.prepare_evidence_fields(evidence_builder(record), task_prompt)
+        citable_fields = [field for field, text in evidence_fields.items()
+                          if text.strip() and not mas_rationale.is_source_availability_marker(field, text)]
+        task_prompt += "\n\nCITABLE EVIDENCE FIELDS: " + json.dumps(citable_fields, ensure_ascii=False)
+    else:
+        task_prompt = builder(record, stage, taxonomy)
     immutable_evidence_sha256 = hashlib.sha256(
         task_prompt.encode("utf-8")
     ).hexdigest()
@@ -1033,8 +1418,17 @@ def run_roleplaying_society_record(
         Stage2SocietyOutput if stage == "stage2" else Stage3SocietyOutput
     )
     validator = _taxonomy_validator(taxonomy) if stage == "stage3" else None
+    if explanation_mode == "evidence_rationale":
+        schema = mas_rationale.output_schema(stage)
+        label_validator = validator
+        def validate_with_rationale(value: BaseModel) -> None:
+            if label_validator is not None:
+                label_validator(value)
+            mas_rationale.audit_citations(value, evidence_fields, stage)
+        validator = validate_with_rationale
     started = time.perf_counter()
     society: SocietyLike | None = None
+    initialization_stats: dict[str, dict[str, Any]] = {}
     turns: list[dict[str, Any]] = []
     latest_prediction: BaseModel | None = None
     latest_parse: dict[str, Any] | None = None
@@ -1132,6 +1526,7 @@ def run_roleplaying_society_record(
                 stage,
                 taxonomy,
                 assistant_meta["parse_error"],
+                explanation_mode=explanation_mode,
             )
             input_msg = _message_with_content(
                 _response_message(assistant_response),
@@ -1156,6 +1551,7 @@ def run_roleplaying_society_record(
                 stage,
                 taxonomy,
                 turns,
+                explanation_mode=explanation_mode,
             )
             try:
                 final_value, forced_finalizer = _run_role(
@@ -1164,6 +1560,7 @@ def run_roleplaying_society_record(
                     schema,
                     finalizer_max_retries,
                     validator,
+                    capture_attempts=explanation_mode == "evidence_rationale",
                 )
                 latest_prediction = final_value
                 latest_parse = {
@@ -1177,6 +1574,8 @@ def run_roleplaying_society_record(
                 error = str(finalizer_error)
                 stop_reason = "forced_finalizer_failed"
     except Exception as run_error:
+        if isinstance(run_error, SocietyInitializationError):
+            initialization_stats = run_error.role_stats
         error = f"{type(run_error).__name__}: {run_error}"
         stop_reason = "error"
 
@@ -1197,7 +1596,7 @@ def run_roleplaying_society_record(
         )
         invalid = False
 
-    role_stats = _copy_society_role_stats(society)
+    role_stats = _copy_society_role_stats(society, initialization_stats)
     if forced_finalization_attempted and forced_finalizer:
         finalizer_requests = int(forced_finalizer.get("api_request_count", 0))
         finalizer_usage = forced_finalizer.get("token_usage", {})
@@ -1232,7 +1631,7 @@ def run_roleplaying_society_record(
         specified_task_prompt = ""
     elif not isinstance(specified_task_prompt, str):
         specified_task_prompt = str(specified_task_prompt)
-    return {
+    result = {
         "record_id": record["record_id"],
         "paper_id": record.get("paper_id", ""),
         "issue_url": record.get("issue_url", ""),
@@ -1286,6 +1685,32 @@ def run_roleplaying_society_record(
         "error": error,
         "latency_seconds": latency,
     }
+    if explanation_mode == "evidence_rationale":
+        rationales, citations = ({}, []) if latest_prediction is None else mas_rationale.audit_citations(latest_prediction, evidence_fields, stage)
+        request_trace = []
+        raw_role_stats = getattr(society, "_mas_role_request_stats", initialization_stats)
+        for role, stats in raw_role_stats.items():
+            for entry in stats.get("request_trace", []):
+                request_trace.append({**copy.deepcopy(entry), "record_id": record["record_id"], "role": role,
+                    "call_id": f"{record['record_id']}:{role}:{entry['attempt']}"})
+        for entry in forced_finalizer.get("request_trace", []):
+            request_trace.append({**copy.deepcopy(entry), "record_id": record["record_id"], "role": "forced_finalizer",
+                "call_id": f"{record['record_id']}:forced_finalizer:{entry['attempt']}"})
+        result.update({
+            "explanation_mode": explanation_mode,
+            "explanation_contract_version": mas_rationale.CONTRACT_VERSION,
+            "explanation_audit": {
+                "status": "invalid" if invalid else "schema_and_citations_valid",
+                "record_id": record["record_id"], "source": output_source,
+                "task_prompt_sha256": immutable_evidence_sha256,
+                "evidence_fields": evidence_fields, "rationales": rationales, "citations": citations,
+                "semantic_support": "not_verified",
+                "request_trace": request_trace,
+                "request_trace_scope": "Observed SDK create/parse calls and visible responses. Nested http_exchanges preserve received HTTP responses before SDK parsing, including received retry responses when the transport hook is available. Transport attempts with no response may only appear as an SDK error.",
+                "request_trace_available": bool(request_trace),
+            },
+        })
+    return result
 
 
 def _safe_ratio(numerator: int, denominator: int) -> float:
@@ -1311,8 +1736,19 @@ def evaluate_stage3(
     cohort: list[dict[str, str]],
     predictions: list[dict[str, Any]],
     source: Literal["final", "proposer"] = "final",
+    *,
+    taxonomy: dict[str, Any] | None = None,
 ) -> dict[str, int | float]:
     gold = {row["record_id"]: row for row in cohort if row.get("decision") == ACCEPTED_FAULT}
+    if taxonomy is not None and "annotation_modes" in taxonomy:
+        rows = []
+        for row in predictions:
+            prediction = (
+                row.get("final_prediction", {}) if source == "final"
+                else row.get("roles", {}).get("proposer", {}).get("parsed_output", {})
+            )
+            rows.append({**prediction, "record_id": row["record_id"], "invalid": row.get("invalid", False)})
+        return annotation_metrics(list(gold.values()), rows, taxonomy)
     prediction_by_id = {row["record_id"]: row for row in predictions}
     symptom_correct = root_correct = joint_correct = invalid = 0
     for record_id, truth in gold.items():
@@ -1350,7 +1786,14 @@ def evaluate_end_to_end(
     cohort: list[dict[str, str]],
     stage2_predictions: list[dict[str, Any]],
     stage3_predictions: list[dict[str, Any]],
+    *,
+    taxonomy: dict[str, Any] | None = None,
 ) -> dict[str, int | float]:
+    native_contract = taxonomy is not None and "annotation_modes" in taxonomy
+    scored_dimensions = [
+        dimension for dimension in ("symptom", "root_cause")
+        if not native_contract or annotation_mode(taxonomy, dimension) in {"single_label", "multi_label"}
+    ]
     stage2_by_id = {row["record_id"]: row for row in stage2_predictions}
     stage3_by_id = {row["record_id"]: row for row in stage3_predictions}
     positives = [row for row in cohort if row.get("decision") == ACCEPTED_FAULT]
@@ -1376,11 +1819,18 @@ def evaluate_end_to_end(
         s3 = stage3_by_id.get(truth["record_id"], {})
         stage3_invalid_after_entry += int(not s3 or s3.get("invalid", True))
         prediction = s3.get("final_prediction", {})
-        complete_correct += int(
-            not s3.get("invalid", True)
-            and prediction.get("symptom") == truth.get("symptom")
-            and prediction.get("root_cause") == truth.get("root_cause")
-        )
+        if native_contract:
+            complete_correct += int(
+                not s3.get("invalid", True)
+                and all(label_valid(taxonomy, dimension, prediction.get(dimension)) for dimension in ("symptom", "root_cause"))
+                and all(labels_equal(taxonomy, dimension, prediction.get(dimension), truth.get(dimension)) for dimension in scored_dimensions)
+            )
+        else:
+            complete_correct += int(
+                not s3.get("invalid", True)
+                and prediction.get("symptom") == truth.get("symptom")
+                and prediction.get("root_cause") == truth.get("root_cause")
+            )
     precision = _safe_ratio(complete_correct, len(entered_ids))
     recall = _safe_ratio(complete_correct, len(positives))
     execution_rows = [*stage2_predictions, *stage3_predictions]
@@ -1428,6 +1878,7 @@ def evaluate_end_to_end(
         "total_role_latency_seconds": total_role_latency,
         "total_tokens": total_tokens,
         "token_usage_incomplete_role_count": incomplete_token_roles,
+        **({"scored_dimensions": scored_dimensions, "annotation_modes": taxonomy["annotation_modes"]} if native_contract else {}),
     }
 
 
@@ -1611,11 +2062,21 @@ def evaluate_collaboration(
     }
 
 
-def _complete_result(row: dict[str, Any], stage: str, model: str, config_hash: str) -> bool:
+def _complete_result(
+    row: dict[str, Any], stage: str, model: str, config_hash: str,
+    explanation_mode: ExplanationMode = "label_only",
+) -> bool:
     if row.get("stage") != stage or row.get("model") != model:
         return False
     if row.get("config_hash") != config_hash or row.get("invalid", True):
         return False
+    if row.get("explanation_mode", "label_only") != explanation_mode:
+        return False
+    if explanation_mode == "evidence_rationale":
+        try:
+            mas_rationale.validate_saved_audit(row, stage, parse_society_prediction)
+        except (ValueError, TypeError, AttributeError):
+            return False
     architecture = row.get("architecture")
     society_architectures = {
         "camel_roleplaying_society",
@@ -1698,11 +2159,11 @@ def validate_final_prediction(
         raise ValueError(
             f"record {record_id} has invalid Stage 3 final_prediction keys"
         )
-    if prediction.get("symptom") not in taxonomy.get("symptom", []):
+    if not isinstance(prediction.get("symptom"), str) or not label_valid(taxonomy, "symptom", prediction.get("symptom")):
         raise ValueError(
             f"record {record_id} has symptom outside the taxonomy"
         )
-    if prediction.get("root_cause") not in taxonomy.get("root_cause", []):
+    if not isinstance(prediction.get("root_cause"), str) or not label_valid(taxonomy, "root_cause", prediction.get("root_cause")):
         raise ValueError(
             f"record {record_id} has root_cause outside the taxonomy"
         )
@@ -1719,14 +2180,16 @@ def run_stage_records(
     progress_callback: Callable[[int, int, str, str], None] | None = None,
     require_valid_json: bool = False,
     taxonomy: dict[str, list[str]] | None = None,
+    explanation_mode: ExplanationMode = "label_only",
 ) -> list[dict[str, Any]]:
+    mas_rationale.validate_mode(explanation_mode)
     output = Path(predictions_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     if require_valid_json and taxonomy is None:
         raise ValueError("taxonomy is required when require_valid_json is enabled")
     existing: dict[str, dict[str, Any]] = {}
     for row in (_load_jsonl(output) if resume else []):
-        if not _complete_result(row, stage, model, config_hash):
+        if not _complete_result(row, stage, model, config_hash, explanation_mode):
             continue
         if require_valid_json:
             try:
@@ -1746,11 +2209,20 @@ def run_stage_records(
                 row["model"] = model
                 row["config_hash"] = config_hash
                 status = "completed"
-            if require_valid_json:
+            if explanation_mode == "evidence_rationale" and not row.get("invalid", True):
+                try:
+                    mas_rationale.validate_saved_audit(row, stage, parse_society_prediction)
+                except (ValueError, TypeError, AttributeError) as exc:
+                    row["invalid"] = True
+                    row["error"] = f"Invalid saved rationale audit: {exc}"
+            if require_valid_json and explanation_mode == "label_only":
                 validate_final_prediction(row, stage, taxonomy or {})
             results.append(row)
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
             handle.flush()
+            # Preserve the observable failure before strict mode stops the run.
+            if require_valid_json and explanation_mode == "evidence_rationale":
+                validate_final_prediction(row, stage, taxonomy or {})
             if progress_callback is not None:
                 progress_callback(current, total, record["record_id"], status)
     return results

@@ -14,6 +14,7 @@ from Benchmark.scripts.run_ase2022_camel_mas_baseline import (  # noqa: E402
 )
 from Benchmark.src.issta2024_bugs_in_pods_baseline import (  # noqa: E402
     build_society_task,
+    model_evidence_fields,
 )
 
 
@@ -44,6 +45,7 @@ PROFILE = CamelMasCliProfile(
     ),
     task_builder=build_society_task,
     default_require_valid_json=True,
+    evidence_builder=model_evidence_fields,
 )
 
 

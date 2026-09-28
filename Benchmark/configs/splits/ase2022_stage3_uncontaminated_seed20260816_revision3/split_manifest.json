@@ -1,0 +1,1000 @@
+{
+  "schema_version": 1,
+  "status": "revoked",
+  "revocation": {
+    "reason": "已提交并暴露的 revision1-3 IDs 必须全部作为污染排除；由 revision4 替代。",
+    "replaced_by": "../ase2022_stage3_uncontaminated_seed20260816_revision4/split_manifest.json"
+  },
+  "split_revision": 3,
+  "split_id": "ase2022-stage3-uncontaminated-seed20260816-revision3",
+  "supersedes": "Benchmark/configs/splits/ase2022_stage3_uncontaminated_seed20260816_revision2/split_manifest.json",
+  "domain": "ase2022",
+  "seed": 20260816,
+  "source": {
+    "stage3_csv": "Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage3.csv",
+    "stage3_csv_sha256": "89ae81045656805f4fb2087a2d23429549b51e945f55fedaac534c2a9daa92bc",
+    "taxonomy_structure": "Benchmark/configs/ase2022_taxonomy_structure_v1.json",
+    "taxonomy_structure_sha256": "0d51abf2b87dcc5c7888cdb7679371ed98000acd7d4d6a9e4eb3e99051ce3403",
+    "label_taxonomy": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_taxonomy.json",
+    "label_taxonomy_sha256": "461f6ae1a49c19a3645597fe3bc3651c9b91a7d8ed4c03acfe5e00554f12c32c",
+    "text_hash_algorithm": "canonical_utf8_lf_sha256_v1"
+  },
+  "contamination_exclusion": {
+    "excluded_record_id_count": 513,
+    "excluded_record_ids_sha256": "703e69f86d582685c4722f003cef533884d9251787d6539a6a921ee0f1d2d15b",
+    "sources": [
+      {
+        "path": "Benchmark/configs/ase2022_issue_only_holdout_mas_baseline_error_categories.json",
+        "sha256": "614bc48aeb2db2aa9b59dfb3fc18d492e494ca6f63642182fb03045e3580a3f9",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/a6-all-thinking/task6-dry-run/run_manifest.json",
+        "sha256": "51fb41e1f2b6bd54a6bc1bc8f1e5c913b8fd6eb8d1ed6c5664352801fe1a1114",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v1/dev-50-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "9bfdd8d4422f4c5e2a74fb3f0bfc42493d825d3d93e635c0d50745127cfba234",
+        "record_id_count": 21
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v1/dev-50-01/run_manifest.json",
+        "sha256": "7567f33cd846acefc276cc20fc4e1fd02af3e42466360a21bb712a4970b9a019",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v2/dev-50-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "c83732a842e1781e43162b8ba113e22f6ff9acd11651f3a492111b8371fd7de2",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v2/dev-50-01/run_manifest.json",
+        "sha256": "908e2224c99c590850cdbdce06cc69327f7d6df5b3834cb70c3776559a07f993",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v3/dev-50-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "050b64e4f46959a411d6018cec868dda15cb3da7f543faf25c78fe0ee638a2f0",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/label-thinking-v3/dev-50-01/run_manifest.json",
+        "sha256": "cfc120c9ee9f0027bb749452c6956b703c8c2cef0d2f115e66d17a82fbae7565",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/schema-recovery-smoke-v1/record-5386/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "182358ba71c2a72ceb14c73b7eca68e1ef3ffb74a69be287c3639048088b1fe0",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/schema-recovery-smoke-v1/record-5386/run_manifest.json",
+        "sha256": "2c5f1132dfd1920cd6da4a9bec3401c23e25c6e2691d3333daee29bfd6297480",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-all-thinking-v1/smoke-01/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "6dc88ec3b3888f7ed70ab30315a96a6f8c7dc3f810bcf8d2203a012cf3bd5804",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-all-thinking-v1/smoke-01/run_manifest.json",
+        "sha256": "315e91604074653bffdaa8e4cf02c545de940f58f1f8a87c5c644666c2e9036e",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-empty-recovery-v1/smoke-01/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "708c896a88a9dfd7c1cbaff93b696ccf1d7a88ac76fae865bf63be454d0463db",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-empty-recovery-v1/smoke-01/run_manifest.json",
+        "sha256": "f3c784226da5cc6291053c5de4c16b57c0148772dd08affc808225052cedbef2",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-label-thinking-v1/smoke-01/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "11cdfec29a509bc31591f13d1f49dad214564813e1caf5801acba90850f96187",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-label-thinking-v1/smoke-01/run_manifest.json",
+        "sha256": "daca047a85c6be8720b7f504dd6876ebe8ede654a6fe8a28993d949e7fa1743c",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v2/smoke-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "4547723a01c9bce96cf54c6f01cb1e69bb8b4127a41576243bb405c32fa1ce67",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v2/smoke-01/run_manifest.json",
+        "sha256": "115f0f61b7fbf5d2e867b26ecd454493ea82a075c865638d5e678e7358e10038",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v3/smoke-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5a3c1b582cde34df481d0a899a14b8f8573454f45ce84955895c6f828d93a6cd",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v3/smoke-01/run_manifest.json",
+        "sha256": "3f647f2c04d8ffd146e1b48370f53c06ca834131229c64f97a697fc7700db572",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v4/smoke-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "81d31182da130a3c0ee0b0d974bf55294a9581478b3837974d04026582348b98",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-lt-v4/smoke-01/run_manifest.json",
+        "sha256": "ba97c3155b60b759530ffb435d58143f5881a600acee4ff6144e377d6f2196e9",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/always-on-dual-team-v1/contaminated-dev/smoke-unbounded-label-thinking-v1/smoke-01/run_manifest.json",
+        "sha256": "9bb4cab3579d723c4e6d93a89cc071c56c13049ff5c6afdcf64ccae5b97e3401",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "7f2115d75977aa97c5237bb419f27adc6d32e60a3b5789ee99aecca64ab360a2",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "556102aa78b4473e0a5c332bfbfa3bfe9805451b8b47689856d66d0abd6f0ead",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "8a058c4007bce8fc828e017843cd95a255dff41f6e4d3b826a8c7bf98cc7a11c",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-4/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "f0ebedd6976c43fce8f72a07be93ab0d64fb120bd5ef1e781ffefa4dc22bddc7",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-4/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "d76ae5067cef30077f4492abf415488ac6514ff697af13e72c894b745f9bdd36",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-5/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "792c892ef3968bd9bab5132cf08b45be1a0d6c823cad850860da72e115f2802e",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_concurrency_profile_a2_unbounded/concurrency-5/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "812da2d894b50a063fc860a7b75fe7cf882aceda84ade82a252bc2bd58eabd31",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_issue_only_holdout_v9_full_c3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "f82bc784009b5b556830e5f26f73be8a6866e88ae6b0e1a7fd06d9cd6e17a8ea",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_issue_only_holdout_v9_full_c3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "4803983c2ab73b6ae37895e306f4bc3283d1cff6fe000305848824b1c002ecd8",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_policy_v8_all_c3_10/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "a0ab5a56621be6a9f6f50de47dc7d69c01c57f454533770a5e7fa47873da0f8d",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_policy_v8_all_c3_10/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5fd2d5ad577d55fc6e6979b17a45b3cce3c166b08acba63fc631aeac1c8ce5a6",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_policy_v8_full_c3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "5d39d991079463f9c39b4790e0578b1557f6f28b23ee0779b70f864acf3a18fb",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_policy_v8_full_c3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "92088296396de67efa52b217d30e50e1413ab34e359b0a082c776893e7550174",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_semantic_validity_v9_full_c3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "ad8ca57cee6b36aa43eb44f7fee1d85885c167bacd4c8d61abb788c77b2a70b5",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_semantic_validity_v9_full_c3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "f6ace2ed72aa3bd6b3f1629a38f652916ebbc57bfc05464ea04bdee4940b9c15",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "75fcd8c2e321a146123201489e1eb7be80eaa033dbdec4830f3e4d3f750e7e71",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "bc4ca7878180eff9d51d1486aa9dd101473714969d4bc37b8f45415b1f378293",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_a2/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "6b3323cd84f2a0194f6c49c93b3724f4c1d2f9dea25b1c387abf2c4ebd8e5dbf",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_a2/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "05638ca6fa2d36b81b55171a1acfe8ae700ec5ae2de54950ea0079dd20668c17",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_a2_unbounded/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "0de50dd5772fe8fb0d6dfe531fa82a8c0948bee45ce650be3925ae5cce10067d",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_a2_unbounded/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5ce5a660261d9de9c6ae64517304bb208cda47adec9df9efb5457b641b8f4c6f",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_fast/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "579e7143291387ee728333d91910665b53e081664fa892374bed057d4efe4c92",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_smoke_fast/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "268a551d096cab344ed10d6a644bde77f45da2615258bb728efa7fc69ab409d8",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v3_c3_10/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "6416b48d49c9b0ee8bedac6c90105faa66de3706d9422a1ddbc7e73072d49aad",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v3_c3_10/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "38498e768292aad202ff4b6f62f76419d0405ab9fe7e72f992127f16d54a3c34",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v4_c3_10/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "588cd57f1f79e2c9ec7580240a403bc0725d1cbe0566aae3a549fe5bb6f0c937",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v4_c3_10/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5a772a36e64b20dd88de7d644bd0851aca63d83149dd2e1ba42069aa7f309cf8",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v5_c3_10/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "9758449fe9b233589046fb2f4f4aa0f4d9f36f6d6720720c9fb96076fcaada92",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v5_c3_10/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "d7a5d872fb26ed44823e9d08c96681cb1478e7b9da3ad5e4f5ca0b57e3618f73",
+        "record_id_count": 10
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v5_false_negatives_c3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "ce84359502363aa8031cc03f2cd7a9f2e4a17836bd09f0fe6238c1cde2668e7d",
+        "record_id_count": 4
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v5_false_negatives_c3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "8dd84e852d7fd7c47d53b662c6281629ae5e46bc7a3cde7caf7e757e61960f62",
+        "record_id_count": 4
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage2_policy_v5_false_negatives_c3/cohort.csv",
+        "sha256": "05564adf9ca3b9e56a088f66a7826fa17907670e54f76553763a9b6b6c2398fc",
+        "record_id_count": 4
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v1/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "b65fb1d23066e119ebfc1bd24f517dc5feaa384aa9c2d78dbb37c4e7bfeb9939",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v1/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "3bfe25f85d9c07a41ccdcf168ab33c0a776aa1d0873e63d9aa590a30f8d4f2a0",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v10/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "71d0d201e8069031c5e815b106b1196fb32ba8ac7f23941ef38fecd897a443fa",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v10/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "4bf0f054b05f1c5e3e81ac817cb3e09fa1aa3378e7e37774b49226ef207919ae",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v11/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "12511656cad837c7251bb62ef9521c984bcd2f4b6242b8f1fb4860619a5abd4f",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v11/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "98263db9bdf3f5e3651112405218c8626a91ec1dee3258092ec1921547953550",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v12/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "57868125cc40fae036e7f75fd693e309704d1591c33deb26ba6476c89a4570e8",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v12/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "a33cd3401c30a12cfd427488923ef4863421fd7e35fa4ea50ac102fa6e9d55bd",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v2/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "63460e8f52fdf971e638d996c02ed76bb7e447591cf94414df6089d047f93b25",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v2/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "8453049d35328c213f02983ed8501ac7b02c0ba847ee7812f92afdcb58ff606c",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "3a2e4b0ecb56feb7a1df50f9f84921cdbcd60f183d1d6cb38f0be58379b4bc25",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "cce8d7af97fb093633a106adc22863b86d6ef74a2f4c0a5d30dffa3eea4a58aa",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v4/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "3b12639cefb4d291a37464755379485ccebbc6b6a98f323585f3af6409bff022",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v4/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "ed6d2c25f59a4bbefdd4a60536afe683e7cd8b156e0f3cc49c4b5f7842ce8fb7",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v5/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "468fdaf0a583f4eb31bc8a5188a3275881b00de70997b3e69bc41fe018684d9a",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v5/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "ddad1dd31c30421193e531aaf638d50f6c8efe3adac8124ed9c4e0f426eac25f",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v6/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "6b428b9d876400e342436c7cbf84779071231948b2a4077e879914077d475f26",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v6/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "485960bbd227a88ec81d3db1d6eb3e1633faa60ffc9698ed778b1a5a51c21614",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v7/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "18bcef7ec0b66697419f74078b0298e3e9158c2fa8749044973e0a86da418afb",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v7/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "49bcaa7125824fac76ad64839741c1e826d4290a9a22d22cc92c10ed8d776558",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v8/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "61efa4c1459a8daa9f5b5ba934409290d5eaffa77d271fb9c9d2058f7dcd2f9b",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v8/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "c51f09d24440824d0cb0e2c06ce94456e5f31a824e2503368966dbeb96586e0f",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v9/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "cce5702f728938a94bdd3f0c30a360cf3877fb4c770faae7fbd5fe5cf1b3947f",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_api_smoke_v9/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5673addca525107c8cc48ed7d40c719b9d6d8940e68a3d705db526721249ac73",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_full/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "4f1b16f4c5d8eb82356bdfbfc3b4ef51d3c6ca3e21d0cb9a9b37d9c290abf44b",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_full/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "d33be52f5ec44f353f26c1e37b2534491ad3de5a88ed27fc37f8a67160679062",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v6_failures_c3/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "bdd0246fb1ce5cd91cdc1896d42ae13f91ec6d1ce76d3cc6694354786564f101",
+        "record_id_count": 3
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v6_failures_c3/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "4f1d7538280d0ab14eff70a363eda1c691886e343f98679b4f4dad1bd2b17446",
+        "record_id_count": 3
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v6_failures_c3/cohort.csv",
+        "sha256": "7a0a6a597883446120394820d0c4561cd7464db0d5ac7b23b96dcef787da9571",
+        "record_id_count": 3
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v8_primary_issue/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "953f361627ed7f6e28c6dc4b0cf9eb89a36b005ad7b3fa339d9e5204df37cf25",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v8_primary_issue/ase2022_adaptive_empirical_workflow_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "f60996f2772503b79e3c0251d457b6c38956fed090c71c395fa2cc6f55663682",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_policy_v8_primary_issue/cohort.csv",
+        "sha256": "c0842779a206be13a971a022212da81dc879f21f36684db1ea7f5159af733986",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/ase2022_stage3_smoke_v2/ase2022_adaptive_empirical_workflow_manifest_deepseek-v4-flash.json",
+        "sha256": "9a443c64953e6f3e19fa7efbd2c224c42d218079bec1b8f341d0f39c0d857119",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/baseline-anchored-v4-final/dev-50-02/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "4638783fb40d12c30db8be8b41a59fca856b40e263e9e5c50e2566ceefabd235",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/baseline-anchored-v4-final/dev-50-02/run_manifest.json",
+        "sha256": "b9e457b1aefb2e0585562e4dedb975dace9f82557a8ed19a8b5b81cdd83e98cb",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/baseline-anchored-v4-full/dev-50-01/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "1748a882448b5940079910af3c958c7b8483ea19c5c6c01b62ed2e92c6de9d52",
+        "record_id_count": 23
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/baseline-anchored-v4-full/dev-50-01/run_manifest.json",
+        "sha256": "207e4a1ca611254656b9109f866cb064155b752dc1774ea982c9ff941eb946f6",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-final/smoke-09/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "86085b911dd61651f83d8a958657a7429856a14e17720079c711495c16226ffa",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-final/smoke-09/run_manifest.json",
+        "sha256": "a38de1b992e80efbff26db065ab5ffb03369803b0bb240399535951850dd8f1c",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-limit1/smoke-05/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "5b590925090fa5a20d5b284f35704914183168071cae0e83199178135479e096",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-limit1/smoke-05/run_manifest.json",
+        "sha256": "f9302afb018d9f7694532c8fd7d4b952e818b1cdf9259cf1e42fe123878646f9",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-stream-hardened/smoke-07/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "820d3d1af0461e385f32797aec9c4fc54ab0c282c1283c4d5c28e45c6b73ebcc",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-stream-hardened/smoke-07/run_manifest.json",
+        "sha256": "9bc92c039ba56b07a9cc898c2b9bdcdeb4b5ba0af3fc24878e57d1de3dcadf88",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-stream/smoke-06/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "9a0fee8ca35f8590dd67201bc9d025f18a8c0f144f83038016e981290ab919a8",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-stream/smoke-06/run_manifest.json",
+        "sha256": "35b23b9772903636600e37af9b6122c8dd866e338672f7640ddcf5bab30d9d1d",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-verifier-guided/smoke-08/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "1f39a8d56b8d007219512c6c5e1ae56d76c6d5c40c1fe300b63630b92ca6203d",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke-verifier-guided/smoke-08/run_manifest.json",
+        "sha256": "7ecc43fa01865c43a64d48044655166d6f08227042bbbf0fdd16971cca9cc459",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-02/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "a2bf4fbccc987c2b8830a01ca134edb094c03143cf2565c636e042090aee7cea",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-02/run_manifest.json",
+        "sha256": "ad093183d1a911a8533374c192e74c4b204ae4c442c9d66e0d52979a6ca06d47",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-03/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "0705d94eaca25d99fea35e41964ba2f781e5926a2a58a032cbb54844b88ff163",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-03/run_manifest.json",
+        "sha256": "f43576df43218635e849ada0fc445d8538b5ffeabe362c30bd0eff5a6b46e3b7",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-04/predictions_deepseek-v4-flash.jsonl",
+        "sha256": "2b9875d262864ce17270618b1889255330935a104eefce31e4287d116f443f12",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/adaptive_empirical_workflow/baseline-anchored-v4-dev/contaminated-dev/v4-smoke/smoke-04/run_manifest.json",
+        "sha256": "0786d87f51b32b69b52d8cb1dad17ce8d22a6be0a2a981e5260d9566abfa7d34",
+        "record_id_count": 2
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/ase2022_camel_mas_cohort.csv",
+        "sha256": "ea4d59d1a05b497068d07c9a4c95cf59bcc75211eb8ca2fb5256163b1a349032",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/ase2022_camel_mas_stage2_single_llm_prompts.jsonl",
+        "sha256": "eae12c86790ec082fb80c6d6764261384dbb642ea42850c957b45d9a2bb1e082",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/ase2022_camel_mas_stage3_prompts.jsonl",
+        "sha256": "075525fbbed1b2bfc3e5aa3c50976f400446ff698a9e35a49cf7718742a78308",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_evidence_anchored_deepseek/ase2022_camel_evidence_anchored_stage2_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "fe7123762cc431e629fec491526e5b30b39e990dbc996db209bbc74e30a96df6",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_evidence_anchored_deepseek/ase2022_camel_evidence_anchored_stage3_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "d23f5c25801c8a23c702393f4e6725a125a7ce3a4e3b2c82cca2a2ab524ca499",
+        "record_id_count": 70
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_evidence_anchored_deepseek/single_llm_control/ase2022_stage2_filter_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "2c916b5c4eb3a6ca24e3da64bec225cca140c18c73b7a177bf645a8152ad5c6f",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_evidence_anchored_deepseek/single_llm_control/ase2022_stage3_llm_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "9ed406e565365759db7c18d19b43d0d595142d60574db7807b840de6ab262462",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_society_finalizer_deepseek/ase2022_camel_society_stage2_predictions_deepseek-chat.jsonl",
+        "sha256": "a98586e881a947b6bd5c57e0d2642e81aed831335e53d3e735171cafa88f61e5",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_camel_mas_baseline/full_society_finalizer_deepseek/ase2022_camel_society_stage3_predictions_deepseek-chat.jsonl",
+        "sha256": "9621176287f2e68e193258e0c84c653747cdff9538370b37df1672bb60f0d92d",
+        "record_id_count": 79
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_cohort.csv",
+        "sha256": "c271ab8c5e8b9816983fe42ef84efb3d45c38893de078bb5d92f071c82c366bd",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_manifest.json",
+        "sha256": "c3d79d6c424dfd873c4eadbd89d90f164f429ae3a9baf00ba269641e28aec530",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_stage2_prompts.jsonl",
+        "sha256": "bd9625b7c26f60d32299c229f0acabfb75055e0c0f02f8660d6a39df654128bb",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/ase2022_issue_only_holdout_stage3_prompts.jsonl",
+        "sha256": "a2fabd0fb43a507a827ddd3d9760b8693909fd76987c58ae379acc0e98053995",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/mas_evidence_anchored/ase2022_camel_evidence_anchored_stage2_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "bb224dd23ddd3edcc415ace85f33fa772381747989b21f909c74233df9cd6f2b",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/mas_evidence_anchored/ase2022_camel_evidence_anchored_stage3_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "84701f4336937b9ee2ad2a6ddcdd14a29de0739ff28a571c10c3d544e75916f8",
+        "record_id_count": 69
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/single_llm/ase2022_stage2_filter_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "fad36c7205e4703b9073da27d38df9e853f5a96fbb6b894f793dc7b079e1a7f1",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/single_llm/ase2022_stage3_llm_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "c1d068900d19673241e5c95263c21ecc3aa444a9dab1d7343b6554a99139d5ef",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_issue_only_holdout_seed20260806/single_llm_provider_fix_smoke/ase2022_stage3_llm_predictions_deepseek-v4-flash.jsonl",
+        "sha256": "e63395cd75cada44c33a9eead68ec96eb2941b8c15b82ec0431a643ccaf73f05",
+        "record_id_count": 1
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/ase2022_stage3_anchored_prompts.jsonl",
+        "sha256": "76faf584310a90c3f000a4ade5f674ecebeb14194235547bb35564c88d704685",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/ase2022_stage3_llm_sample.csv",
+        "sha256": "e7fc9cc17036061553bd40e4e928129b349bdbe3f0045a025ad97e8010d19b5f",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/paper_models_50/ase2022_stage3_llm_predictions_claude-3-5-sonnet-20241022.jsonl",
+        "sha256": "6fba47939a63a19ac4f8f0c34ebbf285d45702ff866fcd4aa1c5d5542e1990f0",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/paper_models_50/ase2022_stage3_llm_predictions_deepseek-chat.jsonl",
+        "sha256": "47bb3c9f4d8a7c89ae59aab255a0c9d22ba398f7a545ddb92d738ea7637858a5",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/paper_models_50/ase2022_stage3_llm_predictions_gemini-2-5-flash.jsonl",
+        "sha256": "6dfbf9ef06d375af65d3a34ba9e8d87ef6818fdd7cdec1e92c2148318a8c049d",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/paper_models_50/ase2022_stage3_llm_predictions_gpt-4o-mini.jsonl",
+        "sha256": "a91384863fd80d76697bb40038588e0b9a18f31c075a8ad069c36f75da887252",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_llm_baseline/paper_models_50/ase2022_stage3_llm_predictions_o3.jsonl",
+        "sha256": "9ffa82ccaac17924eecec0d8771573c798bb66866466ef9574e8d4d1080d9cb3",
+        "record_id_count": 50
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/ase2022_stage2_filter_anchored_prompts.jsonl",
+        "sha256": "bbc88eb1cbc9b686d6f25fb9b87284a4a90b1fa7a5f4ed0afda88329735c110c",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/ase2022_stage2_filter_sample.csv",
+        "sha256": "cd8abdecfed1ff8544613cc7a00f56821bfec12ab834bea076a9bbf4d6a79174",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/ase2022_stage2_filter_predictions_claude-3-5-sonnet-20241022.jsonl",
+        "sha256": "b38af05079de9b7be956203b58afe0fffb80e6f31865ecdf0efb0582214e1a4c",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/ase2022_stage2_filter_predictions_deepseek-chat.jsonl",
+        "sha256": "e0b2818dd996f68a6c7c1bc63017071e39797e216d363dab76fb7be0d4c3f8f9",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/ase2022_stage2_filter_predictions_gemini-2-5-flash.jsonl",
+        "sha256": "4c1b2a5d87239720bd55ca93d8af5b55f5bf6652c1a8df88345f0d8eca8c2c71",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/ase2022_stage2_filter_predictions_gpt-4o-mini.jsonl",
+        "sha256": "9c277e1796c189c6710bba208984efa2dc16450edab009955d90f7cab61e36c9",
+        "record_id_count": 100
+      },
+      {
+        "path": "Benchmark/results/ase2022_stage2_filter_baseline/paper_models_100/ase2022_stage2_filter_predictions_o3.jsonl",
+        "sha256": "368c57b3757178844b47dfb8e5d92a4724e68d647ff19cd48b1970fbbf64cdb7",
+        "record_id_count": 100
+      },
+      {
+        "path": "reports/stage1_stage2_lineage_repairs.csv",
+        "sha256": "5abc7ec9b43a7817d157cd941d3c269c06144c2d15b81ced4fadc810c45c7fdc",
+        "record_id_count": 325
+      },
+      {
+        "path": "reports/stage2_stage3_lineage_repairs.csv",
+        "sha256": "039d86b4819e13b80c3ae2b40ac53cb0f17144da56cc1b751b10da09a1792588",
+        "record_id_count": 16
+      }
+    ],
+    "roots": [
+      "Benchmark/results",
+      "reports",
+      "Benchmark/configs/ase2022_issue_only_holdout_mas_baseline_error_categories.json"
+    ],
+    "allowed_extensions": [
+      ".csv",
+      ".json",
+      ".jsonl"
+    ],
+    "scanner_version": "semantic_leaf_plus_strict_text_ase_id_v2",
+    "candidate_file_count": 321,
+    "matched_source_count": 142,
+    "unmatched_candidate_count": 179,
+    "parse_failure_count": 0,
+    "candidate_files_sha256": "953f7574cc4adb23c29b95598697e859e9cdfd7168f90e5a6d4aa6822babffca"
+  },
+  "isolation": {
+    "family_group_algorithm": "github_entity_family_v1",
+    "near_duplicate_cluster_algorithm": "normalized_field_token_jaccard_v1",
+    "near_duplicate_threshold": 0.82,
+    "rule_tuning_policy": "fixed_before_validation; no per-record gold inspection"
+  },
+  "splits": {
+    "validation": {
+      "count": 100,
+      "record_ids": [
+        "ase2022_towards_understanding_the_faults_of:0293f619a8614747",
+        "ase2022_towards_understanding_the_faults_of:037944ade08428c5",
+        "ase2022_towards_understanding_the_faults_of:03b8fc328b735b0a",
+        "ase2022_towards_understanding_the_faults_of:04c5dcb86f376939",
+        "ase2022_towards_understanding_the_faults_of:091b22181257303b",
+        "ase2022_towards_understanding_the_faults_of:133e634e89ff9d99",
+        "ase2022_towards_understanding_the_faults_of:1472c475f7fdccd5",
+        "ase2022_towards_understanding_the_faults_of:1a7a6ed0662ff80f",
+        "ase2022_towards_understanding_the_faults_of:1a955aef3df48856",
+        "ase2022_towards_understanding_the_faults_of:1bbb6963f1157142",
+        "ase2022_towards_understanding_the_faults_of:1c8264d1628f449d",
+        "ase2022_towards_understanding_the_faults_of:1de474ee8e79f4f3",
+        "ase2022_towards_understanding_the_faults_of:1e8fe9c4ca0d6f4b",
+        "ase2022_towards_understanding_the_faults_of:20649c011c44f356",
+        "ase2022_towards_understanding_the_faults_of:210a38804d5f8212",
+        "ase2022_towards_understanding_the_faults_of:2550af47f0737345",
+        "ase2022_towards_understanding_the_faults_of:25ffe1ca503861d8",
+        "ase2022_towards_understanding_the_faults_of:264133bd44eda291",
+        "ase2022_towards_understanding_the_faults_of:28b6bd1b5d765d52",
+        "ase2022_towards_understanding_the_faults_of:2c2f83b918f11731",
+        "ase2022_towards_understanding_the_faults_of:2e162da3ecc49b72",
+        "ase2022_towards_understanding_the_faults_of:32f9546f1e414192",
+        "ase2022_towards_understanding_the_faults_of:36c9267bd3ecb671",
+        "ase2022_towards_understanding_the_faults_of:384e6256cf285e1a",
+        "ase2022_towards_understanding_the_faults_of:389fd6c45eec6e86",
+        "ase2022_towards_understanding_the_faults_of:38fb3b57d8c0fd88",
+        "ase2022_towards_understanding_the_faults_of:3f6f2be41ad3e1a5",
+        "ase2022_towards_understanding_the_faults_of:41dae9712eb53d19",
+        "ase2022_towards_understanding_the_faults_of:45cb0c0fa6605348",
+        "ase2022_towards_understanding_the_faults_of:47add66c4bdf3241",
+        "ase2022_towards_understanding_the_faults_of:498c2f0d7ca09c9d",
+        "ase2022_towards_understanding_the_faults_of:4d71bdc865f9859e",
+        "ase2022_towards_understanding_the_faults_of:4d9f6cdf15ed4efa",
+        "ase2022_towards_understanding_the_faults_of:4f2bff9e1ddf6ba7",
+        "ase2022_towards_understanding_the_faults_of:516b19c17c7a38c9",
+        "ase2022_towards_understanding_the_faults_of:561ba631a292efbf",
+        "ase2022_towards_understanding_the_faults_of:588818962c6e38fb",
+        "ase2022_towards_understanding_the_faults_of:596b6841e57fd5b0",
+        "ase2022_towards_understanding_the_faults_of:5bd83b07b3b2053c",
+        "ase2022_towards_understanding_the_faults_of:5c2c83633313faa6",
+        "ase2022_towards_understanding_the_faults_of:5e40fdae379c6f4e",
+        "ase2022_towards_understanding_the_faults_of:5e8591123b884be4",
+        "ase2022_towards_understanding_the_faults_of:62061437ff100553",
+        "ase2022_towards_understanding_the_faults_of:63112b9458c91ba5",
+        "ase2022_towards_understanding_the_faults_of:63e69499cb32b32c",
+        "ase2022_towards_understanding_the_faults_of:6704383225ac812d",
+        "ase2022_towards_understanding_the_faults_of:689b18da60ac8707",
+        "ase2022_towards_understanding_the_faults_of:6ccb8e0649ab47f1",
+        "ase2022_towards_understanding_the_faults_of:6ed5745964a5618c",
+        "ase2022_towards_understanding_the_faults_of:6f51e16d9839367f",
+        "ase2022_towards_understanding_the_faults_of:70bed715832a5d53",
+        "ase2022_towards_understanding_the_faults_of:727613b1a9c5f959",
+        "ase2022_towards_understanding_the_faults_of:797f4e4edcd6107f",
+        "ase2022_towards_understanding_the_faults_of:79cdf03bf7d29b7e",
+        "ase2022_towards_understanding_the_faults_of:7ab006db80acaa06",
+        "ase2022_towards_understanding_the_faults_of:7bcc30bb1b02f8fa",
+        "ase2022_towards_understanding_the_faults_of:818a98d0c7abef0c",
+        "ase2022_towards_understanding_the_faults_of:830080e022840b48",
+        "ase2022_towards_understanding_the_faults_of:88b828e5e7a5dfd1",
+        "ase2022_towards_understanding_the_faults_of:8a3e3db76ee6c91f",
+        "ase2022_towards_understanding_the_faults_of:8dc8ab3f9441ff66",
+        "ase2022_towards_understanding_the_faults_of:8fcecb5d13fd4ad4",
+        "ase2022_towards_understanding_the_faults_of:917da744f38da5c7",
+        "ase2022_towards_understanding_the_faults_of:93d80b9977794ba1",
+        "ase2022_towards_understanding_the_faults_of:955fb1c45cac465a",
+        "ase2022_towards_understanding_the_faults_of:99255982b8ba020e",
+        "ase2022_towards_understanding_the_faults_of:a045603b20624d78",
+        "ase2022_towards_understanding_the_faults_of:a0eeadcce39dbbae",
+        "ase2022_towards_understanding_the_faults_of:a94f5fa3e1267c72",
+        "ase2022_towards_understanding_the_faults_of:aaee912c6ef65888",
+        "ase2022_towards_understanding_the_faults_of:b486780389e62482",
+        "ase2022_towards_understanding_the_faults_of:b78a342b145eda13",
+        "ase2022_towards_understanding_the_faults_of:b7f8bc95afb7d635",
+        "ase2022_towards_understanding_the_faults_of:b849775b25f58cfa",
+        "ase2022_towards_understanding_the_faults_of:ba48e650dd102412",
+        "ase2022_towards_understanding_the_faults_of:bb3f2d84e04751ca",
+        "ase2022_towards_understanding_the_faults_of:bbeff24264241db9",
+        "ase2022_towards_understanding_the_faults_of:c016ba693af557cf",
+        "ase2022_towards_understanding_the_faults_of:c0993740e9733e19",
+        "ase2022_towards_understanding_the_faults_of:c3d079fe1e140854",
+        "ase2022_towards_understanding_the_faults_of:c56ed078ef3db2ba",
+        "ase2022_towards_understanding_the_faults_of:c81da2439df214f7",
+        "ase2022_towards_understanding_the_faults_of:ce6ed9969e536899",
+        "ase2022_towards_understanding_the_faults_of:d25eb7f57d408abc",
+        "ase2022_towards_understanding_the_faults_of:d3786fd5dd384196",
+        "ase2022_towards_understanding_the_faults_of:d76f4e9eb53dec9f",
+        "ase2022_towards_understanding_the_faults_of:dac4ff30ad15cd86",
+        "ase2022_towards_understanding_the_faults_of:dc6f1fa17d71b7c6",
+        "ase2022_towards_understanding_the_faults_of:e9d3ccd859ea4f9a",
+        "ase2022_towards_understanding_the_faults_of:eb68eabc93e5bf2a",
+        "ase2022_towards_understanding_the_faults_of:ecc75d04728dd068",
+        "ase2022_towards_understanding_the_faults_of:ecd551a56cab58af",
+        "ase2022_towards_understanding_the_faults_of:ee37dfec63a67400",
+        "ase2022_towards_understanding_the_faults_of:ee4bb7fb1427c3dc",
+        "ase2022_towards_understanding_the_faults_of:f35ab693b8b2784a",
+        "ase2022_towards_understanding_the_faults_of:f3af6b32e518df1d",
+        "ase2022_towards_understanding_the_faults_of:f5364f432f064926",
+        "ase2022_towards_understanding_the_faults_of:f7904c4340b079e8",
+        "ase2022_towards_understanding_the_faults_of:f91bfea9708ee122",
+        "ase2022_towards_understanding_the_faults_of:faac458f3e1ee57b"
+      ],
+      "record_ids_sha256": "8b519c0499cf3e78894260346796bb2760897155860f8110f7ed2e479798fd2b",
+      "runner_cohort_file": "validation_runner_cohort.csv",
+      "runner_cohort_sha256": "12c8b930a3028f1de18c68ea050a578308c6c9408e4f1cad7fb8563a40f8e58f"
+    },
+    "final": {
+      "count": 100,
+      "record_ids": [
+        "ase2022_towards_understanding_the_faults_of:00d7da22699b2bae",
+        "ase2022_towards_understanding_the_faults_of:0115e78ea57e9f0f",
+        "ase2022_towards_understanding_the_faults_of:103707c21c1863a7",
+        "ase2022_towards_understanding_the_faults_of:13a4632ab8768378",
+        "ase2022_towards_understanding_the_faults_of:1cd7140c84a82c51",
+        "ase2022_towards_understanding_the_faults_of:1e6c43329d69df9c",
+        "ase2022_towards_understanding_the_faults_of:2029d0938993be6d",
+        "ase2022_towards_understanding_the_faults_of:2298bbb485ee4ae4",
+        "ase2022_towards_understanding_the_faults_of:2592031276ccb677",
+        "ase2022_towards_understanding_the_faults_of:27c2c97ec75be19c",
+        "ase2022_towards_understanding_the_faults_of:2918114bc1abc838",
+        "ase2022_towards_understanding_the_faults_of:2b12922ed6cad548",
+        "ase2022_towards_understanding_the_faults_of:2b25cb0466bdc356",
+        "ase2022_towards_understanding_the_faults_of:2b58e11edc888450",
+        "ase2022_towards_understanding_the_faults_of:2c1507667c8f0e93",
+        "ase2022_towards_understanding_the_faults_of:2dd7023d5868fac6",
+        "ase2022_towards_understanding_the_faults_of:2f8c0d6b07fcbb10",
+        "ase2022_towards_understanding_the_faults_of:320b781910ff991b",
+        "ase2022_towards_understanding_the_faults_of:3296c79a3c00a466",
+        "ase2022_towards_understanding_the_faults_of:34ad0d542f28fecc",
+        "ase2022_towards_understanding_the_faults_of:3925184a86a28392",
+        "ase2022_towards_understanding_the_faults_of:3933348285864cf2",
+        "ase2022_towards_understanding_the_faults_of:3b7f3ce3204c3b43",
+        "ase2022_towards_understanding_the_faults_of:4167a231b6d8818c",
+        "ase2022_towards_understanding_the_faults_of:45504806a8f68c1a",
+        "ase2022_towards_understanding_the_faults_of:45cc54af98e0d1c9",
+        "ase2022_towards_understanding_the_faults_of:476b603febc4fb49",
+        "ase2022_towards_understanding_the_faults_of:4a19fc717494228f",
+        "ase2022_towards_understanding_the_faults_of:4b9e4733d6fbd8c6",
+        "ase2022_towards_understanding_the_faults_of:4dfbb7281a90d5ce",
+        "ase2022_towards_understanding_the_faults_of:4e95d90f310d1015",
+        "ase2022_towards_understanding_the_faults_of:5254ff3cbafd00bb",
+        "ase2022_towards_understanding_the_faults_of:548755888eeacd14",
+        "ase2022_towards_understanding_the_faults_of:563090f77a278dce",
+        "ase2022_towards_understanding_the_faults_of:59bd79a351ca6a46",
+        "ase2022_towards_understanding_the_faults_of:5a28f6788f633110",
+        "ase2022_towards_understanding_the_faults_of:5b8cc43698605d1a",
+        "ase2022_towards_understanding_the_faults_of:5e6c6503f9cc362e",
+        "ase2022_towards_understanding_the_faults_of:5e76bc4a932f9b3a",
+        "ase2022_towards_understanding_the_faults_of:60961ebeefd1a647",
+        "ase2022_towards_understanding_the_faults_of:6158160f16698298",
+        "ase2022_towards_understanding_the_faults_of:68f0ce466c0462c6",
+        "ase2022_towards_understanding_the_faults_of:69de5665f2535f56",
+        "ase2022_towards_understanding_the_faults_of:6b29002a746ce497",
+        "ase2022_towards_understanding_the_faults_of:6dffe802874264b3",
+        "ase2022_towards_understanding_the_faults_of:6e0758405284cd59",
+        "ase2022_towards_understanding_the_faults_of:6e31a78d3e2053d9",
+        "ase2022_towards_understanding_the_faults_of:6f4891e850bb1a2c",
+        "ase2022_towards_understanding_the_faults_of:703849a9534c3d5c",
+        "ase2022_towards_understanding_the_faults_of:743c655a8445fd5b",
+        "ase2022_towards_understanding_the_faults_of:781e2e036ea9065f",
+        "ase2022_towards_understanding_the_faults_of:782a0e45fc52652a",
+        "ase2022_towards_understanding_the_faults_of:7b0a645cd07ee0ea",
+        "ase2022_towards_understanding_the_faults_of:7de857538c413cf7",
+        "ase2022_towards_understanding_the_faults_of:7e4120438485b579",
+        "ase2022_towards_understanding_the_faults_of:7e657cf1721528ae",
+        "ase2022_towards_understanding_the_faults_of:8242ef0b972a8df4",
+        "ase2022_towards_understanding_the_faults_of:83190ca24a1551f6",
+        "ase2022_towards_understanding_the_faults_of:8499acdd52db1f28",
+        "ase2022_towards_understanding_the_faults_of:857454756bf01ab4",
+        "ase2022_towards_understanding_the_faults_of:864806b356e8950c",
+        "ase2022_towards_understanding_the_faults_of:89ebc0ecfed19782",
+        "ase2022_towards_understanding_the_faults_of:8dc8f090921441fe",
+        "ase2022_towards_understanding_the_faults_of:8df6405b9e011708",
+        "ase2022_towards_understanding_the_faults_of:8eaaac78d7365c67",
+        "ase2022_towards_understanding_the_faults_of:9b917138718e4ed1",
+        "ase2022_towards_understanding_the_faults_of:9dba05e6fd52bf88",
+        "ase2022_towards_understanding_the_faults_of:9e06d2478aeee968",
+        "ase2022_towards_understanding_the_faults_of:a00eaddcdc456fd1",
+        "ase2022_towards_understanding_the_faults_of:a326377031ee1125",
+        "ase2022_towards_understanding_the_faults_of:a59589a9c7263940",
+        "ase2022_towards_understanding_the_faults_of:aeafb387f1c8b476",
+        "ase2022_towards_understanding_the_faults_of:b297f79957390ed7",
+        "ase2022_towards_understanding_the_faults_of:b3a008d63bd14256",
+        "ase2022_towards_understanding_the_faults_of:b40e87dbc737bfba",
+        "ase2022_towards_understanding_the_faults_of:b77310fae60b618c",
+        "ase2022_towards_understanding_the_faults_of:bb85984a1d4116ab",
+        "ase2022_towards_understanding_the_faults_of:c33db6dd611c0964",
+        "ase2022_towards_understanding_the_faults_of:c53fbab664502a2a",
+        "ase2022_towards_understanding_the_faults_of:d27ff31613a2a1cc",
+        "ase2022_towards_understanding_the_faults_of:d32c619f4f8dfe55",
+        "ase2022_towards_understanding_the_faults_of:d4a2846189514bf1",
+        "ase2022_towards_understanding_the_faults_of:d6c95e483abb4f2d",
+        "ase2022_towards_understanding_the_faults_of:d7feb291d5452a12",
+        "ase2022_towards_understanding_the_faults_of:d82e76efdab6ecee",
+        "ase2022_towards_understanding_the_faults_of:dcb2385c2e2b60f9",
+        "ase2022_towards_understanding_the_faults_of:de1c7319188ba590",
+        "ase2022_towards_understanding_the_faults_of:dee71594b999cfe7",
+        "ase2022_towards_understanding_the_faults_of:e175e39f28e446c1",
+        "ase2022_towards_understanding_the_faults_of:e21f7a197b4afc51",
+        "ase2022_towards_understanding_the_faults_of:e4a6886b85552e94",
+        "ase2022_towards_understanding_the_faults_of:eb2e97fe2ec51d9c",
+        "ase2022_towards_understanding_the_faults_of:f44cec395a0d97b7",
+        "ase2022_towards_understanding_the_faults_of:f48009cb1c1f050d",
+        "ase2022_towards_understanding_the_faults_of:f84f652c3c43f96e",
+        "ase2022_towards_understanding_the_faults_of:f97c45dc19e61ea3",
+        "ase2022_towards_understanding_the_faults_of:f991ff04e9eb2bc8",
+        "ase2022_towards_understanding_the_faults_of:fb7b97e37f624143",
+        "ase2022_towards_understanding_the_faults_of:fc74d847f3103246",
+        "ase2022_towards_understanding_the_faults_of:ff73d7ab693c6e48"
+      ],
+      "record_ids_sha256": "758ad1ab39ce1fa14e8e0d1a5083f12965d4d75487282ece4358801af88ff752",
+      "runner_cohort_file": "final_runner_cohort.csv",
+      "runner_cohort_sha256": "4a6a9da823655bacb0de11fc8b285abbd226d295307a164a6bc782726514a4ab"
+    }
+  },
+  "label_access_policy": {
+    "runner_may_load_gold": false,
+    "runner_cohorts_are_evidence_only": true,
+    "restricted_gold_is_not_referenced_by_manifest": true,
+    "restricted_gold_sha256": "79690bb1da89611bea06425a3af68a4d9806e486c6e509b5efbfe024c97d2c8d",
+    "evaluation_requires_separate_explicit_gold_artifact": true,
+    "outside_repository": true,
+    "permission_policy_version": "owner_only_acl_v1"
+  },
+  "leakage_audit": {
+    "contaminated_id_intersection_count": 0,
+    "contaminated_family_intersection_count": 0,
+    "contaminated_near_duplicate_cluster_intersection_count": 0,
+    "cross_split_family_intersection_count": 0,
+    "cross_split_near_duplicate_cluster_intersection_count": 0
+  },
+  "generator": {
+    "commit": "da4b850636e4222d8a11b8b011b4727b4de323a2",
+    "dirty": true,
+    "dirty_state_sha256": "91897e91e14ff5526aef19245734c7c3305b0b6a207b60577767154fef8765b1",
+    "module_sha256": "9bf8c6bb5526c5ffcf1487703b254d1038c08b0b4571b31dabcb9a25c55eda4b"
+  }
+}
