@@ -1,0 +1,27 @@
+{
+  "symptom": [
+    "Build failure",
+    "Crash",
+    "Functional error",
+    "Hang",
+    "Performance degradation",
+    "Warning-style error"
+  ],
+  "root_cause": [
+    "Algorithm",
+    "Concurrency",
+    "Configuration error",
+    "Corner case",
+    "Dimension mismatch",
+    "Inconsistency",
+    "Logic error",
+    "Memory",
+    "Processing",
+    "Referenced types error",
+    "Type confusion"
+  ],
+  "annotation_modes": {
+    "symptom": "single_label",
+    "root_cause": "single_label"
+  }
+}

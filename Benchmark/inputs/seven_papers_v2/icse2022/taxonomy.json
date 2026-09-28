@@ -1,0 +1,36 @@
+{
+  "symptom": [
+    "performance bug"
+  ],
+  "root_cause": [
+    "C/C++ abstraction",
+    "Hardware component communication overhead (Local communication overhead)",
+    "Hardware component communication overhead (Remote communication overhead)",
+    "Ineffcient caching",
+    "Inefficiency for certain input data types",
+    "Inefficient AI algorithm implementation",
+    "Inefficient hardware optimization (Lack of support for hardware optimization libraries)",
+    "Inefficient hardware optimization (Wrong device placement)",
+    "Matrix computation inefficiency (Inefficiency for certain size and shape)",
+    "Matrix computation inefficiency (Inefficient broadcasting)",
+    "Matrix computation inefficiency (Lack of vectorization)",
+    "Matrix computation inefficiency (Trade-off of using different linear libraries/operators)",
+    "Matrix computation inefficiency (Use of intermediate matrices)",
+    "Memory inefficiency (Unnecessary memory allocation)",
+    "Memory inefficiency (Unreleased memory resources)",
+    "Other",
+    "Threading inefficiency (Challenges in fine-tuning the optimum number of threads)",
+    "Threading inefficiency (Excessive usage of multithreading)",
+    "Threading inefficiency (Excessive usage of thread-local variables)",
+    "Threading inefficiency (Lack of parallelization)",
+    "Threading inefficiency (Thread not returning on time)",
+    "Traditional SE inefficiency",
+    "Unnecessary computation (Unnecessarily gradient computation)",
+    "Unnecessary computation (Unnecessary node creation)",
+    "Unnecessary computation (Unnecessary operation)"
+  ],
+  "annotation_modes": {
+    "symptom": "constant",
+    "root_cause": "single_label"
+  }
+}

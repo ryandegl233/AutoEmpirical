@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "c2bbc3f53afac07c89e6ecab7a031aa3341703bcc90c74564e159a897faccf1e",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage1.csv",
+      "sha256": "7cf8a44071c6e1aebfd3883a22954d367e4f319098660483df93a796d073bc67",
+      "normalized_lf_sha256": "fa9860bad909512c5ffc816abc2b781a62f3cdf1ec0ea0fb926b03e3090b76f8"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage2.csv",
+      "sha256": "95951fbbf376cfe84a803e1120169bbf2f72eab5993875d50ab250ba9ca11632",
+      "normalized_lf_sha256": "0538f751ecc7b52a89d246586dc9acdbc026ca63adbabf83748d176eb83d4295"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/icse2023_an_empirical_study_on_bugs/stage3.csv",
+      "sha256": "1d3fed242c823ba6f4f119e86bf889d4957ef2f10de8c34ae0ca464fadb56cbd",
+      "normalized_lf_sha256": "4fd561d578affa1228b7ad6e6f0eddd84feb381096d21d336f30bd7dfb3fce25"
+    },
+    "codebook": {
+      "path": "Benchmark/configs/paper_codebooks_v1.json",
+      "sha256": "2473f80c34c4c3e53d70bcd2c10e32bcf22dd1e3c0cbffd1e97b08ce0195f1ec",
+      "normalized_lf_sha256": "7f5a8da655ea5b35cb6d70a2d04bc77c2e54b1a21dfc2ce4fe5c61769887e9c3"
+    }
+  }
+}

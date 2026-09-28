@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "cb0952d228f4fa6d8872568aff29e31338a0cccfb1b62f8208fb2a02f913e2e0",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage1.csv",
+      "sha256": "12058e2c196edec1822755f7e1c1fe93d1a5ecac4625ddcda71b63760616c1c7",
+      "normalized_lf_sha256": "0872a3791642233cf435ba1624bc2521176819d9f177726dcb276f3f7abc5d83"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage2.csv",
+      "sha256": "d537c65b91915629a0e0958078ca9db0dd3971a2a561f78b06bfce8c6ab691cf",
+      "normalized_lf_sha256": "2477c52879502d71597085c92515dedc5608520dca666673efbc0b375fb1b26e"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/fse2021_an_exploratory_study_of_autopilot/stage3.csv",
+      "sha256": "e24efddee104db2425a0f9d58039c6ed3f74f4bd23431dbe1f192b149362eca5",
+      "normalized_lf_sha256": "8af5fdd0d85ce5281972a493a45580d6c956b23768584a86a9846a54ae36eafe"
+    },
+    "codebook": {
+      "path": "Benchmark/configs/paper_codebooks_v1.json",
+      "sha256": "2473f80c34c4c3e53d70bcd2c10e32bcf22dd1e3c0cbffd1e97b08ce0195f1ec",
+      "normalized_lf_sha256": "7f5a8da655ea5b35cb6d70a2d04bc77c2e54b1a21dfc2ce4fe5c61769887e9c3"
+    }
+  }
+}

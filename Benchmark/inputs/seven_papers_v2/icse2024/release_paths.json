@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "8593dc042b6751ea7642528b9e1cfdf6d590af86b85382cf4d9b2d18c7646d11",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage1.csv",
+      "sha256": "e3ea888ce7bae497fcb1a5b6e70a0328e49e303808ba748df9c01dc919325ad5",
+      "normalized_lf_sha256": "738afbcea7eff1cf0b9ee2415a08a205e5952d6b2f8d2e7fdeb90f4e0be48b9b"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage2.csv",
+      "sha256": "885f96c89ed3edd1fb99361eb8aeaea1952037e3674adbc41add7796420ba0f0",
+      "normalized_lf_sha256": "0a15ed6c82a2f4a445489593e683ccce7a47094ea3b1b3eee43301ad74ca519f"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/icse2024_understanding_transaction_bugs_in_database/stage3.csv",
+      "sha256": "b4fad16ae86694c207ad1c55ca6fe1f208852ba20090833c7bcd66d40b1342be",
+      "normalized_lf_sha256": "f662615f44bfe6f8f86a9fe61b9718a9e89152ee626893a5ed716db5d2f98f0f"
+    },
+    "primary_report_0": {
+      "path": "reports/txbug_stage1_reconstruction/github/txbug_github_candidates.csv",
+      "sha256": "293630ee78bc0572d0999fd670576ece3fdf7d28070763a4d5e1890df6b3441c",
+      "normalized_lf_sha256": "4d6a99f6a54ddfba48d4d76e2680d52749269b56ae53a796aadeb7fec74e7a7c"
+    },
+    "primary_report_1": {
+      "path": "reports/txbug_stage1_reconstruction/github/core_plus_tidb_label/txbug_github_candidates.csv",
+      "sha256": "139c6bc86b97605912a73e1ef3c3de180fb059a560e36b8a22ec257903e61ea1",
+      "normalized_lf_sha256": "f7610873550309e4b72b3f3daa4734ad9df0075ff210e6798d8c5992ef7eae4a"
+    },
+    "primary_report_2": {
+      "path": "reports/txbug_stage1_reconstruction/mariadb/txbug_mariadb_candidates.csv",
+      "sha256": "95640a987f514502af2c3324a5dea9511e9d4a7d0a661db997e0945fe7731927",
+      "normalized_lf_sha256": "2a1b036e140352e1fef6032122b2378438b736b00472ba1536a2c6a99ac80aa9"
+    },
+    "primary_report_3": {
+      "path": "reports/txbug_stage1_reconstruction/mysql/txbug_mysql_candidates_with_text.csv",
+      "sha256": "18be5817f459d7fef606cf0dd3cae851596147a93349fec813fee2ad753c20c8",
+      "normalized_lf_sha256": "18be5817f459d7fef606cf0dd3cae851596147a93349fec813fee2ad753c20c8"
+    },
+    "primary_report_4": {
+      "path": "reports/txbug_stage1_reconstruction/postgresql/txbug_postgresql_candidates.csv",
+      "sha256": "f701efe65a261d73d3696241c25960f6e42a5bfb31ce79ce0b412a1fc8427b57",
+      "normalized_lf_sha256": "f701efe65a261d73d3696241c25960f6e42a5bfb31ce79ce0b412a1fc8427b57"
+    },
+    "codebook": {
+      "path": "Benchmark/configs/paper_codebooks_v1.json",
+      "sha256": "2473f80c34c4c3e53d70bcd2c10e32bcf22dd1e3c0cbffd1e97b08ce0195f1ec",
+      "normalized_lf_sha256": "7f5a8da655ea5b35cb6d70a2d04bc77c2e54b1a21dfc2ce4fe5c61769887e9c3"
+    }
+  }
+}

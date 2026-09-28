@@ -1,0 +1,21 @@
+{
+  "symptom": [],
+  "root_cause": [
+    "consistency",
+    "correction",
+    "hardware",
+    "initialization",
+    "initlization",
+    "innitialize",
+    "limit",
+    "limit,range",
+    "math",
+    "parameter",
+    "priority",
+    "priority,order"
+  ],
+  "annotation_modes": {
+    "symptom": "free_text",
+    "root_cause": "single_label"
+  }
+}

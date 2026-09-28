@@ -1,0 +1,1864 @@
+record_id,paper_id,source_project,issue_url,title,body,comments,state,created_at,changed_files,code_diff,decision,symptom,root_cause
+fse2021_an_exploratory_study_of_autopilot:02cac67ef9b05f39,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/10539,Fixes EKF2 terrain estimator use of optical flow data,"The single state estimator used by EKF2 to estimate height was designed to able to use both range finder and optical flow data to estimate the offset of terrain under the vehicle. The observation equations for use of optical flow data do not match the source derivation and appear to have been carried cross from an earlier derivation that used the length of the motion compensated optical flow vector.
+
+The fusion of a vector length instead of separate X and Y components resulted in rectification of noise at small ground speed / height ratio values, eg:
+
+<img width=""988"" alt=""screen shot 2019-02-13 at 9 55 23 am"" src=""https://user-images.githubusercontent.com/3596952/52910453-ae086580-32eb-11e9-84a7-d3f7d886fd11.png"">
+
+It is also unable to fuse data where the noise is large enough to causes the reading to change sign. There was a simple vector length check that required the length to be > 0.01 rad/sec, but this  did not work effectively.
+
+The original filter and modified version was tested using the following PMW3901 flow sensor https://www.tindie.com/products/onehorse/pmw3901-optical-flow-sensor/ connected via SPI interface. The scale default scale factor had to be increased 55% by setting both the FLOW_FXSCALER and FLOW_FYSCALER parameters to 550 to get the gyro and flow data to match, eg:
+
+<img width=""1004"" alt=""screen shot 2019-02-13 at 12 08 25 pm"" src=""https://user-images.githubusercontent.com/3596952/52910181-caa29e80-32e7-11e9-8e92-a7719ac63734.png"">
+
+Airborne testing at higher speed/height ratios  also confirmed the revised calibration, eg:
+
+<img width=""993"" alt=""screen shot 2019-02-17 at 7 19 01 pm"" src=""https://user-images.githubusercontent.com/3596952/52910250-fd00cb80-32e8-11e9-9d1a-693286728f0e.png"">
+
+The observation equations were then updated to be consistent with https://github.com/PX4/ecl/tree/master/EKF/matlab/scripts/Terrain%20Estimatowith addition of a parameter to control if optical  flow data is used by the navigation and/or the terrain estimator.
+
+Preliminary flight testing shows much improved performance, however further tuning with flight over more undulating terrain is still required.
+
+Complete flight:
+<img width=""1020"" alt=""screen shot 2019-02-17 at 7 28 28 pm"" src=""https://user-images.githubusercontent.com/3596952/52910377-c0ce6a80-32ea-11e9-9a37-3673034e65dc.png"">
+
+Landing:
+<img width=""1009"" alt=""screen shot 2019-02-17 at 7 30 58 pm"" src=""https://user-images.githubusercontent.com/3596952/52910379-c4fa8800-32ea-11e9-9a9a-6d54b6615860.png"">","[issue_comment] magicrub | created=2019-02-17T09:01:46Z | updated=2019-02-17T09:01:46Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-464431183
+Why so much work on ekf2 instead of ekf3?
+
+---
+
+[issue_comment] priseborough | created=2019-02-17T09:04:57Z | updated=2019-02-17T09:04:57Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-464431442
+Because it is popular with FW community and that is major application for this. Will follow up soon with same changes to EKF3.
+
+---
+
+[issue_comment] priseborough | created=2019-02-17T09:06:42Z | updated=2019-02-17T09:06:42Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-464431594
+The terrain estimator is a separate algorithm and common to both EKF2 and EKF3, so the changes will be very quick to port. It would be good to get some testing on other hardware.
+
+---
+
+[review_comment] rmackay9 | created=2019-02-18T00:54:15Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r257533956
+small typo, ""dara"" should be ""data"" in FLOW_MASK param description
+
+---
+
+[review_comment] rmackay9 | created=2019-02-18T00:55:07Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r257534006
+name the define FLOW_USE_MASK_DEFAULT?
+
+---
+
+[review_comment] rmackay9 | created=2019-02-18T00:55:39Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r257534046
+Is it ""Navigation"" or is it perhaps ""Position Estimation""?
+
+---
+
+[review_comment] priseborough | created=2019-02-22T03:03:58Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259199309
+Also spotted that the unknown vehicle type is defaulted to 3. It should be the same as copter. Will fix that also.
+
+---
+
+[review_comment] priseborough | created=2019-02-22T03:04:04Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259199320
+Will fix
+
+---
+
+[review_comment] priseborough | created=2019-02-22T03:37:38Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259203695
+Navigation is a general term which includes the monitoring of movement and is a more accurate description of how the data will be used.  The description in line 563 provides the context with use in the 'main navigation estimator' and will be updated to make is clearer that one is use in the 24-state estimator and the other use in the 1-state estimator which estimates terrain height only.
+
+---
+
+[review_comment] rmackay9 | created=2019-02-22T04:04:50Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259206873
+sure ok, sounds good.
+
+---
+
+[issue_comment] rmackay9 | created=2019-02-22T04:31:10Z | updated=2019-02-22T04:31:10Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466269933
+@OXINARF, do you think you could have a look at this?  These EKF changes are hard to review but if you have a chance maybe you can spot something.
+
+@priseborough, probably good to rebase on master as well.
+
+As a side note, it's interesting that you got the pwm3901 working.  I have one but haven't tested it nor [added it to the wiki yet](http://ardupilot.org/copter/docs/common-optical-flow-sensors-landingpage.html).
+
+---
+
+[review_comment] OXINARF | created=2019-02-22T16:42:40Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259420393
+Nitpicking: missed indenting the 3 lines above.
+
+---
+
+[review_comment] OXINARF | created=2019-02-22T16:51:56Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259424880
+Won't this check prevent rangefinder data to be fused? To my basic knowledge it looks like the check should be an additional condition for the `fuseOptFlowData` above.
+
+---
+
+[review_comment] OXINARF | created=2019-02-22T17:02:06Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259428723
+Wrong change 🙂 
+
+---
+
+[pull_request_review] OXINARF | created=2019-02-22T17:06:27Z | updated=2019-02-22T17:06:27Z | https://github.com/ArduPilot/ardupilot/pull/10539#pullrequestreview-206916404
+Second comment below might be indicative of a bug, but I'm not 100% sure.
+
+@priseborough May I ask in what conditions would using of _Both_ be appropriate? 
+
+---
+
+[review_comment] priseborough | created=2019-02-24T22:29:24Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259644409
+Will fix
+
+---
+
+[review_comment] priseborough | created=2019-02-24T22:30:10Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259644446
+Will fix
+
+---
+
+[review_comment] priseborough | created=2019-02-24T22:30:31Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259644460
+Will fix
+
+---
+
+[review_comment] priseborough | created=2019-02-24T23:16:20Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259647055
+I cannot sea a situation at the moment where we would want to use optical flow data for both the main and terrain filter. This would result in a circular data dependency given of optical flow data for navigation uses the height above ground estimate and the resultant velocity estimates would then be used by the terrain estimator when it fused the flow data.  I will modify the parameter description accordingly.
+
+---
+
+[issue_comment] priseborough | created=2019-02-25T03:18:11Z | updated=2019-02-25T03:25:28Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466858330
+The selection logic has been modified to fix the bug preventing the terrain estimator running with range finder data. 
+
+The capability has also been extended to include EKF3 and tested on SITL by flying to the East where the simulated terrain rises rapidly, and flying back again. The terrain height offset tracks the actual terrain height offset with an estimation lag, eg.
+
+![screen shot 2019-02-25 at 2 14 20 pm](https://user-images.githubusercontent.com/3596952/53312072-ad815780-3907-11e9-87ed-9f2f45f8ee08.png)
+
+A set of improved tuning parameters that reduce this lag will determined with SITL testing using representative optical flow measurement noise and the default param values updated.
+
+Edit: The speed of estimation is inversely proportional to height above ground. Note how the terrain offset estimate rapidly catches up as height above terrain drops below 30m.
+
+---
+
+[issue_comment] priseborough | created=2019-02-25T04:09:38Z | updated=2019-02-25T04:09:38Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466865518
+If terrain data was available and gradient information could be extracted, then this could be used by the prediction calculation in the terrain estimator rather than wait for observations to drag the terrain offset estimate up or down. 
+
+---
+
+[issue_comment] priseborough | created=2019-02-25T08:49:03Z | updated=2019-02-25T08:49:03Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466922104
+Revised parameters has reduced lag, eg:
+
+<img width=""1001"" alt=""screen shot 2019-02-25 at 7 43 32 pm"" src=""https://user-images.githubusercontent.com/3596952/53324808-d3bdec00-3935-11e9-9c4f-459f65d40c41.png"">
+
+Terrain height change simulated by flying SITL to rising ground to the West.
+
+<img width=""600"" alt=""screen shot 2019-02-25 at 7 46 40 pm"" src=""https://user-images.githubusercontent.com/3596952/53324909-25667680-3936-11e9-9ae7-8ca82c5afe11.png"">
+
+Representative sensor noise has been added to SITL, eg:
+
+<img width=""1017"" alt=""screen shot 2019-02-25 at 7 48 35 pm"" src=""https://user-images.githubusercontent.com/3596952/53325007-5d6db980-3936-11e9-8801-dad6a088704e.png"">
+
+
+
+---
+
+[issue_comment] priseborough | created=2019-02-25T09:15:55Z | updated=2019-02-25T09:15:55Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466933536
+Rebased to fix conflict.
+
+---
+
+[issue_comment] priseborough | created=2019-02-25T09:39:18Z | updated=2019-02-25T09:39:18Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-466942764
+Rebase test output:
+
+<img width=""1020"" alt=""screen shot 2019-02-25 at 8 37 01 pm"" src=""https://user-images.githubusercontent.com/3596952/53328129-6615be00-393d-11e9-976e-567fb777650c.png"">
+
+
+---
+
+[review_comment] OXINARF | created=2019-02-25T12:53:54Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259809626
+We should remove Bitmask and Range or GCS can be confused.
+
+---
+
+[review_comment] OXINARF | created=2019-02-25T12:55:12Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259810104
+We can now compare the number directly given the parameter is no longer a bitmask.
+
+---
+
+[review_comment] OXINARF | created=2019-02-25T12:56:17Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259810524
+grpund -> ground
+
+---
+
+[review_comment] OXINARF | created=2019-02-25T13:02:21Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259812660
+Should we put an else if instead here? I'm asking because previously this would only fuse optical flow data if rangefinder data wasn't available, but now it will fuse both (provided the parameter is set to use it for height).
+
+---
+
+[review_comment] OXINARF | created=2019-02-25T13:05:37Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r259813688
+I have to ask if the change at the end of line (P matrix) was on purpose or a copy error.
+
+---
+
+[pull_request_review] OXINARF | created=2019-02-25T13:12:38Z | updated=2019-02-25T13:12:38Z | https://github.com/ArduPilot/ardupilot/pull/10539#pullrequestreview-207375220
+> I cannot sea a situation at the moment where we would want to use optical flow data for both the main and terrain filter. This would result in a circular data dependency given of optical flow data for navigation uses the height above ground estimate and the resultant velocity estimates would then be used by the terrain estimator when it fused the flow data. I will modify the parameter description accordingly.
+
+In Copter we have the FlowHold mode that uses optical flow for holding position and estimating height, but I guess it works differently. Anyway, glad I asked about it 🙂
+
+@priseborough I've made some additional comments below and I can fix all of it before merging, provided you approve/disapprove them.
+
+---
+
+[review_comment] tridge | created=2019-02-25T21:25:13Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r260024722
+for bitmasks I prefer to create either defines or enums for the values, so something like this:
+#define FLOW_MASK_NAV (1U<<0)
+#define FLOW_MASK_TERRAIN (1U<<1)
+then use those instead of inlining the bit values
+
+---
+
+[issue_comment] rmackay9 | created=2019-02-25T23:28:45Z | updated=2019-02-25T23:28:45Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-467227002
+I've removed the DevCallTopic label because it seems like we are very much on top of this PR.
+
+---
+
+[review_comment] priseborough | created=2019-03-14T08:52:27Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265468261
+Agree
+
+---
+
+[review_comment] priseborough | created=2019-03-14T08:55:33Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265469254
+Happy to replace bitmask with a parameter that can be 0, 1, 2 corresponding to 'none', 'Navigation', 'Terrain'
+
+---
+
+[review_comment] priseborough | created=2019-03-14T08:55:36Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265469264
+OK
+
+---
+
+[review_comment] priseborough | created=2019-03-14T09:02:21Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265471466
+I would prefer to be able to use flow for height, even if range finder is available given how intermittent range finder data can be. I am planning to get test data for that combination in the next two weeks.
+
+---
+
+[review_comment] priseborough | created=2019-03-14T09:05:48Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265472637
+The vertical velocity state for EKF2 is at index 5 and for EKF3 it is at Index 6, so given this is EKF3, then yes good catch, that was a copy error.
+
+---
+
+[review_comment] priseborough | created=2019-03-14T09:07:01Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265473108
+Given we are not using it for flow and nav at the same time, we will change this to a be a simpler 0=none, 1 =Nav and 2=height
+
+---
+
+[issue_comment] priseborough | created=2019-03-14T19:01:35Z | updated=2019-03-14T19:01:35Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-473014761
+We have some conflicts with latest master so will rebase.
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:03:24Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265723383
+See 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/1eae4592aad00955e8ee5ab0a95b85a03e342b38 and 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/447a0f257764e4a2420f1f96a2c33ec45b5a5dc2
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:03:32Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265723430
+See 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/1eae4592aad00955e8ee5ab0a95b85a03e342b38 and 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/447a0f257764e4a2420f1f96a2c33ec45b5a5dc2
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:03:43Z | updated=2019-03-14T19:08:12Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265723496
+See 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/1eae4592aad00955e8ee5ab0a95b85a03e342b38 and 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/447a0f257764e4a2420f1f96a2c33ec45b5a5dc2
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:08:33Z | updated=2019-03-14T19:08:33Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265725274
+See 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/031a946ec5cc152f7eec5b9cd55bb22e329e87b0
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:09:07Z | updated=2019-03-14T19:09:07Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265725520
+See
+1eae459 and
+447a0f2
+
+---
+
+[review_comment] priseborough | created=2019-03-14T19:09:25Z | updated=2019-03-14T19:09:26Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r265725629
+See 
+https://github.com/ArduPilot/ardupilot/pull/10539/commits/5a60c8cdbc552d333e358d0cbccf1bef9599dfe1
+
+---
+
+[issue_comment] OXINARF | created=2019-03-14T23:37:51Z | updated=2019-03-14T23:37:51Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-473105439
+I'm going to fly to Australia tomorrow so I won't be able to review this until later - I'll go over it as soon as possible.
+
+---
+
+[review_comment] OXINARF | created=2019-03-22T03:25:23Z | updated=2019-04-01T22:10:00Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r268027923
+This should really be an enum.
+
+---
+
+[issue_comment] priseborough | created=2019-03-23T01:35:21Z | updated=2019-03-23T01:35:21Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-475828358
+We flew these EKF changes on a different airframe at the ArduPilot conference using a PMW3901 flow sensor mounted on a Canboard (prototype supplied by Hex Technology). This enabled us to fly it over the rising terrain to the West of the runway. The rise in terrain height (negative offset) was detected correctly, eg:
+
+<img width=""1011"" alt=""Screen Shot 2019-03-23 at 12 21 28 pm"" src=""https://user-images.githubusercontent.com/3596952/54859864-5c2d8200-4d66-11e9-980d-9240a22fc095.png"">
+
+<img width=""1017"" alt=""Screen Shot 2019-03-23 at 12 22 02 pm"" src=""https://user-images.githubusercontent.com/3596952/54859879-7bc4aa80-4d66-11e9-8cdf-13e9d6376e6d.png"">
+
+The sensor lost reading when flying over the synthetic runway material, presumably due to lack of contrast, eg:
+
+<img width=""1032"" alt=""Screen Shot 2019-03-23 at 12 29 37 pm"" src=""https://user-images.githubusercontent.com/3596952/54859959-5b492000-4d67-11e9-8d01-630212eb17cf.png"">
+
+It is worth noting that this caused the sensor to report a low flow velocity, but with periods of reported high quality that caused the changes in estimated terrain offset just before touchdown. 
+
+
+
+
+---
+
+[issue_comment] rmackay9 | created=2019-04-01T00:00:26Z | updated=2019-04-01T00:00:26Z | https://github.com/ArduPilot/ardupilot/pull/10539#issuecomment-478397957
+I've add the devcalltopic label so that we discuss this in tomorrow's dev call and hopefully merge it if there are no further objections.
+
+@OXINARF are you OK with this PR going in?
+
+---
+
+[pull_request_review] OXINARF | created=2019-04-01T22:10:00Z | updated=2019-04-01T22:10:00Z | https://github.com/ArduPilot/ardupilot/pull/10539#pullrequestreview-217577977
+@rmackay9 Other than the comment below about the macros, I think it is OK (I'd like to see a bit of squashing done though). Also, I'm not sure if the testing in Canberra involved testing the new logic with rangefinder and OF at the same time (from @priseborough):
+
+> I would prefer to be able to use flow for height, even if range finder is available given how intermittent range finder data can be. I am planning to get test data for that combination in the next two weeks.
+
+---
+
+[review_comment] tridge | created=2019-04-01T23:50:32Z | updated=2019-04-01T23:50:32Z | https://github.com/ArduPilot/ardupilot/pull/10539#discussion_r271090876
+we decided not to hold up the PR for the enum change",merged,2019-02-17T08:33:23Z,,,accepted_fault,estimator use of optical flow data,math
+fse2021_an_exploratory_study_of_autopilot:06968bc14f35bb09,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/4767,Out of Tree Build Fails to Generate Initial/Default Parameters,"Building the px4/Firmware project out of the source tree generates a valid executable (successful boot) but a bad/incomplete romfs.  Using the following (assuming PX4_SRC_PATH and INSTALL_ROOT are different)
+
+```
+cmake $PX4_SRC_PATH -G ""Unix Makefiles"" -DCMAKE_INSTALL_PREFIX=$INSTALL_ROOT -DCONFIG=nuttx_px4fmu-v4_default
+make
+```
+
+When the resulting image is loaded on a pixracer the following console output (partial inline, full attached) is produced:
+
+sercon: Registering CDC/ACM serial driver
+sercon: Successfully registered the CDC/ACM serial driver
+param: selected parameter default file /fs/mtd_params
+rgbled: no RGB led on bus #1
+blinkm: I2C init failed
+blinkm: init failed
+param: Error: Parameter SYS_AUTOCONFIG not found.
+param: Error: Parameter SYS_USE_IO not found.
+param: Error: Parameter INAV_LIDAR_ERR not found.
+param: Error: Parameter SYS_AUTOSTART not found.
+param: Error: Parameter SYS_AUTOSTART not found.
+param: Error: Parameter SYS_AUTOSTART not found.
+param: Error: Parameter SYS_AUTOSTART not found.
+param: Error: Parameter SYS_AUTOSTART not found.
+
+From these error messages there appears to be a problem generating the initial/default parameter setup for the image during the out-of-tree build.
+
+Further the current build of QGroundControl 2.9.7b does allow the vehicle to be configured in this state and board reflash is required to recover.
+
+[Full Console Log](https://github.com/PX4/Firmware/files/303724/boot-console.txt)","[issue_comment] sgstreet | created=2016-06-08T22:20:05Z | updated=2016-06-08T22:20:05Z | https://github.com/PX4/PX4-Autopilot/issues/4767#issuecomment-224747735
+See pull request https://github.com/PX4/Firmware/pull/4781
+
+
+---
+
+[issue_comment] dagar | created=2016-06-09T19:11:02Z | updated=2016-06-09T19:11:02Z | https://github.com/PX4/PX4-Autopilot/issues/4767#issuecomment-224996430
+Fixed as of https://github.com/PX4/Firmware/commit/039d5528ddfba211d07d3e970d0e6d2922ea1765",closed,2016-06-07T23:15:42Z,,,accepted_fault,Parameter (improper prefix construction),parameter
+fse2021_an_exploratory_study_of_autopilot:0d87d6977031c898,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/3535,Check mixer limitation,@muharred reported a possible bug in https://github.com/PX4/Firmware/blob/master/src/modules/systemlib/mixer/mixer_multirotor.cpp#L304,"[issue_comment] LorenzMeier | created=2016-03-24T10:05:29Z | updated=2016-03-24T10:05:29Z | https://github.com/PX4/PX4-Autopilot/issues/3535#issuecomment-200768906
+I don't see what's wrong with that line - would be good to know what he thinks is broken there.
+
+
+---
+
+[issue_comment] muharred | created=2016-03-24T10:31:29Z | updated=2016-03-24T10:31:29Z | https://github.com/PX4/PX4-Autopilot/issues/3535#issuecomment-200777922
+I think the pointer was moved - should have used the commit-specific pointer. The problem is with the line bellow: https://github.com/PX4/Firmware/blob/791ec37f43635947dbe99e43b746144f30f1e442/src/modules/systemlib/mixer/mixer_multirotor.cpp#L310
+max_out should be greater than 0.0 in all cases of positive thrust.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-03-24T10:59:21Z | updated=2016-03-24T10:59:21Z | https://github.com/PX4/PX4-Autopilot/issues/3535#issuecomment-200787536
+Do you have a proposed fix?
+
+
+---
+
+[issue_comment] muharred | created=2016-03-24T11:01:49Z | updated=2016-03-24T11:01:49Z | https://github.com/PX4/PX4-Autopilot/issues/3535#issuecomment-200788016
+Well, I think `max_out > 1.0f` was intended and 0.0f got there as a copy-pase error.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-03-24T11:07:44Z | updated=2016-03-24T11:07:44Z | https://github.com/PX4/PX4-Autopilot/issues/3535#issuecomment-200789089
+Yep. Fixed in 76a8bea.",closed,2016-01-18T17:38:36Z,,,accepted_fault,Wrong checking range for parameter,limit
+fse2021_an_exploratory_study_of_autopilot:1486cae3ae0c687c,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/6815,RC_Channel: fixed bug in manual with TRIM == MIN,"This fixes the bug described here:
+
+https://discuss.ardupilot.org/t/arduplane-reverse-thrust-setup/18324/5
+
+which otherwise would prevent output with TRIM == MIN or TRIM == MAX","[pull_request_review] OXINARF | created=2017-08-24T13:11:31Z | updated=2017-08-24T13:11:31Z | https://github.com/ArduPilot/ardupilot/pull/6815#pullrequestreview-58371351
+LGTM
+
+---
+
+[issue_comment] magicrub | created=2017-08-24T19:45:16Z | updated=2017-08-24T19:45:16Z | https://github.com/ArduPilot/ardupilot/pull/6815#issuecomment-324737423
+LGTM. Is this divBy0 thing catchable by Covarity?",merged,2017-08-23T23:45:03Z,,,accepted_fault,bug in manual with TRIM == MIN,limit
+fse2021_an_exploratory_study_of_autopilot:162ea0908057144b,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/13552,HAL_ChibiOS: fixed stdout in early startup bug,"this caused a failure to boot on some boards if they tried to print
+messages in early startup code before hal was initialised
+
+thanks to @Shadowru for reporting the issue","[review_comment] kd0aij | created=2020-02-11T23:31:42Z | updated=2020-02-12T00:52:42Z | https://github.com/ArduPilot/ardupilot/pull/13552#discussion_r377962089
+typo
+
+---
+
+[review_comment] tridge | created=2020-02-12T00:51:08Z | updated=2020-02-12T00:52:42Z | https://github.com/ArduPilot/ardupilot/pull/13552#discussion_r377986103
+you want the american spelling of initialise?
+
+---
+
+[review_comment] tridge | created=2020-02-12T00:52:53Z | updated=2020-02-12T00:52:53Z | https://github.com/ArduPilot/ardupilot/pull/13552#discussion_r377986549
+ahh, now I see it. Amazing how blind I can be to spelling errors. Fixed
+
+---
+
+[review_comment] kd0aij | created=2020-02-12T01:45:03Z | updated=2020-02-12T01:45:03Z | https://github.com/ArduPilot/ardupilot/pull/13552#discussion_r377999676
+:) I'll be more specific next time
+
+---
+
+[issue_comment] rmackay9 | created=2020-02-12T05:59:33Z | updated=2020-02-12T05:59:33Z | https://github.com/ArduPilot/ardupilot/pull/13552#issuecomment-585044112
+I think this may have broken master.  At least on my cube black I don't seem to be able to connect with a USB cable with this commit included.",merged,2020-02-11T22:50:42Z,,,accepted_fault,fixed stdout in early startup bug,hardware
+fse2021_an_exploratory_study_of_autopilot:1e528668fc7e2946,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/10404,HAL_ChibiOS: fixed mini-pix uart order,telem1 and telem2 were reversed,"[issue_comment] vierfuffzig | created=2019-02-04T21:32:53Z | updated=2019-02-04T21:32:53Z | https://github.com/ArduPilot/ardupilot/pull/10404#issuecomment-460421268
+fwiw, actually it‘s the print on the plastic case that‘s reversed, while port numbers printed on the PCB and fw uart order did align...
+
+basti.",merged,2019-02-03T10:07:56Z,,,accepted_fault,mini-pix uart order,priority
+fse2021_an_exploratory_study_of_autopilot:242337004e97689f,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/8198,Battery remaining inversed when compensating for load,"The battery remaining function is broken on today's master.
+It increases drastically when under load (if anything it should decrease). Tested with and without setting internal resistance, both behave the same. The voltage reading does read as expected.
+
+![image](https://user-images.githubusercontent.com/14801663/32076325-dbcfdca2-ba9f-11e7-9cff-0fab8f5b43d2.png)
+
+Log from other flight same behavior:
+https://logs.px4.io/plot_app?log=7f323da0-8f75-46f1-aba9-f0a68150b691
+
+ping @LorenzMeier @dagar","[issue_comment] sanderux | created=2017-10-26T20:55:09Z | updated=2017-10-26T20:55:09Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-339798022
+ping @davids5 
+
+---
+
+[issue_comment] dagar | created=2017-10-27T00:29:21Z | updated=2017-10-27T00:30:06Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-339838602
+For VTOL this would make sense if you're relying on the normalized throttle usage (https://github.com/PX4/Firmware/blob/master/src/modules/systemlib/battery.cpp#L179), but I see you have BAT_R_INTERNAL set. 
+
+![image](https://user-images.githubusercontent.com/84712/32082858-720b54da-ba8c-11e7-87e6-f1f54b6e5553.png)
+
+
+---
+
+[issue_comment] LorenzMeier | created=2017-10-30T20:02:01Z | updated=2017-10-30T20:02:01Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-340566775
+@sanderux This is still persisting, right?
+
+---
+
+[issue_comment] sanderux | created=2017-10-31T02:11:10Z | updated=2017-10-31T02:13:09Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-340638838
+@LorenzMeier yes, it was on 4 day old master. later i dont know yet. did anything change?
+
+---
+
+[issue_comment] sanderux | created=2017-10-31T02:12:08Z | updated=2017-10-31T02:12:08Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-340638998
+@dagar it happens with with and without r_internal
+
+---
+
+[issue_comment] MaEtUgR | created=2017-10-31T10:33:42Z | updated=2017-10-31T14:00:32Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-340722586
+@sanderux I'm currently revising the battery estimation here https://github.com/PX4/Firmware/pull/8153.
+It's currently broken in several ways according to my opinion. Not sure if your case is covered in my fixes, let's investigeate.
+
+On the first glance it looks to me as if your battery estimation is always corrected using the thrust and for the factor of how much this is done you can use the parameter `BAT_V_LOAD_DROP`. You even say it does not change when setting an internal resistance.
+
+What you should also know is that the current estimation always adjusts the empty cell voltage for any load which results in rescaling the whole calculation. I correct the voltage measurement itself (**only** for the remaining capacity estimation) in my pr... If you feel like and have time you can test my pr as soon as I fixed the CI stuff and pushed the newest enhancements today. **EDIT:** I made my changes
+
+---
+
+[issue_comment] sanderux | created=2017-11-03T01:18:57Z | updated=2017-11-03T01:18:57Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-341602765
+I re-checked all the math and found that it was indeed related to internal resistance that was likely wrong for this lipo. Initially i thought it was not related as it exhibited the same behavior when bat_IR was disabled. but on the bench test it did not (perhaps param didnt save in field test).
+
+Closing for now.
+
+---
+
+[issue_comment] nskjoung | created=2017-11-15T01:44:10Z | updated=2017-11-15T01:44:10Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-344459068
+@sanderux i'm be in a same situation. how does it clear?
+
+---
+
+[issue_comment] MaEtUgR | created=2017-11-15T07:47:28Z | updated=2017-11-15T07:47:28Z | https://github.com/PX4/PX4-Autopilot/issues/8198#issuecomment-344511773
+@nskjoung I think his conclusion was that the internal resistance parameter was not set correctly and hence the measurement got overcompensated. If you want to try supposedly better battery estimation please try #8153 . It will likely just not be in 1.7 because it requires a lot of testing.",closed,2017-10-26T20:49:40Z,,,accepted_fault,Incorrect battery estimation,math
+fse2021_an_exploratory_study_of_autopilot:2f2ba542e9e742f3,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/4745,langding bug of fixwing,"Today I broke my model.In Hil,landingslope.flare_relative_alt() always equal zero. it lead to can not limt throttle.","[issue_comment] dagar | created=2016-06-06T15:33:00Z | updated=2016-06-06T15:33:00Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-223995726
+Which version of the firmware are you using?
+
+
+---
+
+[issue_comment] zengdechi | created=2016-06-07T08:41:08Z | updated=2016-06-07T08:41:08Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-224216722
+I download the source code from github on May 24.
+
+
+---
+
+[issue_comment] dagar | created=2016-06-14T21:57:30Z | updated=2016-06-14T21:57:30Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-226028657
+I've reproduced this locally. I'll try to fix it tomorrow.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-06-14T22:01:37Z | updated=2016-06-14T22:01:37Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-226029608
+@dagar This will enable SITL with planes: https://github.com/PX4/Firmware/pull/4798
+
+
+---
+
+[issue_comment] dagar | created=2016-06-16T19:03:25Z | updated=2016-06-16T19:03:25Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-226582098
+@zengdechi this has been fixed in master.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-06-16T19:03:50Z | updated=2016-06-16T19:03:50Z | https://github.com/PX4/PX4-Autopilot/issues/4745#issuecomment-226582207
+Thanks for fixing it @dagar",closed,2016-06-06T14:41:21Z,,,accepted_fault,Incorrect function parameter,parameter
+fse2021_an_exploratory_study_of_autopilot:3676ea85d194b138,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/8601,AP_Compass: detect conflict between AK09916 and ICM20948,"this detects if we have both a AK09916 and an ICM20948 on the same i2c
+bus. If that is found then the ICM20948 is disabled as it otherwise we
+will have two devices on the same i2c address
+
+ping @proficnc","[issue_comment] proficnc | created=2018-06-08T10:25:34Z | updated=2018-06-08T10:25:34Z | https://github.com/ArduPilot/ardupilot/pull/8601#issuecomment-395719650
+Thanks Tridge
+This will help for a couple of people that need this urgently, we will recall the rest :) less confusion for all, but the issue could still come up if a here and an external AK09916 is added on the same bus",merged,2018-06-08T05:34:41Z,,,accepted_fault,detect conflict between AK09916 and ICM20948,hardware
+fse2021_an_exploratory_study_of_autopilot:3d50ff4d46b3b50b,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7510,[Navigator] Fly away because of NaNs,"Last day I had a fly away with my VTOL doing a mission. Fortunately, I was able to take it over the RC and came back in manual. 
+Inspection of the log revealed that the L1 controller was outputting NaNs for roll and yaw setpoints.
+
+Here is the log: http://logs.px4.io/plot_app?log=d72b30cd-d713-4c43-9f32-30510657f2e6
+
+And here is a dump of the setpoints getting into a NaN state:
+![l1_nan](https://user-images.githubusercontent.com/14822839/27689006-e4642fa6-5cdc-11e7-9d8e-48b69f02c5cf.png)","[issue_comment] LorenzMeier | created=2017-06-29T13:24:20Z | updated=2017-06-29T13:24:20Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311965037
+@bresch that was not the L1 controller. I can almost guarantee that it was fed NaN setpoints. @Stifael can you pitch in?
+
+---
+
+[issue_comment] dagar | created=2017-06-29T13:26:30Z | updated=2017-06-29T13:26:30Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311965624
+Yes, so far I'm seeing a NaN in current.alt when it starts.
+
+---
+
+[issue_comment] dagar | created=2017-06-29T13:30:16Z | updated=2017-06-29T13:30:16Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311966622
+At ~479s - end the previous lat/lon are NaN, but valid is true.
+
+---
+
+[issue_comment] dagar | created=2017-06-29T13:46:58Z | updated=2017-06-29T13:48:15Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311971426
+So ~479s is when the setpoint type switched from position to loiter. Previous shouldn't be marked valid, but FW loiter isn't using it.
+
+![image](https://user-images.githubusercontent.com/84712/27690444-5a019ca4-5caf-11e7-99c4-5a235d5da528.png)
+
+The estimated position and current lat/lon all seem fine during the transition. The alt setpoint is NaN, but that isn't used to calculate the roll and yaw setpoints.
+
+https://github.com/PX4/Firmware/blob/master/src/modules/fw_pos_control_l1/FixedwingPositionControl.cpp#L769
+
+---
+
+[issue_comment] bresch | created=2017-06-29T13:54:03Z | updated=2017-06-29T13:54:03Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311973480
+Actually, the loiter worked. It went wrong just after that
+
+---
+
+[issue_comment] dagar | created=2017-06-29T14:02:34Z | updated=2017-06-29T14:04:37Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-311975932
+My bad, I flipped the colors. It's the end of the loiter back to position where it happens.
+
+tl;dr the problem is the previous position setpoint lat/lon are NaN, but it's marked valid. @Stifael
+
+---
+
+[issue_comment] dagar | created=2017-06-29T15:29:04Z | updated=2017-06-29T15:29:39Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-312002724
+The problem is the LOITER exit here - https://github.com/PX4/Firmware/blob/master/src/modules/navigator/mission_block.cpp#L374
+
+The next position setpoint is the same as the current, which means the distance is 0 and the inner_angle becomes NaN.
+
+Fix
+1. Check the range here - https://github.com/PX4/Firmware/blob/master/src/modules/navigator/mission_block.cpp#L376
+2. Populate position setpoint next
+
+@NaterGator FYI
+
+Thanks to the original mission file from @bresch I was able to reproduce exactly in SITL.
+http://logs.px4.io/plot_app?log=7b4aba61-9165-424f-9578-6779e8f66d98
+
+![image](https://user-images.githubusercontent.com/84712/27695645-879dc864-5cbd-11e7-944e-62ced12725c7.png)
+
+@bkueng what do you think about dumping the original dataman mission items to logger? Then adding something to pyulog to output a .mission file? I know they're already on the sdcard, but I can think of many occasions where this would have been extremely helpful.
+
+---
+
+[issue_comment] bkueng | created=2017-06-30T08:58:31Z | updated=2017-06-30T08:58:31Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-312214781
+> @bkueng what do you think about dumping the original dataman mission items to logger? Then adding something to pyulog to output a .mission file? I know they're already on the sdcard, but I can think of many occasions where this would have been extremely helpful.
+
+Interesting. I agree this can be helpful. I see some difficulties with an actual implementation though:
+- reading from dataman (SD card) will block, which can lead to logging dropouts. It can be reduced by splitting the reads over multiple loop iterations, but might still be an issue, and can take a while for larger missions.
+- a mission can be updated in-air, so there could be multiple missions in one log.
+-  Then we would also need some standardized format so that changes to the dataman structs won't break the parsing in pyulog.
+
+---
+
+[issue_comment] NaterGator | created=2017-07-07T14:46:06Z | updated=2017-07-07T14:46:06Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-313702689
+Sorry just catching up on this after getting back from Canada. Out of curiosity what was in the mission file? Was there intent to have a tangent crosstrack exit from the loiter or was that also a bug?
+
+---
+
+[issue_comment] dagar | created=2017-07-07T14:59:30Z | updated=2017-07-07T14:59:30Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-313706310
+It was just a regular timed loiter midmission. I believe the loiter was added in QGC without changing any defaults.
+
+---
+
+[issue_comment] ToppingXu | created=2019-09-30T02:25:30Z | updated=2019-09-30T02:25:30Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-536374736
+I had a same flight issue,  but the code is with this fixing. Is there any further fixing about this issue?
+
+---
+
+[issue_comment] julianoes | created=2019-10-01T09:24:38Z | updated=2019-10-01T09:24:38Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-536950658
+@ToppingXu please create a new issue and add a logfile.
+
+---
+
+[issue_comment] ToppingXu | created=2019-10-09T06:55:11Z | updated=2019-10-09T06:55:11Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-539864927
+@julianoes now I have found the root reason.
+https://github.com/PX4/Firmware/blob/master/src/modules/navigator/mission_block.cpp#L390
+The code above will return a nan inner angle when the loitor radius is bigger than the range.
+
+---
+
+[issue_comment] julianoes | created=2019-10-09T10:05:01Z | updated=2019-10-09T10:05:01Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-539933251
+@ToppingXu good catch! Do you have an idea how it could be fixed? :thinking: 
+
+---
+
+[issue_comment] julianoes | created=2019-10-09T10:18:26Z | updated=2019-10-09T10:18:26Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-539937889
+@ToppingXu I've made a suggestion in #13138.
+
+---
+
+[issue_comment] ToppingXu | created=2019-10-10T03:26:38Z | updated=2019-10-10T03:26:38Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-540324967
+@julianoes good job. one more question, I am not sure whether below issue happen.
+float a = 1.0f;
+float b = a;
+if (b > 1.0f) {
+   is there any possible code run here due to the float precise
+} 
+
+
+---
+
+[issue_comment] julianoes | created=2019-10-10T07:01:09Z | updated=2019-10-10T07:01:09Z | https://github.com/PX4/PX4-Autopilot/issues/7510#issuecomment-540419786
+@ToppingXu I would assume that `1.0f > 1.0f` is never true for floating point. I don't see how it would be a different 1.0f :smile:.",closed,2017-06-29T13:12:04Z,,,accepted_fault,navigator mission_block check range for loiter exit,limit
+fse2021_an_exploratory_study_of_autopilot:4224c4d37f9b447f,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/2637,Battery current for MAVLink is not scaled correctly,"@LorenzMeier 
+Apart from hardware issues discussed [here](https://groups.google.com/forum/#!topic/px4users/bI1-ZbecoN8), there is also software bug. Yesterday we noticed that we don't get a current reading via MAVLink but it is logged correctly. To be more precise, the current reading we got over MAVLink was 0 or 1.
+
+In https://github.com/PX4/Firmware/blob/0e26c2b37b362c19d30f0544ed6d21bc408bcd7d/src/modules/mavlink/mavlink_messages.cpp#L550 and https://github.com/PX4/Firmware/blob/0e26c2b37b362c19d30f0544ed6d21bc408bcd7d/src/modules/mavlink/mavlink_messages.cpp#L575 the battery current for MAVLink get's divided by 10. The target field is uint16. According to specs it's supposed to contain milliamps \* 10. This suggests that the source field contains milliamps, but as far as I can tell it actually contains amps. This would match the effect we saw for currents between 0 and 15 amps.
+
+The scaling for the MAVLink message changed during the last commit.","[issue_comment] tnedev | created=2015-08-04T05:56:33Z | updated=2015-08-04T05:56:33Z | https://github.com/PX4/PX4-Autopilot/issues/2637#issuecomment-127487240
+We have the same issue. No current reading, no current consumed through MAVLink. 
+
+
+---
+
+[issue_comment] LorenzMeier | created=2015-08-04T09:04:31Z | updated=2015-08-04T09:04:31Z | https://github.com/PX4/PX4-Autopilot/issues/2637#issuecomment-127533532
+In obvious cases like this (where / 10 should be just changed to \* 100) please directly file a pull request.
+
+
+---
+
+[issue_comment] AndreasAntener | created=2015-08-04T09:39:44Z | updated=2015-08-04T09:39:44Z | https://github.com/PX4/PX4-Autopilot/issues/2637#issuecomment-127542445
+Ok, I wasn't sure why you changed it.",closed,2015-08-04T05:39:09Z,,,accepted_fault,Improper scaling for mavlink message,math
+fse2021_an_exploratory_study_of_autopilot:4d87cc49b261741c,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7746,Mag timeout current master,"@Stifael i am getting intermittent mag timeouts that coincide with the land detector.
+I did notice  on our last test flights the mag timeout every time it actually landed.
+On this vehicle it seems to give constant 'maybe landed' jumps that constantly coincide with mag timeouts.
+
+Maybe this is reversing cause and effect but this behavior is gone when i flash stable.
+
+![image](https://user-images.githubusercontent.com/14801663/29031344-389eaedc-7b8e-11e7-905a-92b370dc653d.png)","[issue_comment] dagar | created=2017-08-07T14:57:01Z | updated=2017-08-07T16:40:49Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320687216
+I suspect this is because both the land detector and the external mag (i2c) are running in the high priority work queue. The additional code in the land detector probably pushed it over the edge.
+
+I think we need some way to instrument the work queue and understand what's running in each and for how long.
+
+@davids5 FYI
+
+---
+
+[issue_comment] sanderux | created=2017-08-07T15:44:31Z | updated=2017-08-07T15:44:31Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320700514
+Here's the full log of the bench test: https://logs.px4.io/plot_app?log=7308ecce-8078-4c20-a458-d8461a9fe6e5
+
+---
+
+[issue_comment] dagar | created=2017-08-08T03:21:51Z | updated=2017-08-08T03:21:59Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320839328
+I want to instrument the work queues to understand what's happening, but I probably won't have time in the next day or two. 
+
+Is this easy to reproduce on the bench? If so connect a console, run top, and note the HPWORK cpu usage. Then stop each of the following, noting HPWORK cpu usage after stopping each. This is a crude way of trying to understand what's happening in the high priority work queue.
+ - `fmu stop`
+ - `land_detector stop`
+ - `hmc5883 stop`
+ - `ms5611 stop`
+ - using camera_trigger?
+
+
+
+---
+
+[issue_comment] bkueng | created=2017-08-08T05:57:27Z | updated=2017-08-08T05:57:27Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320858163
+There was only very little code added to the land detector, I would not expect that to be the cause. However many tasks such as pos ctrl, sensors, estimator & att ctrl have higher prio than HPWORK, and if they use a bit more CPU due to a land detector state change, they can all be the cause of that.
+@sanderux can you try setting https://github.com/PX4/Firmware/blob/master/nuttx-configs/px4fmu-v2/nsh/defconfig#L756 (make sure it's the build target that you use) to something like 253 and see if that helps (and do a clean build after changing it)?
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T08:32:20Z | updated=2017-08-08T08:32:20Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320889139
+@bkueng no change with prio 253
+(i did do a clean build)
+
+![image](https://user-images.githubusercontent.com/14801663/29063094-ac8a90fe-7c24-11e7-8e66-f7b710c800cc.png)
+
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T08:49:33Z | updated=2017-08-08T08:49:33Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320893179
+Interestingly when i force no landing detected (by keeping throttle high) it doesn't timeout. it really only times out when if actually detects a landing (see messages above).
+
+I checked cpu usage with and without land detector. with everything running it's at +- 1.5%
+But: the LPWORK stays at a constant 35% cpu when i put throttle high. putting it low again returns the lpwork cpu to 0.07. 
+
+repeating this test with land_detector stopped keeps lpwork at 0.07%
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T09:07:54Z | updated=2017-08-08T09:07:54Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320897583
+another interesting observation: this only happens on vtol in FW mode. in MC mode it's fine
+also in FW mode (as shown above) it constantly switches between landed and takeoff.
+
+Likely during FW mode the logic breaks down running the MC land detector
+
+---
+
+[issue_comment] Stifael | created=2017-08-08T09:33:22Z | updated=2017-08-08T09:33:22Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320903988
+@sanderux, thats possible. I am looking at the log right now
+
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T09:34:21Z | updated=2017-08-08T09:34:21Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320904220
+I'm now testing with adding 
+```
+	// Only trigger in RW mode
+	if(!_vehicle_status.is_rotary_wing) {
+		return false;
+	}
+```
+
+---
+
+[issue_comment] Stifael | created=2017-08-08T09:35:57Z | updated=2017-08-08T09:35:57Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320904635
+I mean it clearly breaks down. It has landdetected all over the place. interesting that it did not crash
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T09:36:37Z | updated=2017-08-08T09:36:37Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320904814
+it's a bench test. or did you mean the process?
+
+---
+
+[issue_comment] sanderux | created=2017-08-08T09:36:47Z | updated=2017-08-08T09:36:47Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320904875
+I have a fix
+
+---
+
+[issue_comment] Stifael | created=2017-08-08T09:41:33Z | updated=2017-08-08T09:41:33Z | https://github.com/PX4/PX4-Autopilot/issues/7746#issuecomment-320905996
+why did the current changes have an effect on the FW mode?",closed,2017-08-07T14:34:48Z,,,accepted_fault,Support for different types of UAV,consistency
+fse2021_an_exploratory_study_of_autopilot:5166592c6d4d9060,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/11110,plane: reinstate tailsitter roll limit,"This reinstates the separate tailsitter roll limit, I guess it got lost in the onion",no_comments_in_source,merged,2019-04-13T18:01:25Z,,,accepted_fault,reinstate tailsitter roll limit,limit
+fse2021_an_exploratory_study_of_autopilot:5536e7a4b8c95955,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7309,"Stuck during mission, if altitude higher than max height","For a survey I did, the default altitude was higher than the max height and the quad got stuck because it never reached the waypoint.
+Here's the [log](http://logs.px4.io/plot_app?log=c828d9ab-c6de-4034-a4ce-9ea5222faf74)","[issue_comment] sanderux | created=2017-06-11T08:43:16Z | updated=2017-06-11T08:43:16Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307614886
+@Stifael this remains a problem in missions. Could you please fix this or change your implementation to be more like geofence?
+
+---
+
+[issue_comment] Stifael | created=2017-06-11T14:33:14Z | updated=2017-06-11T14:33:14Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307632726
+@sanderux, I dont really want to take the credit for the altitude limit, because I dont like to have it in the landdetector either and would like to remove it. However, I dont know how geofence works right now and not sure if I have the time to work on that. What I can do right now is to limit the mission  altitude to the max altitude...
+
+---
+
+[issue_comment] Stifael | created=2017-06-11T16:31:14Z | updated=2017-06-11T16:32:12Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307640437
+@LorenzMeier I am in favor of turning off the landdetector alt max for now, since in order to implement it properly it requires some more changes. Currently the landdetector adjusts max altitude based on battery level. Lets assume the vehicle is flying a mission. It is possible to adjust the desired altitude to the max altitude, but what happens if the vehicle is in between two waypoints and the battery level goes below the threshold which results in a lower max altitude. The navigator  already has set the current waypoint and does not know about the altitude max change and will therefore set a mission altitude above the max.
+In order to solve that, the navigator also needs to know when the max altitude has changed and then update the mission item accordingly. However, before I implement something like that I prefer to clean up the navigator first such that waypoints are actually only sent when they have changed.
+with turning off I mean set the alt max to a very large value and do not apply any altitude adjustment based on battery
+
+---
+
+[issue_comment] Stifael | created=2017-06-11T16:57:40Z | updated=2017-06-11T16:58:10Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307642062
+Actually, the navigator knows when something in the landdetector has changed. So I guess I can do it without much change for mission. But the same check has to be done for all the other auto related maneuvers such as rtl etc.,
+
+---
+
+[issue_comment] sanderux | created=2017-06-12T02:33:02Z | updated=2017-06-12T02:33:02Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307677102
+@Stifael based on https://github.com/PX4/Firmware/commit/a1982e039288221c7ecac62e4ea3ebf909b2578e i was under the impression that it was you who added this to the land detector. In a later commit you enabled it by default.
+
+I agree it would be best to disable it for now. I never understood what it's doing in the land detector anyway.
+
+---
+
+[issue_comment] Stifael | created=2017-06-12T05:06:27Z | updated=2017-06-12T05:06:27Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-307690787
+@sanderux that is correct, but I just followed orders. I never wanted to put it there either 
+
+---
+
+[issue_comment] Stifael | created=2017-06-16T09:17:52Z | updated=2017-06-16T11:09:26Z | https://github.com/PX4/PX4-Autopilot/issues/7309#issuecomment-308976848
+here is a branch where I moved the altitude limit to the navigator and removed the altitude limit from the position controller and land-detector.
+https://github.com/PX4/Firmware/tree/pr-limit_altitude_navigator
+
+the reason why I did that:
+- a detector should just detect an event, but should not apply any action as it was done in the land-detector for altitude limitation
+- the battery level is already handled/detected by the battery.cpp class. Hence, it is not necessary to do another detection in the land-detector
+- I removed the altitude limit from the position controller;
+I still don't really see/understand why the position controller needs to make any adjustments and should rather track the desired set-points.  I do not really see the benefit of limiting altitude, velocity (as it is done when being close to the home_pose)  in manual control mode, since the user should be in full control when using the sticks. In fact, with the current implementation the user cannot even fly below home_pose with full speed since it is limited. 
+
+it is to note that the altitude limitation in the navigator only applies for mission related maneuvers such as mission, rtl etc. It does not work yet for repositioning such as altitude change and go-to, because unfortunately they are  handle differently. I think we also should change that such that any navigator related maneuver follows the same procedure (=different topic).",closed,2017-05-29T13:24:27Z,,,accepted_fault,Pr altitude max fix,limit
+fse2021_an_exploratory_study_of_autopilot:5c5a561799e75d14,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/5494,AP_Baro: fix get_last_update(instance),"The method was not using the instance parameter. Instead it always use
+primary barometer. Bug was not detected because method
+get_last_update() is used where _primary is used as instance parameter.
+
+Detected with warnings, warnings are useful :-)","[issue_comment] OXINARF | created=2017-01-04T17:32:31Z | updated=2017-01-04T17:32:31Z | https://github.com/ArduPilot/ardupilot/pull/5494#issuecomment-270432637
+Merged, thanks!",merged,2017-01-04T14:20:59Z,,,accepted_fault,get_last_update,parameter
+fse2021_an_exploratory_study_of_autopilot:5eebdfcce71cd44c,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/13504,Added TECS reset to end of VTOL takeoff,"This fixes an issue found by SpektreWorks where the aircraft descends after a VTOL takeoff if the TECS_CLMB_MAX is set lower than the VTOL climb rate.
+By resetting TECS at the end of the takeoff the climb rate filter is reset","[pull_request_review] WickedShell | created=2020-02-06T07:01:32Z | updated=2020-02-06T07:01:32Z | https://github.com/ArduPilot/ardupilot/pull/13504#pullrequestreview-354233668
+By inspection only this seems reasonable, haven't actually flown it at all. We should probably reset the slope one more time at the end of transition, but this should solve the more egregious case at the start at least.
+
+---
+
+[issue_comment] avrem | created=2020-02-06T11:16:47Z | updated=2020-02-06T11:16:47Z | https://github.com/ArduPilot/ardupilot/pull/13504#issuecomment-582857221
+Is there a reason to keep updating TECS while flying VTOL AUTO?",merged,2020-02-06T04:46:30Z,,,accepted_fault,reset to end of VTOL takeoff,limit
+fse2021_an_exploratory_study_of_autopilot:6429e30ca1330c6e,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/9684,"Make capability order consistent, and fix late capability set","This makes the vehicles consistently set their capability bits, and ensures it is always set before letting a MAVLink stream start. On plane (and everything except copter should be vulnerable to this) I've been able to connect multiple times before the capabilities are set, and the GCS refuses the connection because required capability bits have not been set.","[issue_comment] rmackay9 | created=2018-11-03T06:21:02Z | updated=2018-11-03T06:21:02Z | https://github.com/ArduPilot/ardupilot/pull/9684#issuecomment-435564251
+LGTM..",merged,2018-11-03T03:01:02Z,,,accepted_fault,Make capability order consistent,"priority,order"
+fse2021_an_exploratory_study_of_autopilot:6666584f30ba4137,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/6081,AP_UAVCAN: ESC numbering correction,"And maybe more issues while tests of UAVCAN ESCs
+
+TODO:
+
+~~- uavcan.equipment.safety.ArmingStatus~~","[pull_request_review] OXINARF | created=2017-04-19T13:21:51Z | updated=2017-04-19T13:21:51Z | https://github.com/ArduPilot/ardupilot/pull/6081#pullrequestreview-33494468
+This change looks good to me.
+
+@EShamaev Do you want to add the ArmingStatus in this PR or do you want me to merge it now and you'll add that later?
+
+---
+
+[issue_comment] EShamaev | created=2017-04-19T13:27:31Z | updated=2017-04-19T13:27:31Z | https://github.com/ArduPilot/ardupilot/pull/6081#issuecomment-295269861
+ArmingStatus is not important right now as no hardware support it. So I will add it later as separate PR.
+
+---
+
+[issue_comment] OXINARF | created=2017-04-19T13:28:51Z | updated=2017-04-19T13:28:51Z | https://github.com/ArduPilot/ardupilot/pull/6081#issuecomment-295270294
+Ok, merged, thanks!",merged,2017-04-19T06:38:44Z,,,accepted_fault,more issues while tests of UAVCAN ESCs,correction
+fse2021_an_exploratory_study_of_autopilot:6a11658b0112249b,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/6645,AP_BoardConfig: fixed FMUv1 IO update,"when doing an IO firmware update uartC is used to talk to the IO
+bootloader. We need to close uartC to prevent corruption of the
+bootloader protocol. The uart is automatically re-opened when it is
+needed","[issue_comment] magicrub | created=2017-07-22T05:56:45Z | updated=2017-07-22T05:56:45Z | https://github.com/ArduPilot/ardupilot/pull/6645#issuecomment-317158373
+This looks fine/harmless. However, why does this not effect V2 or V4?
+
+---
+
+[issue_comment] tridge | created=2017-07-22T06:25:04Z | updated=2017-07-22T06:25:04Z | https://github.com/ArduPilot/ardupilot/pull/6645#issuecomment-317159840
+v2 has a dedicated UART for IO
+v4 has no IO
+v1 has a uart for IO that is shared with telemetry on uartC, then it uses i2c for normal operation",merged,2017-07-22T04:26:01Z,,,accepted_fault,We need to close uartC to prevent corruption of the bootloader protocol.,hardware
+fse2021_an_exploratory_study_of_autopilot:6b0addecdf93eba0,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/5918,Fix bug not letting some Pixhawk type boards to read gpio pins on FMU,A minor bug fix not letting Pixhawk type boards without IO board to read GPIO pins connected to FMU/main controller. This patch removes the check looking for _gpio_io_fd's existence even while reading gpio pins connected to fmu board.,no_comments_in_source,merged,2017-03-21T13:30:16Z,,,accepted_fault,letting some Pixhawk type boards,hardware
+fse2021_an_exploratory_study_of_autopilot:6eff53d79a845a0c,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/4135,Snapdragon accel calib not working in QGC,"I can't calibrate my accel in QGC. Nothing happens and eventually the dsp crashes.
+Calibration actually starts since you get messages in the dsp debug window (hold vehicel still and stuff like that). However, after this the system crashes. See debug output below.
+Accel calibration works if I do it via
+`qshell commander calibrate accel`
+and use the dsp debug terminal for calibration info.
+
+Debug output from dsp:
+
+```
+[08500/00]  50:51.771  HAP:23:[cal] detected rest position, hold still...  0310  calibration_routines.cpp
+[08500/02]  50:53.430  Process Sensor launched with ID=1   0130  main.c
+[08500/02]  50:53.436  mmpm_register: MMPM client for USM ADSP core 12  0117  UltrasoundStreamMgr_Mmpm.cpp
+[08500/02]  50:53.436  ADSP License DB: License validation function with id 164678 stored.  0280  adsp_license_db.cpp
+[08500/02]  50:53.436  AvsCoreSvc: StartSvcHandler Enter  0518  AdspCoreSvc.cpp
+[08500/02]  50:53.437  AdspCoreSvc: Started successfully  0534  AdspCoreSvc.cpp
+[08500/02]  50:53.443  DSPS INIT  0191  sns_init_dsps.c
+[08500/02]  50:53.443  INIT DONE  0224  sns_init_dsps.c
+[08500/02]  50:53.443  Sensors Init : waiting(1)  0160  sns_init_dsps.c
+[08500/02]  50:53.443  INIT DONE  0224  sns_init_dsps.c
+[08500/02]  50:53.443  THRD CREATE: Thread=0x38 Name(Hex)= 53, 4e, 53, 5f, 53, 4d, 47, 52  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.443  THRD CREATE: Thread=0x37 Name(Hex)= 53, 4e, 53, 5f, 53, 41, 4d, 0  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.443  THRD CREATE: Thread=0x36 Name(Hex)= 53, 4e, 53, 5f, 53, 43, 4d, 0  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.443  THRD CREATE: Thread=0x35 Name(Hex)= 53, 4e, 53, 5f, 50, 4d, 0, 0  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.443  THRD CREATE: Thread=0x34 Name(Hex)= 53, 4e, 53, 5f, 53, 53, 4d, 0  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.445  THRD CREATE: Thread=0x33 Name(Hex)= 53, 4e, 53, 5f, 44, 45, 42, 55  0186  qurt_elite_thread.cpp
+[08500/02]  50:53.445  Sensors Init : ///////////init once completed///////////  0169  sns_init_dsps.c
+[08500/02]  50:53.445  Sensors DIAG F3 Trace Buffer Initialized  0260  sns_init_dsps.c
+[08500/02]  50:53.441  loading BLSP configuration  0189  blsp_config.c
+[08500/02]  50:53.445  INIT DONE  0224  sns_init_dsps.c
+[00053/03]  50:53.445  Unsupported algorithm service id 0  0953  sns_scm_ext.c
+[08500/02]  50:53.447  INIT DONE  0224  sns_init_dsps.c
+[08500/02]  50:53.447  INIT DONE  0224  sns_init_dsps.c
+[08500/02]  50:53.447  INIT DONE  0224  sns_init_dsps.c
+[08500/02]  50:53.725  HAP:159:unable to open the specified file path  0167  file.c
+[08500/04]  50:53.725  failed to open /usr/share/data/adsp/blsp.config  0204  blsp_config.c
+[08500/04]  50:53.725  QDSP6 Main.c: blsp_config_load() failed  0261  main.c
+[08500/02]  50:53.725  Loaded default UART-BAM mapping  0035  blsp_config.c
+[08500/02]  50:53.725  UART tty-1: BAM-9  0043  blsp_config.c
+[08500/02]  50:53.725  UART tty-2: BAM-6  0043  blsp_config.c
+[08500/02]  50:53.725  UART tty-3: BAM-8  0043  blsp_config.c
+[08500/02]  50:53.725  UART tty-4: BAM-2  0043  blsp_config.c
+[08500/02]  50:53.725  UART tty-5: BAM N/A  0048  blsp_config.c
+[08500/02]  50:53.725  UART tty-6: BAM N/A  0048  blsp_config.c
+[08500/02]  50:53.725  HAP:110:cannot find /oemconfig.so  0141  load.c
+[08500/03]  50:53.725  HAP:111::error: -1: 0 == dynconfig_init(&conf, ""security"")   0696  sigverify.c
+[08500/02]  50:53.726  HAP:74:cannot find /voiceproc_tx.so  0141  load.c
+[08500/02]  50:53.727  HAP:74:cannot find /voiceproc_rx.so  0141  load.c
+[00053/03]  51:03.445  Cancel SNS_EM_TIMER_TYPE_ONESHOT  0306  sns_em.c
+[00053/03]  51:03.445  SMGR not ready!  5529  sns_sam.c
+[08500/02]  51:05.581  INIT DONE  0224  sns_init_dsps.c
+```
+
+Output on the posix side:
+
+```
+pxh> /home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/listener_android.c:129:listener protocol failure -1
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/listener_android.c:133::error: -1: 0 == (nErr = __QAIC_HEADER(adsp_listener_next_invoke)( ctx, nErr, 0, 0, &ctx, &handle, &sc, bufs->inbufs, inBufsAllocated, bufs->inbufLenReqs, MAX_BUFS, bufs->outbufLenReqs, MAX_BUFS))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/listener_android.c:192:listener thread exiting with code -1
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/listener_android.c:194:listener thread failed to cleanly shutdown.  This is ok durring process exit.
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+ERROR ERROR: Getting Bulk data from fastRPC link
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+/home/cberg/Desktop/r00015/oe-core/build/tmp-eglibc/work/cortexa8hf-vfp-neon-linux-gnueabi/adsprpc/1.0-r0/adsprpc-1.0/src/fastrpc_apps_user.c:224::error: -1: 0 == (nErr = remotectl_open(name, (int*)ph, dlerrstr, sizeof(dlerrstr), &dlerr))
+
+```","[issue_comment] julianoes | created=2016-04-01T12:12:46Z | updated=2016-04-01T12:12:46Z | https://github.com/PX4/PX4-Autopilot/issues/4135#issuecomment-204373053
+I can reproduce the issue, I'm on it. Thanks.
+
+
+---
+
+[issue_comment] RomanBapst | created=2016-04-01T13:58:28Z | updated=2016-04-01T13:58:28Z | https://github.com/PX4/PX4-Autopilot/issues/4135#issuecomment-204406185
+@julianoes Still now working for me but I think the dsp does not crash anymore.
+
+
+---
+
+[issue_comment] julianoes | created=2016-04-01T14:58:55Z | updated=2016-04-01T14:58:55Z | https://github.com/PX4/PX4-Autopilot/issues/4135#issuecomment-204429185
+What is not working? Please give me more info.",closed,2016-04-01T11:40:43Z,,,accepted_fault,Incorrect stack of low-priority thread,priority
+fse2021_an_exploratory_study_of_autopilot:6fe74787cd8ccb64,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/1201,Check the airspeed derivative in mTECS,The log looks slightly suboptimal and we want to avoid running at some point into a numeric problem at startup.,"[issue_comment] LorenzMeier | created=2014-07-18T05:37:24Z | updated=2014-07-18T05:37:24Z | https://github.com/PX4/PX4-Autopilot/issues/1201#issuecomment-49397108
+Fixed in 4b6192f0bc00f525d65587b3400dbe9a18d156d5.",closed,2014-07-17T21:49:01Z,,,accepted_fault,Incorrect parameter of first run,innitialize
+fse2021_an_exploratory_study_of_autopilot:75569c6a10d85f6b,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7033,Possible Bug in HIL_STATE_QUATERNION handling,"Hi,
+@TSC21 and I are developing HIL plugins in MAVROS. This is to allow any ROS-compatible simulator to be used in HIL setup.
+
+In the decoding of HIL_STATE_QUATERNION msg, in PX4 firmware, specifically the ```vehicle_global_position```,
+https://github.com/PX4/Firmware/blob/ecb2511a7bbad094bff23dd95036eda0656778f0/src/modules/simulator/simulator_mavlink.cpp#L402-L413
+altitude is divided by ```1E3```, but ```lat/lon``` are not scaled down properly. In the msg definition,
+https://github.com/PX4/Firmware/blob/912ed98a28022504ef3ec4bf1bce0fe041f83ac4/msg/vehicle_global_position.msg
+
+```lat/lon/alt``` are assumed to be in deg/deg/meters. And, they are supposed to be received in deg 1E7 and meters 1E3 according to 
+https://pixhawk.ethz.ch/mavlink/#HIL_STATE_QUATERNION
+
+So, I guess that 
+https://github.com/PX4/Firmware/blob/ecb2511a7bbad094bff23dd95036eda0656778f0/src/modules/simulator/simulator_mavlink.cpp#L407-L408
+should be divided by 1E7.
+
+Also the ```vehicle_global_position``` msg does not have ```timestamp``` field,
+
+So, possibly another mistake here,
+https://github.com/PX4/Firmware/blob/ecb2511a7bbad094bff23dd95036eda0656778f0/src/modules/simulator/simulator_mavlink.cpp#L404
+
+Thanks.","[issue_comment] mhkabir | created=2017-04-12T19:38:42Z | updated=2017-04-12T19:38:42Z | https://github.com/PX4/PX4-Autopilot/issues/7033#issuecomment-293685170
+> Also the vehicle_global_position msg does not have timestamp field,
+
+> So, possibly another mistake here,
+https://github.com/PX4/Firmware/blob/ecb2511a7bbad094bff23dd95036eda0656778f0/src/modules/simulator/simulator_mavlink.cpp#L404
+
+Timestamp field is autogenerated. All messages have it.
+
+---
+
+[issue_comment] mzahana | created=2017-04-12T19:52:55Z | updated=2017-04-12T19:52:55Z | https://github.com/PX4/PX4-Autopilot/issues/7033#issuecomment-293688704
+I see. What about lat/lon scaling?
+
+---
+
+[issue_comment] mhkabir | created=2017-04-12T20:49:50Z | updated=2017-04-12T20:49:50Z | https://github.com/PX4/PX4-Autopilot/issues/7033#issuecomment-293703365
+Yes, that looks incorrect. Can you please send in a pull request?
+
+---
+
+[issue_comment] mzahana | created=2017-04-13T06:42:00Z | updated=2017-04-13T06:42:12Z | https://github.com/PX4/PX4-Autopilot/issues/7033#issuecomment-293802703
+A PR is created #7039",closed,2017-04-12T17:37:16Z,,,accepted_fault,lat/lon conversions of HIL_STATE_QUATERNION in simulator_mavlink.cpp,math
+fse2021_an_exploratory_study_of_autopilot:77b875accba72df8,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/10397,Plane: separate out slew limit logic for left/right throttles,,"[issue_comment] magicrub | created=2019-02-03T13:06:47Z | updated=2019-02-03T13:06:47Z | https://github.com/ArduPilot/ardupilot/pull/10397#issuecomment-460050184
+Nice change!",merged,2019-02-02T01:25:50Z,,,accepted_fault,limit logic for left/right throttles,limit
+fse2021_an_exploratory_study_of_autopilot:784e2be96bcd2de8,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/5343,AP_RangeFinder: fix hard fault with LightWareI2C,,"[issue_comment] magicrub | created=2016-12-06T20:27:32Z | updated=2016-12-06T20:27:32Z | https://github.com/ArduPilot/ardupilot/pull/5343#issuecomment-265262932
+related https://github.com/ArduPilot/ardupilot/issues/5342
+
+---
+
+[issue_comment] tridge | created=2016-12-06T20:52:45Z | updated=2016-12-06T20:52:45Z | https://github.com/ArduPilot/ardupilot/pull/5343#issuecomment-265268673
+thanks Jon!",merged,2016-12-06T20:04:55Z,,,accepted_fault,hard fault with LightWareI2C,hardware
+fse2021_an_exploratory_study_of_autopilot:7900cbc26c35ec26,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/3004,EKF2 Critical Bug Fix,Fixes initialisation bugs,"[issue_comment] tridge | created=2015-10-14T23:23:22Z | updated=2015-10-14T23:23:22Z | https://github.com/ArduPilot/ardupilot/pull/3004#issuecomment-148231421
+applied, thanks Paul!",merged,2015-10-14T23:06:15Z,,,accepted_fault,Critical Bug Fix,initialization
+fse2021_an_exploratory_study_of_autopilot:84ca9bb95c0718a8,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/6488,Battery failsafe action can be interrupted unintentionally,"Currently if a critical battery failsafe action is being performed, it's pretty easy to unintentionally kick it out of a battery failsafe without realizing it.
+It's related to what's happening here: https://github.com/PX4/Firmware/blob/master/src/modules/commander/commander.cpp#L2481
+Meant to deal with geofence violations it seems but also triggers on battery failsafe.","[issue_comment] dagar | created=2017-01-31T19:00:46Z | updated=2017-01-31T19:00:46Z | https://github.com/PX4/PX4-Autopilot/issues/6488#issuecomment-276457807
+Another instance of this - https://github.com/PX4/Firmware/issues/6444
+
+---
+
+[issue_comment] dagar | created=2017-04-15T16:35:00Z | updated=2017-04-15T16:35:00Z | https://github.com/PX4/PX4-Autopilot/issues/6488#issuecomment-294303922
+Should be fixed by https://github.com/PX4/Firmware/pull/7025.",closed,2017-01-31T18:59:06Z,,,accepted_fault,Lack parameter to enable rc stick override,parameter
+fse2021_an_exploratory_study_of_autopilot:91f90a6433fee688,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/7035,EKF2: Require reboot after changing ALT_SOURCE parameter,"Toggling between alt sources in flight using the parameter can have unpredictable effects due to the various height offsets and the possibility that the selected data source may not be usable at the time.
+
+https://github.com/ArduPilot/ardupilot/issues/7027","[issue_comment] amilcarlucas | created=2017-10-03T22:13:18Z | updated=2017-10-03T22:13:18Z | https://github.com/ArduPilot/ardupilot/pull/7035#issuecomment-333994707
+Doesn't EK3 have a similar parameter that requires a similar fix ?
+
+---
+
+[issue_comment] priseborough | created=2017-10-03T22:18:27Z | updated=2017-10-03T22:18:27Z | https://github.com/ArduPilot/ardupilot/pull/7035#issuecomment-333995678
+The fix was already applied to EKF3
+
+---
+
+[issue_comment] OXINARF | created=2017-10-03T23:24:18Z | updated=2017-10-03T23:24:18Z | https://github.com/ArduPilot/ardupilot/pull/7035#issuecomment-334007410
+Merged, thanks!",merged,2017-10-03T21:06:02Z,,,accepted_fault,Toggling between alt sources in flight using the parameter can have unpredictable effects due to the various height offsets,parameter
+fse2021_an_exploratory_study_of_autopilot:92fdccc139627ca2,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/4421,Snapdragon: ADSP crash on muorb/uorb init,"@bkueng your commit 1a57488ac68e147389050752e8b6b9bbf6620a56 unfortunately breaks for Snapdragon.
+
+It looks like https://github.com/PX4/Firmware/blob/1a57488ac68e147389050752e8b6b9bbf6620a56/src/modules/uORB/uORBManager.hpp#L76 returns `nullptr` in https://github.com/PX4/Firmware/blob/1a57488ac68e147389050752e8b6b9bbf6620a56/src/modules/muorb/adsp/px4muorb.cpp#L55, presumably because `initialize()` is never called on the Linux side.",no_comments_in_source,closed,2016-05-03T12:19:19Z,,,accepted_fault,Lack initialization of uORB Manager,hardware
+fse2021_an_exploratory_study_of_autopilot:93291b1306825b3d,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/3659,PWM rate setting broken,"@davids5 Your last PWM output change set broke the PWM output on some outputs.
+
+PWM info says everything is configured correctly:
+
+```
+nsh> pwm info
+device: /dev/pwm_output0
+channel 1: 1345 us (alternative rate: 400 Hz failsafe: 900, disarmed: 900 us, min: 1230 us, max: 1950 us)
+channel 2: 1409 us (alternative rate: 400 Hz failsafe: 900, disarmed: 900 us, min: 1230 us, max: 1950 us)
+channel 3: 1305 us (alternative rate: 400 Hz failsafe: 900, disarmed: 900 us, min: 1230 us, max: 1950 us)
+channel 4: 1276 us (alternative rate: 400 Hz failsafe: 900, disarmed: 900 us, min: 1230 us, max: 1950 us)
+channel 5: 1500 us (default rate: 50 Hz failsafe: 1500, disarmed: 0 us, min: 1000 us, max: 2000 us)
+channel 6: 1500 us (default rate: 50 Hz failsafe: 1500, disarmed: 0 us, min: 1000 us, max: 2000 us)
+channel 7: 0 us (default rate: 50 Hz failsafe: 0, disarmed: 0 us, min: 1000 us, max: 2000 us)
+channel 8: 0 us (default rate: 50 Hz failsafe: 0, disarmed: 0 us, min: 1000 us, max: 2000 us)
+channel group 0: channels 1 2
+channel group 1: channels 3 4
+channel group 2: channels 5 6 7 8
+```
+
+But measuring it things are not quite ok (signals named after the Pixhawk outputs):
+
+![screen shot 2016-02-03 at 11 17 24](https://cloud.githubusercontent.com/assets/1208119/12779366/e8725ebe-ca67-11e5-806d-0324c2081110.png)","[issue_comment] LorenzMeier | created=2016-02-03T10:20:53Z | updated=2016-02-03T10:20:53Z | https://github.com/PX4/PX4-Autopilot/issues/3659#issuecomment-179148056
+I failed to notice in my flight test as it was very windy that day and I attributed it to the turbulent air. @SimonWilks @AndreasAntener here is the root cause.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-02-04T09:54:51Z | updated=2016-02-04T09:54:51Z | https://github.com/PX4/PX4-Autopilot/issues/3659#issuecomment-179739013
+Fixed on master.",closed,2016-02-03T10:19:04Z,,,accepted_fault,Configuration (channel mapping),consistency
+fse2021_an_exploratory_study_of_autopilot:947e09b02301f744,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/11856,Copter: esc cal startup check moved outside rc output initialisation,"This PR resolves this issue:https://github.com/ArduPilot/ardupilot/issues/11816 in which the EKF was being upset each time the motor test was run.
+
+The cause of the problem was the main loop was being slowed down during the motor test because we call rc_init_out() when starting the test.  This function includes a call to the esc_calibration_startup_check() function which [includes some delays to ensure we've received radio packets from the user](https://github.com/ArduPilot/ardupilot/blob/master/ArduCopter/esc_calibration.cpp#L30).
+
+We definitely **do not** want to be running the esc calibration check when we're running the motors test because it could falsely trigger entry to the esc calibration if the user happens to have the transmitter's throttle stick held high so I've moved esc_calibration_startup_check to only run as part of the vehicle startup initialisation (aka ""init_ardupilot"").  Note this change also affects compassmot but we don't want to run the esc-calibration-startup-check before compassmot either.
+
+I've re-tested the motor test and the esc calibration on my IRIS and they work fine.  The EKF reporting to the GCS shows the EKF is happy now when the motor test is run","[pull_request_review] peterbarker | created=2019-07-22T05:26:19Z | updated=2019-07-22T05:26:19Z | https://github.com/ArduPilot/ardupilot/pull/11856#pullrequestreview-264605038
+```
+ArduCopter/radio.cpp: // init_rc_out -- initialise motors and check if pilot wants to perform ESC calibration
+```
+
+That comment is now incorrect.
+
+
+---
+
+[issue_comment] rmackay9 | created=2019-07-22T05:53:53Z | updated=2019-07-22T05:53:53Z | https://github.com/ArduPilot/ardupilot/pull/11856#issuecomment-513650540
+Fixed the comment and merged, thanks!",merged,2019-07-22T03:26:04Z,,,accepted_fault,the main loop was being slowed down during the motor test,initlization
+fse2021_an_exploratory_study_of_autopilot:9d74b6597215a5f9,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/1105,Remove all FW_T_* (TECS) params,As of #1084 all TECS params are not needed anymore,"[issue_comment] LorenzMeier | created=2014-07-18T07:32:17Z | updated=2014-07-18T07:32:17Z | https://github.com/PX4/PX4-Autopilot/issues/1105#issuecomment-49403198
+Fixed.",closed,2014-07-01T09:22:12Z,,,accepted_fault,Unused TECS parameters,parameter
+fse2021_an_exploratory_study_of_autopilot:a121b0c4f464a3c4,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/8102,BUG on EKF2 when the PX4Flow goes invalid,"### **Bug Report**
+
+**LOG:** https://logs.px4.io/plot_app?log=962b0f4e-3553-4ec2-b398-40258c9286e5
+
+**Explanation:**
+The PX4Flow is only valid at 35cm of the floor. 
+
+To reproduce, handheld the UAV for some seconds over 50cm so we get a position then let the UAV on the ground.  After some minutes, take it over the ground again and you'll see that the position is completely off.
+
+Note: In the log, you can see the handheld parts with the accelerometer.
+
+**Anomalies in the log:**
+
+* The two first handheld parts where with some rotation yet the third one (at 10') was without clear rotation.
+* High yawrate while one the ground (4' - 10') 
+* Peak in LPOS.x and LPOS.y (We don't see much because of that peak)
+* We don't have the same peak with the distance sensor!
+* Velocities are high while on the ground
+* At 10', while handheld (almost not moving) the velocities tend to go up.
+
+
+**Versions:**
+* PX4 Firmware: 1.6.5
+* Flow Firmware: QGC provided firmware (PX4/Flow/master)
+* EKF_AID_MASK set to PX4Flow
+
+**Workaround:** Using the PR https://github.com/PX4/Flow/issues/96 so the PX4Flow report is always marked as valid.
+
+Original issue: https://github.com/PX4/Flow/issues/97","[issue_comment] ChristophTobler | created=2017-10-10T08:32:51Z | updated=2017-10-10T08:32:51Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335400890
+@AlexisTM Thanks! I'll have a look at it. Seems to be an ekf2 issue.
+FYI @priseborough 
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T08:40:09Z | updated=2017-10-10T08:40:09Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335402685
+Two things stand out:
+* The bottom distance jumps to 12m but the current distance seems ok.
+![firmware_issue_8102_1](https://user-images.githubusercontent.com/14769636/31377012-04b3727e-ada7-11e7-9506-8019859a8f68.png)
+
+* The flow innovations are non-zero which probably leads to the high velocities (vx and vy)
+![firmware_issue_8102_2](https://user-images.githubusercontent.com/14769636/31377095-469cd27a-ada7-11e7-8d0b-87a715cb1a28.png)
+
+Remark: vx and vy are scaled by 0.01 in both images
+
+
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T08:48:05Z | updated=2017-10-10T08:48:05Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335404711
+Also weird: A lot of parameters are missing in this log (e.g. EKF2_*)
+
+---
+
+[issue_comment] AlexisTM | created=2017-10-10T08:58:07Z | updated=2017-10-10T09:00:32Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335407300
+For the parameters, they are present on the UAV, so I guess only the non-default ones are in the log?
+
+Note that the UAV is flying perfectly well when the PX4Flow is disconnected or with the PR https://github.com/PX4/Flow/pull/96 (with some modifications to have the PX4Flow data always valid, which leads to some drift when on the ground)
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T09:31:01Z | updated=2017-10-10T09:31:13Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335416174
+@AlexisTM 
+>For the parameters, they are present on the UAV, so I guess only the non-default ones are in the log?
+
+No, all of them should be
+
+>Note that the UAV is flying perfectly well when the PX4Flow is disconnected or with the PR PX4/Flow#96 (with some modifications to have the PX4Flow data always valid, which leads to some drift when on the ground)
+
+Having flow always valid (even when it is clearly not good) is not an option.
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T09:52:12Z | updated=2017-10-10T09:52:12Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335421586
+I was able to reproduce this on master with our f450 setup with a PX4Flow and Lidar Lite v3.
+It seems like the positions get reset after a short while but not the velocities.
+
+---
+
+[issue_comment] priseborough | created=2017-10-10T09:59:08Z | updated=2017-10-10T09:59:08Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335423399
+The filter is supposed to revert back to a static mode if there is no aiding data for an extended period, but this is not happening. Also on other estimators I have used a default flow value of 0 when on the ground if flow data is invalid to constrain drift, but this is also not happening. I'll look into this some more tomorrow and submit a fix.
+
+---
+
+[issue_comment] priseborough | created=2017-10-10T10:08:43Z | updated=2017-10-10T10:08:43Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335425829
+I checked and the logic to assume a zero flow rate if on ground with bad flow quality is definitely in the code.
+
+---
+
+[issue_comment] priseborough | created=2017-10-10T10:34:17Z | updated=2017-10-10T10:34:17Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335431471
+When the flow data goes invalid, the EKF continues to dead-reckon and neither the vehicle_local_position_0.vxy_reset_counter or vehicle_local_position_0.xy_reset_counter increments during the log indicating that the apparent state reset and subsequent filter instability was caused by fusing the flow data without first resetting the position and velocity states and their corresponding covariances. 
+
+The following anomalies will be followed up tomorrow:
+
+1) Given the vehicle was on ground and the EKF in_air flag was false, why didn't it fuse in zero flow rates when the flow sensor was invalid.
+2) After a prolonged period of dead-reckoning, why didn't the EKF fall back to a constant position mode of operation and reset the position and velocity states and covariances.
+
+@AlexisTM can you please provide me with the parameters you are using - I need the EKF2 ones which are missing from the log. You should be able to download and save them using QGC.
+
+---
+
+[issue_comment] AlexisTM | created=2017-10-10T10:48:26Z | updated=2017-10-10T10:48:26Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335434622
+EKF related params: 
+
+```bash
+# Onboard parameters for Vehicle 1
+#
+# Stack: PX4 Pro
+# Vehicle: Multi-Rotor
+# Version: 1.6.5 dev
+# Git Revision: 3098c77c9168553c
+#
+# Name Value Type
+COM_ARM_EKF_AB	0.004999999888241291	9
+COM_ARM_EKF_GB	0.000869999988935888	9
+COM_ARM_EKF_HGT	1.000000000000000000	9
+COM_ARM_EKF_POS	0.500000000000000000	9
+COM_ARM_EKF_VEL	0.500000000000000000	9
+COM_ARM_EKF_YAW	0.500000000000000000	9
+COM_ARM_IMU_ACC	0.699999988079071045	9
+COM_ARM_IMU_GYR	0.200000002980232239	9
+COM_ARM_MIS_REQ	0	6
+COM_ARM_SWISBTN	0	6
+COM_ARM_WO_GPS	1	6
+EKF2_ABIAS_INIT	0.200000002980232239	9
+EKF2_ACC_B_NOISE	0.003000000026077032	9
+EKF2_ACC_NOISE	0.349999994039535522	9
+EKF2_AID_MASK	2	6
+EKF2_ANGERR_INIT	0.100000001490116119	9
+EKF2_ARSP_THR	0.000000000000000000	9
+EKF2_ASP_DELAY	100.000000000000000000	9
+EKF2_BARO_DELAY	0.000000000000000000	9
+EKF2_BARO_GATE	5.000000000000000000	9
+EKF2_BARO_NOISE	2.000000000000000000	9
+EKF2_BETA_NOISE	0.300000011920928955	9
+EKF2_DECL_TYPE	7	6
+EKF2_EAS_NOISE	1.399999976158142090	9
+EKF2_EVA_NOISE	0.050000000745058060	9
+EKF2_EVP_NOISE	0.050000000745058060	9
+EKF2_EV_DELAY	175.000000000000000000	9
+EKF2_EV_GATE	5.000000000000000000	9
+EKF2_EV_POS_X	0.000000000000000000	9
+EKF2_EV_POS_Y	0.000000000000000000	9
+EKF2_EV_POS_Z	0.000000000000000000	9
+EKF2_FUSE_BETA	0	6
+EKF2_GBIAS_INIT	0.100000001490116119	9
+EKF2_GPS_CHECK	21	6
+EKF2_GPS_DELAY	110.000000000000000000	9
+EKF2_GPS_POS_X	0.000000000000000000	9
+EKF2_GPS_POS_Y	0.000000000000000000	9
+EKF2_GPS_POS_Z	0.000000000000000000	9
+EKF2_GPS_P_GATE	5.000000000000000000	9
+EKF2_GPS_P_NOISE	0.500000000000000000	9
+EKF2_GPS_V_GATE	5.000000000000000000	9
+EKF2_GPS_V_NOISE	0.500000000000000000	9
+EKF2_GYR_B_NOISE	0.001000000047497451	9
+EKF2_GYR_NOISE	0.014999999664723873	9
+EKF2_HDG_GATE	2.599999904632568359	9
+EKF2_HEAD_NOISE	0.300000011920928955	9
+EKF2_HGT_MODE	2	6
+EKF2_IMU_POS_X	0.000000000000000000	9
+EKF2_IMU_POS_Y	0.000000000000000000	9
+EKF2_IMU_POS_Z	0.000000000000000000	9
+EKF2_MAGBIAS_ID	73225	6
+EKF2_MAGBIAS_X	0.000040626870031701	9
+EKF2_MAGBIAS_Y	0.000087446111137979	9
+EKF2_MAGBIAS_Z	-0.000185543263796717	9
+EKF2_MAGB_K	0.200000002980232239	9
+EKF2_MAGB_VREF	0.000000249999999369	9
+EKF2_MAG_ACCLIM	0.500000000000000000	9
+EKF2_MAG_B_NOISE	0.000099999997473788	9
+EKF2_MAG_DECL	0.000000000000000000	9
+EKF2_MAG_DELAY	0.000000000000000000	9
+EKF2_MAG_E_NOISE	0.001000000047497451	9
+EKF2_MAG_GATE	3.000000000000000000	9
+EKF2_MAG_NOISE	0.050000000745058060	9
+EKF2_MAG_TYPE	0	6
+EKF2_MAG_YAWLIM	0.250000000000000000	9
+EKF2_MIN_OBS_DT	20	6
+EKF2_MIN_RNG	0.300000011920928955	9
+EKF2_NOAID_NOISE	10.000000000000000000	9
+EKF2_OF_DELAY	5.000000000000000000	9
+EKF2_OF_GATE	3.000000000000000000	9
+EKF2_OF_N_MAX	0.500000000000000000	9
+EKF2_OF_N_MIN	0.150000005960464478	9
+EKF2_OF_POS_X	-0.059999998658895493	9
+EKF2_OF_POS_Y	0.000000000000000000	9
+EKF2_OF_POS_Z	0.070000000298023224	9
+EKF2_OF_QMIN	1	6
+EKF2_OF_RMAX	2.500000000000000000	9
+EKF2_REC_RPL	0	6
+EKF2_REQ_EPH	5.000000000000000000	9
+EKF2_REQ_EPV	8.000000000000000000	9
+EKF2_REQ_GDOP	2.500000000000000000	9
+EKF2_REQ_HDRIFT	0.300000011920928955	9
+EKF2_REQ_NSATS	6	6
+EKF2_REQ_SACC	1.000000000000000000	9
+EKF2_REQ_VDRIFT	0.500000000000000000	9
+EKF2_RNG_AID	1	6
+EKF2_RNG_A_HMAX	10.000000000000000000	9
+EKF2_RNG_A_VMAX	1.000000000000000000	9
+EKF2_RNG_DELAY	5.000000000000000000	9
+EKF2_RNG_GATE	5.000000000000000000	9
+EKF2_RNG_NOISE	0.100000001490116119	9
+EKF2_RNG_PITCH	0.000000000000000000	9
+EKF2_RNG_POS_X	-0.079999998211860657	9
+EKF2_RNG_POS_Y	0.090000003576278687	9
+EKF2_RNG_POS_Z	0.029999999329447746	9
+EKF2_RNG_SFE	0.050000000745058060	9
+EKF2_TAS_GATE	3.000000000000000000	9
+EKF2_TAU_POS	0.250000000000000000	9
+EKF2_TAU_VEL	0.250000000000000000	9
+EKF2_TERR_GRAD	0.500000000000000000	9
+EKF2_TERR_NOISE	5.000000000000000000	9
+EKF2_WIND_NOISE	0.100000001490116119	9
+```
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T13:27:33Z | updated=2017-10-10T13:27:33Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335471962
+@priseborough regarding
+>Given the vehicle was on ground and the EKF in_air flag was false, why didn't it fuse in zero flow rates when the flow sensor was invalid.
+
+There is a small bug -> https://github.com/PX4/ecl/pull/334. However, doesn't fix this issue...
+
+---
+
+[issue_comment] ChristophTobler | created=2017-10-10T15:57:28Z | updated=2017-10-10T15:57:28Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335520990
+>After a prolonged period of dead-reckoning, why didn't the EKF fall back to a constant position mode of operation and reset the position and velocity states and covariances.
+
+I don't think it counts as dead-reckoning as there are no drops and it keeps fusing flow. If on ground and flow quality is bad, it just uses the gyro measurements and if you grab it, it uses actual pixel flow. 
+
+---
+
+[issue_comment] priseborough | created=2017-10-10T20:24:09Z | updated=2017-10-10T20:24:09Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335596498
+The flow innovations flatline and the velocity and position diverge which is consistent with dead-reckoning.
+
+![screen shot 2017-10-11 at 7 22 10 am](https://user-images.githubusercontent.com/3596952/31408683-19357c66-ae55-11e7-8545-90dab076c6d3.png)
+
+
+
+
+---
+
+[issue_comment] priseborough | created=2017-10-11T09:42:58Z | updated=2017-10-11T09:42:58Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335755571
+I now know why the flow is being rejected on the ground. With very bad quality, the integration interval is going to zero which is stopping flow measurements being pushed to the buffer. I'll push a fix to the ecl library.
+
+---
+
+[issue_comment] priseborough | created=2017-10-11T10:28:26Z | updated=2017-10-11T10:28:26Z | https://github.com/PX4/PX4-Autopilot/issues/8102#issuecomment-335766853
+@ChristophTobler  and @AlexisTM I've pushed the fix to https://github.com/PX4/ecl/pull/334
+
+It flies SITL OK, but let me know how it works on your hardware.",closed,2017-10-10T08:17:27Z,,,accepted_fault,Optical flow bugs,math
+fse2021_an_exploratory_study_of_autopilot:ad7cd73db8e5a10b,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/5243,Bug in baro driver in Snapdragon flight,"Hello @julianoes 
+I tested several times about the baro sensor on the snapdragon, and found some potential bugs in the driver framework, which cause some abnormal outputs. [https://github.com/PX4/DriverFramework/blob/master/drivers/bmp280/BMP280.cpp](url)
+I attached a possible fixing patch here. 
+[BMP280.patch.zip](https://github.com/PX4/Firmware/files/403228/BMP280.patch.zip)
+If you think it is correct, it could be merged to the main px4 branch.
+Thanks.","[issue_comment] LorenzMeier | created=2016-08-05T19:05:43Z | updated=2016-08-05T19:05:43Z | https://github.com/PX4/PX4-Autopilot/issues/5243#issuecomment-237936379
+@julianoes This is the patch:
+
+``` diff
+diff --git a/drivers/bmp280/BMP280.cpp b/drivers/bmp280/BMP280.cpp
+index bbcd67a..b9e35b1 100644
+--- a/drivers/bmp280/BMP280.cpp
++++ b/drivers/bmp280/BMP280.cpp
+@@ -57,7 +57,7 @@ using namespace DriverFramework;
+
+ // convertPressure must be called after convertTemperature
+ // as convertTemperature sets m_sensor_data.t_fine
+-int64_t BMP280::convertPressure(int64_t adc_P)
++uint32_t BMP280::convertPressure(int64_t adc_P)
+ {
+    int64_t var1, var2, p;
+    var1 = ((int64_t) m_sensor_data.t_fine) - 128000;
+@@ -78,7 +78,7 @@ int64_t BMP280::convertPressure(int64_t adc_P)
+    var2 = (((int64_t) m_sensor_calibration.dig_P8) * p) >> 19;
+    p = ((p + var1 + var2) >> 8) + (((int64_t) m_sensor_calibration.dig_P7) << 4);
+
+-   return p;
++   return (uint32_t)p;
+ }
+
+ int32_t BMP280::convertTemperature(int32_t adc_T)
+@@ -299,8 +299,8 @@ void BMP280::_measure(void)
+
+    m_synchronize.lock();
+
+-   m_sensor_data.pressure_pa = convertPressure(pressure_from_sensor) / 256.0;
+    m_sensor_data.temperature_c = convertTemperature(temperature_from_sensor) / 100.0;
++   m_sensor_data.pressure_pa = convertPressure(pressure_from_sensor) / 256.0;
+    m_sensor_data.last_read_time_usec = DriverFramework::offsetTime();
+    m_sensor_data.read_counter++;
+
+diff --git a/drivers/bmp280/BMP280.hpp b/drivers/bmp280/BMP280.hpp
+index c6bc6a3..fdb3507 100644
+--- a/drivers/bmp280/BMP280.hpp
++++ b/drivers/bmp280/BMP280.hpp
+@@ -96,7 +96,7 @@ private:
+    // Q24.8 format (24 integer bits and 8 fractional bits)
+    // Output value of “24674867” represents
+    // 24674867/256 = 96386.2 Pa = 963.862 hPa
+-   int64_t convertPressure(int64_t adc_pressure);
++   uint32_t convertPressure(int64_t adc_pressure);
+
+    // Returns temperature in DegC, resolution is 0.01 DegC
+    // Output value of “5123” equals 51.23 DegC
+```
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-08-05T19:07:32Z | updated=2016-08-05T19:07:32Z | https://github.com/PX4/PX4-Autopilot/issues/5243#issuecomment-237936805
+@langxm1223 The patch only reduces the output range - can you confirm it actually fixes the issue in your testing?
+
+
+---
+
+[issue_comment] langxm1223 | created=2016-08-06T07:33:14Z | updated=2016-08-06T07:33:14Z | https://github.com/PX4/PX4-Autopilot/issues/5243#issuecomment-238010847
+Hello @LorenzMeier , 
+Thanks for your reply.
+According to the bmp280 data sheet and the sample pressure and temperature conversion code, the temperature conversion must be done before the pressure conversion, as the latter one uses some result from the temperature conversion. This patch only fixed the issue that first some baro reading is wrong. However, during the test, I observed incorrect baro reading every once a while, after it is running for a while. I doubt there is still some issue in the driver framework bmp280 driver.
+So I hope that someone could take a deep review of that.
+Thank you.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2016-08-06T08:28:36Z | updated=2016-08-06T08:28:36Z | https://github.com/PX4/PX4-Autopilot/issues/5243#issuecomment-238012694
+Ok, that makes sense and thanks for letting us know about the remaining issue.",closed,2016-08-05T06:18:57Z,,,accepted_fault,Incorrect return type of function,priority
+fse2021_an_exploratory_study_of_autopilot:ae13d83a94fdaf4f,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/13953,Plane: fixed plane landing gear to obey LGR_OPTIONS bits,"we forced landing gear retract/deploy on takeoff and landing when we
+should be following the options bits
+thanks to Arace for pointing this out","[review_comment] magicrub | created=2020-04-01T07:47:56Z | updated=2020-04-01T07:47:57Z | https://github.com/ArduPilot/ardupilot/pull/13953#discussion_r401418512
+what happens in VTOL?
+
+---
+
+[issue_comment] rmackay9 | created=2020-04-01T08:59:23Z | updated=2020-04-01T08:59:23Z | https://github.com/ArduPilot/ardupilot/pull/13953#issuecomment-607126107
+I haven't checked the code but assuming it works, issue:https://github.com/ArduPilot/ardupilot/issues/13665 is resolved by this PR
+
+---
+
+[review_comment] tridge | created=2020-04-01T10:56:23Z | updated=2020-04-01T10:56:23Z | https://github.com/ArduPilot/ardupilot/pull/13953#discussion_r401528763
+see the change in the quadplane code
+
+---
+
+[issue_comment] pompecukor | created=2020-04-14T18:24:31Z | updated=2020-04-14T18:24:31Z | https://github.com/ArduPilot/ardupilot/pull/13953#issuecomment-613604390
+@tridge @rmackay9 
+
+It is still not working, testing with options set to 0 or to only land. And it would still retract on takeoff.
+
+In the below picture retract is set to 65m, Transition is set to 30m. Option is set to 0.
+As you can see it still retracts.
+
+![image](https://user-images.githubusercontent.com/31744367/79212167-81949e80-7e47-11ea-9766-6cdce3a27c04.png)
+
+
+---
+
+[issue_comment] tridge | created=2020-04-15T02:31:09Z | updated=2020-04-15T02:31:09Z | https://github.com/ArduPilot/ardupilot/pull/13953#issuecomment-613779777
+>  As you can see it still retracts.
+
+can you provide a SITL log? I just tested this in SITL and it worked as expected
+
+
+---
+
+[issue_comment] pompecukor | created=2020-04-15T07:12:05Z | updated=2020-04-15T07:12:05Z | https://github.com/ArduPilot/ardupilot/pull/13953#issuecomment-613859800
+ok, it was my fault. Was testing it with master, when it was not actually merged yet.",merged,2020-04-01T01:44:41Z,,,accepted_fault,fixed plane landing gear,consistency
+fse2021_an_exploratory_study_of_autopilot:ae4a1752cecca9f1,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7755,vmount causes system freeze,"I'm trying to use `vmount` with mavlink inputs (`MNT_MODE_IN 3`, i.e. `MAVLINK_DO_MOUNT`) and with mavlink output (`MNT_MODE_OUT 1`, i.e. `MAV_CMD_DO_MOUNT_CONTROL`).
+
+When I configure a PixRacer this way, `vmount` and in fact the whole system freezes: console via debug port no longer responsive, QGC loses connection, PixRacer stops flashing.
+
+### Steps to reproduce
+- Flash current master
+- reset all parameters
+- on the console:
+```
+param set MNT_MODE_IN 3
+param set MNT_MODE_OUT 1
+vmount start
+```
+
+
+I suspect the problem lies in the fact that in this configuration, the `vmount` input `InputMavlinkCmdMount` subscribes to `vehicle_command` and the output `OutputMavlink` publishes on it, causing a loop.
+
+I tried preventing `InputMavlinkCmdMount` from processing messages that were published by `OutputMavlink` by checking [here](https://github.com/PX4/Firmware/blob/925efe990d0b17e2c976f51e56860e38b9cc2ba6/src/drivers/vmount/input_mavlink.cpp#L229) that the system and component IDs don't match the one's that `vmount` itself is publishing, but it didn't help.
+
+@bkueng , any ideas?","[issue_comment] bkueng | created=2017-08-10T06:58:30Z | updated=2017-08-10T06:58:30Z | https://github.com/PX4/PX4-Autopilot/issues/7755#issuecomment-321468091
+Yep, this is easily reproducible thanks to your precise steps. I'll look into it.
+
+---
+
+[issue_comment] LorenzMeier | created=2017-08-13T10:40:22Z | updated=2017-08-13T10:40:22Z | https://github.com/PX4/PX4-Autopilot/issues/7755#issuecomment-322034397
+Fixed.",closed,2017-08-09T15:36:45Z,,,accepted_fault,vmount,limit
+fse2021_an_exploratory_study_of_autopilot:b1bd0a018035a6ab,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/9713,Baro spikes in SITL,"For some reason the baro data in SITL (gazebo) is very spiky.
+![sitl_baro_spikes](https://user-images.githubusercontent.com/7610489/41587894-91ea58a4-73b0-11e8-908a-345874baa8a1.png)
+
+This causes the ekf height checks to fail. @JohannesBrand FYI","[issue_comment] dagar | created=2018-06-19T12:55:03Z | updated=2018-06-19T12:55:03Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-398388514
+They're present in the pressure coming straight from the baro simulator driver, so it must be from gazebo.
+
+https://github.com/PX4/sitl_gazebo/blob/10b0597cd20def97074c6c8eade580a7f294e41d/src/gazebo_mavlink_interface.cpp#L509-L516
+
+---
+
+[issue_comment] dagar | created=2018-06-19T14:04:47Z | updated=2018-06-19T14:04:47Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-398410708
+@priseborough could you review the gazebo barometer noise?
+
+https://github.com/PX4/sitl_gazebo/blob/10b0597cd20def97074c6c8eade580a7f294e41d/src/gazebo_mavlink_interface.cpp#L518-L532
+
+---
+
+[issue_comment] priseborough | created=2018-06-25T11:23:21Z | updated=2018-06-25T11:23:21Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-399918657
+That's a bit different to the equations I have seen before and the html reference is no longer available so I will change ti to something from a more widely used and up to date reference.
+
+---
+
+[issue_comment] TSC21 | created=2018-06-25T19:12:44Z | updated=2018-06-25T19:12:44Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-400063667
+This is also having consequences on LPE: https://github.com/PX4/Firmware/issues/9713
+
+---
+
+[issue_comment] priseborough | created=2018-06-25T22:12:30Z | updated=2018-06-25T22:12:30Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-400112594
+rand() returns a integer and x1 and x2 are supposed to be from a uniform random distribution between +- 1.0 so so lines  522 and 523 should be
+
+     x1 = 2.0 * ((double)rand() / (double)RAND_MAX) - 1.0;
+     x2 = 2.0 * ((double)rand() / (double)RAND_MAX) - 1.0;
+
+If we had ranf() available to us, that would be a more efficient way of generating x1 and x2.
+
+Use of Gaussian/Normal distributions is common in robotics and flight vehicle simulation, so support for this in the math library would be appropriate.
+
+---
+
+[issue_comment] LorenzMeier | created=2018-07-03T13:53:41Z | updated=2018-07-03T13:53:41Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-402165432
+Can you send a PR? Thanks!
+
+---
+
+[issue_comment] priseborough | created=2018-07-04T06:03:05Z | updated=2018-07-04T07:51:08Z | https://github.com/PX4/PX4-Autopilot/issues/9713#issuecomment-402372506
+Fixed here: https://github.com/PX4/sitl_gazebo/pull/225",closed,2018-06-19T09:05:09Z,,,accepted_fault,Bugs in baro noise simulation,math
+fse2021_an_exploratory_study_of_autopilot:b7c475e7373d0540,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/2810,Velocity control in Z will overshoot if commanded velocity is larger then MPC_Z_VEL_MAX,https://groups.google.com/d/msg/px4users/czVQi7EmgGY/XIfW5pmUAAAJ,"[issue_comment] LorenzMeier | created=2016-03-24T10:17:38Z | updated=2016-03-24T10:17:38Z | https://github.com/PX4/PX4-Autopilot/issues/2810#issuecomment-200773863
+Fixed.",closed,2015-09-04T18:21:06Z,,,accepted_fault,Velocity control,limit
+fse2021_an_exploratory_study_of_autopilot:beceeef1648604ad,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/12687,Copter: fix PSC_ACCZ_FILT to _FLTE param conversion,"This PR resolves the ""**PSC_ACCZ_FILT should be converted to PSC_ACCZ_FLTE on upgrade**"" issue found during 4.0 beta testing ([4.0 issues list is here](https://github.com/ArduPilot/ardupilot/issues/12547)).
+
+According to @lthall we should be converting PSC_ACCZ_**FILT** to PSC_ACCZ_**FLTE**.
+
+This PR also fixes the conversion if upgrading from Copter-3.3 (and earlier).
+
+This has been successfully tested in SITL by doing the following:
+
+- rm eeprom.bin and start Copter-3.6
+- set PSC_ACC_FILT = 18 (from the default which is 20)
+- git checkout <this branch> and restarted SITL
+- confirmed PSC_ACC_FLTE was 18","[issue_comment] rmackay9 | created=2019-10-29T01:33:11Z | updated=2019-10-29T01:33:11Z | https://github.com/ArduPilot/ardupilot/pull/12687#issuecomment-547216639
+@bnsgeyer, this change will also apply to TradHeli, hope that's OK
+
+---
+
+[issue_comment] bnsgeyer | created=2019-10-29T02:33:49Z | updated=2019-10-29T02:34:16Z | https://github.com/ArduPilot/ardupilot/pull/12687#issuecomment-547229442
+@rmackay9   That is fine.  In this case, Tradheli follows the same filtering that copter uses.  And looking back at the code, the _FILT should be converted to _FLTE.  Which is what this PR is correcting.  Thanks!  I didn't catch this the first time I reviewed the original PR  
+
+---
+
+[pull_request_review] lthall | created=2019-10-29T04:18:50Z | updated=2019-10-29T04:18:50Z | https://github.com/ArduPilot/ardupilot/pull/12687#pullrequestreview-308268527
+Looks good.",merged,2019-10-29T01:32:35Z,,,accepted_fault,fix PSC_ACCZ_FILT to _FLTE param conversion,parameter
+fse2021_an_exploratory_study_of_autopilot:c603e1cd2fbd07c1,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/13293,AP_Rangefinder: use offset param value in all drivers,"This PR changes all rangefinder drivers to add the RNGFNDx_OFFSET param value to distances.  This parameter's default is 0 so hopefully it will have no effect for most users.
+
+The change to the PWM driver fixes issue https://github.com/ArduPilot/ardupilot/issues/13252 which is a regression in Copter-4.0.0 vs Copter-3.6.12.
+
+For consistency the offset is always added at the moment the distance from the sensor is stored in the _state.distance_cm variable.  I hope this consistency will reduce the possibility of bugs being introduced in the future.
+
+Some things to note:
+
+- the offset is applied before the RNGFND_MIN_CM and RNGFND_MAX_CM values are used to determine the state of the rangefinder.  I think this is correct because this is consistent with how the analog driver and [Copter-3.6.x PWM driver](https://github.com/ArduPilot/ardupilot/blob/Copter-3.6/libraries/AP_RangeFinder/AP_RangeFinder_PX4_PWM.cpp#L120) used it.
+- the AP_RangeFinder_MAVLink driver is inconsistent with other drivers in that it [sets the distance to zero if there is NoData](https://github.com/ArduPilot/ardupilot/blob/master/libraries/AP_RangeFinder/AP_RangeFinder_MAVLink.cpp#L71).  I have left it reporting ""0"" as opposed to ""0+OFFSET"".","[issue_comment] WickedShell | created=2020-01-16T04:14:34Z | updated=2020-01-16T04:14:34Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-574973803
+Offset should only be applied to the analog inputs. We can apply it to PWM for consistency, but it's really not correct on the others. We have a POS parameter to correct for mounting aspects. `OFFSET` is purely for sensor reading errors which is a different problem.
+
+---
+
+[issue_comment] rmackay9 | created=2020-01-16T04:34:03Z | updated=2020-01-16T04:36:11Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-574977915
+@WickedShell,
+
+I see your point but it's got a couple of practical issues that come with it.
+
+1. The OFFSET parameter description pretty clearly says that it is a cm offset for all non-analog drivers.  Clearly it's not and we could of course change the parameter description but this was the intention of the parameter.
+2. Only the EKF uses the POS_X/Y/Z parameters and the EKF's height-above-terrain estimate is only used with optical flow (as far as I know).  Most Copter users who have a lidar attached want to do terrain following which, in Copter at least, is done outside the EKF.  This leads us to two possible bits which are large scope creep
+
+   - Switch copter over to using EKF's height-above-terrain estimate
+   - Make a new height-above-terrain estimator or enhance Copter's existing estimator to use the POS params
+
+---
+
+[issue_comment] WickedShell | created=2020-01-16T04:47:23Z | updated=2020-01-16T04:47:23Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-574981003
+> The OFFSET parameter description pretty clearly says that it is a cm offset for all non-analog drivers. Clearly it's not and we could of course change the parameter description but this was the intention of the parameter.
+
+It doesn't indicate that at all for the serial ones (which is one of the ones that driving the comment from my point of view).
+
+> Only the EKF uses the POS_X/Y/Z parameters and the EKF's height-above-terrain estimate is only used with optical flow (as far as I know).
+
+The EKF may be the only one using it now, but it's definitely not the only one that should be using it. You actually generally speaking want to do attitude correction, particularly on larger vehicles, which needs a full 3D correction.
+
+Basically I'm objecting to this as it's making this harder to handle correctly in the future, unless someone knows to set the POS parameters to 0. And if it's really to be applied everywhere it's better done within the parent class so a driver can't forget it (which then leads to a problem with the analog state needing to use it differently).
+
+---
+
+[issue_comment] rmackay9 | created=2020-01-16T05:46:24Z | updated=2020-01-16T05:47:19Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-574993887
+@WickedShell, I agree with you in many ways but I feel like we are trying to be too perfect in the long term but not helping in the short-term.  What we have now doesn't make much sense and I think this PR is an improvement.
+
+I don't think this change really makes it harder to correct in the future.  A minor bit of param conversion and/or a warning to some users at the time of the release and it will be fine.  The larger coding effort of improving any estimator will hardly be slowed down by the developer having to remove a ""+ param.offset"" from the existeing code.
+
+
+---
+
+[issue_comment] WickedShell | created=2020-01-16T20:39:17Z | updated=2020-01-16T20:39:17Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-575336082
+I think it's an impediment to the future in that all locations that read the value now need to remember to remove the offset to do it correctly. Which would lead to the sorta ridiculous situation where we add the offset first, then remove it later before applying a positional correction.
+
+More critically though you can't actually remove that externally. Because you are using the value differently for the analog case from every other case you actually have to remove the offset only on the non analog driver case.
+
+If the offset is purely used as a ""ranging error correction"" then I'm fine with it. But it really needs to never be used for mounting location correction as we won't be able to undo that in any well thought out manner in the future, short of making a new parameter and doing some complicated conversion into it, in order to fix the hack proposed now.
+
+---
+
+[issue_comment] rmackay9 | created=2020-01-18T00:13:42Z | updated=2020-01-18T00:14:11Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-575842380
+@WickedShell,
+
+> I think it's an impediment to the future in that all locations that read the value now need to remember to remove the offset to do it correctly. Which would lead to the sorta ridiculous situation where we add the offset first, then remove it later before applying a positional correction.
+
+No, we would never do this.
+
+Your point about ""ranging error correction"" is a good one.  IMUs have both offsets and positions and this could be considered the same thing.
+
+TBH, I need to move on so I've removed the 2nd commit and fixed the parameter description.  I'm merge after it passes travis.
+
+
+
+---
+
+[issue_comment] rmackay9 | created=2020-01-18T05:15:54Z | updated=2020-01-18T05:15:54Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-575867943
+Merged!
+
+CI is failing but it seems to be because the firmware is slightly too big for one of the Matek boards which I think is fixed in master now.
+
+---
+
+[issue_comment] rmackay9 | created=2020-01-31T10:50:30Z | updated=2020-01-31T10:50:30Z | https://github.com/ArduPilot/ardupilot/pull/13293#issuecomment-580685124
+FYI, this is included in Copter-4.0.2-rc1",merged,2020-01-16T03:49:13Z,,,accepted_fault,use offset param value,parameter
+fse2021_an_exploratory_study_of_autopilot:d1199e7751e7afd5,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/9639,Copter: Flowhold fix to allow descending,"This resolves an issue found during Copter-3.6 testing [here](https://discuss.ardupilot.org/t/flow-hold-wont-descend/34105).
+
+The issue is just that we were directly using the PILOT_SPEED_DN parameter to constrain the descent rate instead of using the get_pilot_speed_dn() function.
+
+This PR also fixes up some formatting and resolves a DataFlash logging error that popped up in SITL.",no_comments_in_source,merged,2018-10-26T07:08:41Z,,,accepted_fault,The issue is just that we were directly using the PILOT_SPEED_DN parameter,parameter
+fse2021_an_exploratory_study_of_autopilot:d7b1395854c93136,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/11059,plane: restore thr_min behavior,"fix for https://github.com/ArduPilot/ardupilot/issues/11030
+
+This now constrains throttle to between thr_min and thr_max in FBWA/SATABILIZE ect. I couldn't track down how this was done before. Possibly the throttle was interpolated to between thr_min and thr_max? This currently just constrains so some throttle bellow thr_min has no change.","[review_comment] WickedShell | created=2019-04-09T02:32:38Z | updated=2019-04-12T20:01:26Z | https://github.com/ArduPilot/ardupilot/pull/11059#discussion_r273305294
+My understanding is that this is a wrong change? I thought `throttle_passthru_stabilize` meant direct throttle output from the input, without any manipulation? (I've never used it though, this is just my understanding based upon the dev call and the parameter description.
+
+---
+
+[review_comment] IamPete1 | created=2019-04-09T09:14:42Z | updated=2019-04-12T20:01:26Z | https://github.com/ArduPilot/ardupilot/pull/11059#discussion_r273397147
+this puts it inline with what is done in manual, https://github.com/ArduPilot/ardupilot/blob/a8a71db25871003fc7fcd06b43cba16d808ad94e/ArduPlane/servos.cpp#L329 
+
+the only difference is get_throttle_input(true) could be negative if reverse thrust is active
+https://github.com/ArduPilot/ardupilot/blob/a8a71db25871003fc7fcd06b43cba16d808ad94e/ArduPlane/reverse_thrust.cpp#L107
+
+---
+
+[issue_comment] IamPete1 | created=2019-04-09T09:22:43Z | updated=2019-04-09T10:19:27Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-481173523
+The throttle was originaly constrained so the fix is correct
+
+---
+
+[issue_comment] Jaaaky | created=2019-04-10T03:37:27Z | updated=2019-04-10T03:37:27Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-481520569
+It was constrained previously unless throttle_passthru_stabilize is set.
+If throttle_passthru_stabilize is set, it works like manual.
+
+---
+
+[issue_comment] Jaaaky | created=2019-04-12T09:15:15Z | updated=2019-04-12T09:15:15Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482501783
+I've added one more related problem in the original bug report;
+https://github.com/ArduPilot/ardupilot/issues/11030#issuecomment-482498637
+
+I think those 3 lines here https://github.com/ArduPilot/ardupilot/blob/6dd05db3b7a20228101a06543fcdee5457a14318/ArduPlane/servos.cpp#L423
+
+Should be changed as follows;
+```
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, min_throttle);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttleLeft, min_throttle);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttleRight, min_throttle);
+```
+
+---
+
+[issue_comment] IamPete1 | created=2019-04-12T20:08:20Z | updated=2019-04-12T20:09:32Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482705974
+This now also outputs throttle min when disarmed as per [ARMING_REQUIRE](http://ardupilot.org/plane/docs/parameters.html#arming-require-require-arming-motors) description. This is abit odd tho so now THR_MIN is respected when disarmed and in all modes except manual. I wonder if we would be better moving THR_MIN over to the ICE library for this use case (ie idling with THR_MIN). It seems that THR_MIN when disarmed may have been broken for some time and it now has the dual purpose of enabling the reverse thrust stuff.     
+
+---
+
+[issue_comment] DavidIngraham | created=2019-04-13T03:12:59Z | updated=2019-04-13T03:12:59Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482771453
+I think that the parameter description is broken at this point. It would be very dangerous to change this behavior now to make it output throttle_min when disarmed. I can't think of a use case where it would be useful for it to do that, even with an ICE engine.
+
+---
+
+[issue_comment] IamPete1 | created=2019-04-13T06:59:12Z | updated=2019-04-13T06:59:12Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482783016
+@DavidIngraham Yeah I think I agree, thr_min should be for armed only and a new parameter linked to the ignition switch functionality should be set up in the ICE library. 
+
+---
+
+[issue_comment] IamPete1 | created=2019-04-13T10:43:18Z | updated=2019-04-13T10:43:18Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482798074
+I think we should either remove the arming require thr_min option and replace it with https://github.com/ArduPilot/ardupilot/pull/11109 in the ICE lib (this also gives added functionality of having engine start and stop on a switch) and/or fix the behavior here but change the default to arming require zero throttle. 
+
+---
+
+[issue_comment] DavidIngraham | created=2019-04-15T16:44:11Z | updated=2019-04-15T16:44:11Z | https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-483329360
+Yes, that is a much more sensible approach and will be much safer
+
+On Sat, Apr 13, 2019 at 3:43 AM Peter Hall <notifications@github.com> wrote:
+
+> I think we should either remove the arming require thr_min option and
+> replace it with #11109 <https://github.com/ArduPilot/ardupilot/pull/11109>
+> in the ICE lib (this also gives added functionality of having engine start
+> and stop on a switch) and/or fix the behavior here but change the default
+> to arming require zero throttle.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/ArduPilot/ardupilot/pull/11059#issuecomment-482798074>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/ACt5Gdci_Zgfr8rB99_Ymvw-7Pl9qp7Nks5vgbTLgaJpZM4cjV_f>
+> .
+>",merged,2019-04-09T00:12:41Z,,,accepted_fault,constrains throttle to between thr_min and thr_max in FBWA/SATABILIZE ect,limit
+fse2021_an_exploratory_study_of_autopilot:d7db1ad52f967546,fse2021_an_exploratory_study_of_autopilot,Arduoilot,https://github.com/ArduPilot/ardupilot/pull/8066,AP_GPS: Correct HIL_GPS altitude conversion,Corrects HIL_GPS scaling as described in #7396,no_comments_in_source,merged,2018-04-03T00:12:00Z,,,accepted_fault,Correct HIL_GPS altitude conversion,math
+fse2021_an_exploratory_study_of_autopilot:df16b541b56f7fcf,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/7737,Mission takeoff almost no thrust and does not take off,"On today's master (a merge of https://github.com/PX4/Firmware/pull/7666 and https://github.com/PX4/Firmware/pull/7690)
+
+a VTOL takeoff and a regular takeoff from mission mode was attempted. Both failed.
+RC control from posctl did function from a landed state.
+Switching to mission while airborne did complete the takeoff and vtol takeoff command.
+
+Log: https://review.px4.io/plot_app?log=a5ab7c8f-101f-443f-a612-6e46fadc9d7f
+
+FYI @dagar @LorenzMeier","[issue_comment] sanderux | created=2017-08-05T18:19:42Z | updated=2017-08-05T18:19:42Z | https://github.com/PX4/PX4-Autopilot/issues/7737#issuecomment-320461551
+ps: i see no indication the 2 merges are related to this issue
+
+---
+
+[issue_comment] sanderux | created=2017-08-05T18:54:37Z | updated=2017-08-05T18:54:37Z | https://github.com/PX4/PX4-Autopilot/issues/7737#issuecomment-320463544
+@bkueng could this be related to your recent mission improvements?
+
+---
+
+[issue_comment] sanderux | created=2017-08-05T19:02:19Z | updated=2017-08-05T19:22:24Z | https://github.com/PX4/PX4-Autopilot/issues/7737#issuecomment-320463988
+@Stifael i think this might be the reason this happened: https://github.com/PX4/Firmware/commit/ec04577e3ace8a46394d32b9e0fa71619626f319
+
+edit: i read the commit out of context, seems fine. i'll keep looking
+
+---
+
+[issue_comment] sanderux | created=2017-08-06T00:56:34Z | updated=2017-08-06T00:56:34Z | https://github.com/PX4/PX4-Autopilot/issues/7737#issuecomment-320478932
+Bisect results: (RoverLandDetector prevented going deeper)
+
+There are only 'skip'ped commits left to test.
+The first bad commit could be any of:
+2890af7305c0addce875ed34d96ac3271f2c235f
+411ceaa6b3ac44b77100a0b402031c9345130f0b
+f75dd37326c5de0eebbd422430bb1b0f0ea6844d
+8a76bd07d06432f2b4575d6f3ceb924bf98d6db5
+97b5cc77b8763f7198437ac15d86aa982fa7a3c5
+8f7ebc1f3abf4fbc6679307fcf482e9118e44e69
+f8e9f380d073c88504bca72aaa94386ff9cec966
+4e204e00cbf66cf40a2045847bf2c2839193c87e
+We cannot bisect more!
+
+
+---
+
+[issue_comment] sanderux | created=2017-08-06T01:17:13Z | updated=2017-08-06T01:17:13Z | https://github.com/PX4/PX4-Autopilot/issues/7737#issuecomment-320479462
+@Stifael: The bisect points to your commits.
+I also noticed the new 'maybe_landed' state is still in TODO for VTOL.
+
+Could you fix this ASAP? VTOL's cannot do auto takeoff now",closed,2017-08-05T18:19:15Z,,,accepted_fault,Maybe-landed state for VTOL,consistency
+fse2021_an_exploratory_study_of_autopilot:e440b26bf7f3fccc,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/12685,Fixed MatekF765 PWM 5 and 6,"We needed advanced timers enabled for complementary PWM
+This enables it on all F4/F7/H7 boards to prevent this bug happening again","[issue_comment] c17loadktcm | created=2019-11-15T19:33:14Z | updated=2019-11-15T19:33:14Z | https://github.com/ArduPilot/ardupilot/pull/12685#issuecomment-554497643
+Tridge I just uploaded version 4.1.0 of MATEK F765-WING arduplane hex to get PWM 5/6 on the servo rail to function. Still no function. Is that the right FW release or do i need to load another. 
+
+---
+
+[issue_comment] rmackay9 | created=2019-12-16T04:32:35Z | updated=2019-12-16T04:32:35Z | https://github.com/ArduPilot/ardupilot/pull/12685#issuecomment-565900692
+this has been added to Copter-4.0.0-rc3",merged,2019-10-28T20:22:09Z,,,accepted_fault,needed advanced timers enabled for complementary PWM,hardware
+fse2021_an_exploratory_study_of_autopilot:e74a4de40ab5bce3,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/12253,Copter: land mode initialises yaw,"This resolves an issue with the vehicle's heading changing as it is switched into Land mode because the AutoYaw's mode is not being set as Land mode starts.
+
+Note that this change only affect the Land flight mode.  It does not affect Land-within-Auto or Land-within-RTL.
+
+The sudden change in yaw is most easily reproduced when switching from ZigZag mode to Land mode.  Steps to reproduce in SITL are:
+
+- param set RC8_OPTION 61  (allows setting the zigzag ""waypoints"")
+- take off in Loiter and climb to 5m
+- rc8 2000 (to set first zigzag point)
+- rc 1 1000 (to fly left 10m)
+- rc 1 1500 (to stop)
+- rc 8 1000 (to save second zigzag point
+- rc 8 2000 (to fly to the first waypoint)
+- rc 8 1000 (to fly to the 2nd waypoint)
+- LAND (at this point the vehicle will yaw normally to the west)
+
+Below are screen shots of the SITL test (as described above).  Note the desired yaw before and after this PR's change:
+
+![land-yaw-init-fix-before-after](https://user-images.githubusercontent.com/1498098/64585528-0318df80-d3d4-11e9-9dc0-42a6975aaefe.png)","[issue_comment] khancyr | created=2019-09-11T20:44:38Z | updated=2019-09-11T20:44:38Z | https://github.com/ArduPilot/ardupilot/pull/12253#issuecomment-530558016
+Seems good. I have briefly look on the code ( from mobile...) But I didn't find where we explicitly ask land mode to use the takeoff yaw for landing. That isn't nice.
+We should add some test on landing orientations..
+
+---
+
+[issue_comment] rmackay9 | created=2019-09-12T00:20:23Z | updated=2019-09-12T00:20:23Z | https://github.com/ArduPilot/ardupilot/pull/12253#issuecomment-530614460
+@khancyr, thanks very much for the review.  I think Land mode was re-using whatever the latest state from the AutoYaw class was ([Land's check of auto_yaw.mode is here](https://github.com/ArduPilot/ardupilot/blob/master/ArduCopter/mode.cpp#L603)). So it could be ROI, GPS course or anything really.  I haven't completely determined in my test whether it was the takeoff or something else that had set the state to something other than AUTO_YAW_HOLD but in any case, I think Land mode should be initialising this so I'll go ahead and merge this now.  thanks again!",merged,2019-09-10T05:05:24Z,,,accepted_fault,initialises yaw,initlization
+fse2021_an_exploratory_study_of_autopilot:e79d3a12e269f76d,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/14266,AP_NavEKF3: fixed external yaw EK3_MAG_CAL=5 or 6,when using external yaw we shouldn't use the GSF,no_comments_in_source,merged,2020-05-03T08:11:11Z,,,accepted_fault,external yaw EK3_MAG_CAL=5 or 6,consistency
+fse2021_an_exploratory_study_of_autopilot:eca2de18d22832f0,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/2408,FMUv1 does not boot (master),The FMUv1 does not currently boot in master. It beeps and freezes after reporting `command px4flow not found`. This is a regression from stable where it still works.,"[issue_comment] LorenzMeier | created=2015-06-18T06:49:48Z | updated=2015-06-18T06:49:48Z | https://github.com/PX4/PX4-Autopilot/issues/2408#issuecomment-113054623
+@mcharleb @davids5 I'll debug this, but you should be aware of the regression.
+
+
+---
+
+[issue_comment] mcharleb | created=2015-06-18T06:53:40Z | updated=2015-06-18T06:53:40Z | https://github.com/PX4/PX4-Autopilot/issues/2408#issuecomment-113055454
+Is this after makefile changes, or something else?
+On Jun 17, 2015 11:49 PM, ""Lorenz Meier"" notifications@github.com wrote:
+
+> @mcharleb https://github.com/mcharleb @davids5
+> https://github.com/davids5 I'll debug this, but you should be aware of
+> the regression.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/PX4/Firmware/issues/2408#issuecomment-113054623.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2015-06-18T06:54:35Z | updated=2015-06-18T06:54:35Z | https://github.com/PX4/PX4-Autopilot/issues/2408#issuecomment-113055842
+I'm not sure. The FMUv1 setup is not widely used, and so it can take some time until a regression is found. I didn't have time to bring my HW test harness back up to speed.
+
+
+---
+
+[issue_comment] LorenzMeier | created=2015-06-27T13:15:34Z | updated=2015-06-27T13:15:34Z | https://github.com/PX4/PX4-Autopilot/issues/2408#issuecomment-116045703
+Closed via 5e27b7b.
+
+
+---
+
+[issue_comment] bansiesta | created=2015-06-28T14:26:12Z | updated=2015-06-28T14:26:12Z | https://github.com/PX4/PX4-Autopilot/issues/2408#issuecomment-116286281
+Yep, works again, thanks!",closed,2015-06-17T23:28:49Z,,,accepted_fault,Function conflict?,hardware
+fse2021_an_exploratory_study_of_autopilot:f7e8e57c684c31da,fse2021_an_exploratory_study_of_autopilot,Ardupilot,https://github.com/ArduPilot/ardupilot/pull/6138,GCS_MAVLink: time limit GCS update() calls,"This fixes a bug where a companion computer or GCS (over a fast link) can cause too much CPU time to be used by MAVLink processing, causing the scheduling to degrade badly. I've been working with a copter where PM.MaxT got to over 100ms due to MAVLink processing.","[pull_request_review] OXINARF | created=2017-04-28T16:55:51Z | updated=2017-04-28T16:55:51Z | https://github.com/ArduPilot/ardupilot/pull/6138#pullrequestreview-35409902
+LGTM",merged,2017-04-28T06:23:50Z,,,accepted_fault,a bug where a companion computer or GCS (over a fast link) can cause too much CPU time to be used by MAVLink,limit
+fse2021_an_exploratory_study_of_autopilot:fb20c0de2752d988,fse2021_an_exploratory_study_of_autopilot,PX4,https://github.com/PX4/Firmware/issues/773,Flightgear HIL broken,"HIL stopped working for me, potentially since the merge of mavlink2.
+
+Startup works as intended and I can arm using RC. However, in manual mode, I have no control, so the plane just jumps and dives right into the ground.","[issue_comment] LorenzMeier | created=2014-03-24T15:02:58Z | updated=2014-03-24T15:02:58Z | https://github.com/PX4/PX4-Autopilot/issues/773#issuecomment-38454875
+See my PR. Might be the mixer thing
+
+
+---
+
+[issue_comment] julianoes | created=2014-03-24T15:07:47Z | updated=2014-03-24T15:07:47Z | https://github.com/PX4/PX4-Autopilot/issues/773#issuecomment-38455424
+No change for me with #770.
+
+
+---
+
+[issue_comment] julianoes | created=2014-03-25T10:27:31Z | updated=2014-03-25T10:27:31Z | https://github.com/PX4/PX4-Autopilot/issues/773#issuecomment-38549196
+Correction: Works again using #770.",closed,2014-03-24T14:59:24Z,,,accepted_fault,Incorrect HIL actuator range,limit

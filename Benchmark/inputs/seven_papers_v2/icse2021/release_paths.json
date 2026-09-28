@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "ddb24ca120fd2b11cc8a782d48648636f1e2de5d3ef09237fc9f5cc351611c60",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage1.csv",
+      "sha256": "a6a7c5f942ee74cbe4b8f26987a8d4c96f1dc90c2e862b6c458d8a4fec052b77",
+      "normalized_lf_sha256": "c71d351a7695a65245c866c9a38adc7952b34d32fbfffcb9f874db8f17897d16"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage2.csv",
+      "sha256": "b34b126ec16e1495d7cb03454f8c2d69f43205951b90ed24587d451609468a63",
+      "normalized_lf_sha256": "77e8ce799e193f9473e3203b788e0580dfcc70f3900ecad510189dec0b84db42"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/icse2021_iot_bugs_and_development_challenges/stage3.csv",
+      "sha256": "6dfcd3c506c9b92ad84a0f5a268dfeef58629e5687858a673a01e1763f81effa",
+      "normalized_lf_sha256": "785770c8bfd0b86ac9de7989a1a5313e70e5d2f4042be0da3e2daba71bf3223c"
+    },
+    "codebook": {
+      "path": "Benchmark/configs/paper_codebooks_v1.json",
+      "sha256": "2473f80c34c4c3e53d70bcd2c10e32bcf22dd1e3c0cbffd1e97b08ce0195f1ec",
+      "normalized_lf_sha256": "7f5a8da655ea5b35cb6d70a2d04bc77c2e54b1a21dfc2ce4fe5c61769887e9c3"
+    }
+  }
+}

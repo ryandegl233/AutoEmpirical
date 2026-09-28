@@ -1,0 +1,35 @@
+{
+  "symptom": [
+    "Build Failure",
+    "Plugin Management Error",
+    "Runtime Daemon Crash",
+    "System Communication Error",
+    "Preset Exit Code",
+    "Logging Error",
+    "Incorrect Return Value",
+    "Wrong Container Behavior",
+    "Incorrect Configuration Effect",
+    "Access Permission Denied",
+    "Escalized Privilege",
+    "Out of Memory",
+    "Host Memory Leak",
+    "High Disk Resource Occupancy",
+    "Excessive Execution Time",
+    "Others"
+  ],
+  "root_cause": [
+    "Build Configuration Error",
+    "Improper Exception Handling",
+    "Inaccurate Permission Assignment",
+    "Inappropriate Lifecycle Organization",
+    "Incorrect 3rd Party Library Usage",
+    "Incorrect Image or Config Parsing",
+    "Incorrect Mount Options",
+    "Incorrect System Config",
+    "Plugin Config Error",
+    "Runtime Shim Config Error",
+    "Unsafe API Usage",
+    "Wrong Code Logic",
+    "Others"
+  ]
+}

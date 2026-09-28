@@ -1,0 +1,51 @@
+{
+  "symptom": [
+    "Auth issues",
+    "Boot/reboot or physical issues",
+    "Build and installation issues",
+    "Connection establishment issues",
+    "Device binding/association/ pairing issues",
+    "Device configuration issues",
+    "Device connection status issues",
+    "Device constraint issues",
+    "Device discovery and identification issues",
+    "Device incompatibility issues",
+    "Device properties status issues",
+    "Device registration and provisioning issues",
+    "Disconnetion issues",
+    "Firmware exception/hang issues",
+    "Firmware update issues",
+    "Message delivery issues",
+    "Message payload issues",
+    "Message timing/rate/order issues",
+    "Network discovery/set-up issues",
+    "Network reset/mode-change issues",
+    "Protocol incompatibility issues",
+    "Reconnection issues",
+    "Rule action execution issues",
+    "Rule condition issues",
+    "Rule trigger issues",
+    "Third-party incompatibility issues",
+    "Third-party issues",
+    "UI/usability issues",
+    "Unreliable network  issues",
+    "dev2",
+    "performance/crash issues"
+  ],
+  "root_cause": [
+    "Concurrency Issues",
+    "Configuration Issues",
+    "Dependency Issues",
+    "Error Checking Issues",
+    "Hardware Problems",
+    "Memory Issues",
+    "Semantic Issues",
+    "Software Implementation Problems",
+    "Software Implementation Problems (variant)",
+    "Timing/Multithreading Issues"
+  ],
+  "annotation_modes": {
+    "symptom": "multi_label",
+    "root_cause": "single_label"
+  }
+}

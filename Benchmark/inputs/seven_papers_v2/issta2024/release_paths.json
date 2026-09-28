@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "99a52d617ada99ded63cd64f9db4a20ac0bacbcd7703236975082f467d81c66b",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage1.csv",
+      "sha256": "753b8be9991f4e647a292b9b550852f4b54d273b32e99a70c65be4a760514e4a",
+      "normalized_lf_sha256": "d773df173794bd328966a5923dd67a9e61a40a340dee0cd0449474dac8799ff7"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage2.csv",
+      "sha256": "1a8a44da2ee7dda466f72eb7e0a0d52ac6a3bd25f34b5d7a29a79b20b920a6bc",
+      "normalized_lf_sha256": "ca6d293e0031fd15186737383e6d1445d3202f6dfaa3ff5ccbf1c2578a700a2d"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/issta2024_bugs_in_pods_understanding_bugs/stage3.csv",
+      "sha256": "3c6e897af6a6e2a66aec8be5016a36a46146e4d21f9fc42e378c5392672b53e5",
+      "normalized_lf_sha256": "b8b651a78edb5605c90dd25a1360f6f49db672052a486fea8d5e9576ebb962fe"
+    }
+  }
+}

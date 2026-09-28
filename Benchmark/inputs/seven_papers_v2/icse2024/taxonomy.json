@@ -1,0 +1,37 @@
+{
+  "symptom": [
+    "Assertion failure",
+    "Crash",
+    "DBMS hang",
+    "Incorrect DBMS state",
+    "Incorrect database state",
+    "Incorrect query result",
+    "Low performance",
+    "Missing blocking",
+    "Missing error",
+    "Operation error",
+    "Unexpected error",
+    "Unnecessarily long blocking",
+    "Unnecessary blocking",
+    "Wrong error message"
+  ],
+  "root_cause": [
+    "Atomicity",
+    "Consistency: DBMS state",
+    "Consistency: application state",
+    "Consistency: data constraint",
+    "Excessive isolation",
+    "Insufficient isolation: Incorrect SELECT",
+    "Insufficient isolation: incorrect SELECT",
+    "Insufficient isolation: missing blocking",
+    "Read-only constraint",
+    "Statement correctness: assertion failure",
+    "Statement correctness: missing error",
+    "Statement correctness: unexpected error",
+    "Statement correctness: wrong error message"
+  ],
+  "annotation_modes": {
+    "symptom": "single_label",
+    "root_cause": "single_label"
+  }
+}

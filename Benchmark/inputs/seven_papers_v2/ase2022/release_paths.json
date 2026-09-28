@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "7cab267d929f83ef006456d80f96ba55ca4bc00926ee69e68a4138c56bbb027f",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage1.csv",
+      "sha256": "7d02839a93dfebe1f3e780bd5e6e8b17e0dd0ef173efe3a9f50930da21635753",
+      "normalized_lf_sha256": "6f3de07df4d81972c5b17bc0a0f46b56b599552414d1a3d34c7d63eb65b65663"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage2.csv",
+      "sha256": "f0237ca7555050d077446a85da64659df99c68cd545cc5a266eb98dc1c4647fb",
+      "normalized_lf_sha256": "1f3d3fa75b29e3285c5ca752fd385348c05d6cf9d4a55975b8e9a53f3dc1924d"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/ase2022_towards_understanding_the_faults_of/stage3.csv",
+      "sha256": "88c086d83a3635020bad4166d3f6f5d47f3b963715e0099a5cfec78f58adeae3",
+      "normalized_lf_sha256": "89ae81045656805f4fb2087a2d23429549b51e945f55fedaac534c2a9daa92bc"
+    },
+    "reused_cohort": {
+      "path": "Benchmark/inputs/seven_papers_v2/_sampling_sources/ase2022_cohort.csv",
+      "sha256": "4e90efb7cc26c4c1822bcd740d1a06519e27f0eb306fd71be87bd4f6d485415c",
+      "normalized_lf_sha256": "ea4d59d1a05b497068d07c9a4c95cf59bcc75211eb8ca2fb5256163b1a349032"
+    }
+  }
+}

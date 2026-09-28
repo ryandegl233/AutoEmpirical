@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "original_manifest_sha256": "03135b9536dd5bbd015a3de86e3ef5aaaed25cad4d00d035667a574c4b8d4841",
+  "sources": {
+    "stage1": {
+      "path": "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage1.csv",
+      "sha256": "577099839bcdb9363e3f04bd6baf1a1f4a13e2436891a098de1a1c219561ccec",
+      "normalized_lf_sha256": "8e7e335baa6080a8e268eafb1380498ea4478081b7d8a04e80402aaa5f0882fc"
+    },
+    "stage2": {
+      "path": "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage2.csv",
+      "sha256": "5acbbc2b8cd2c35db807aa42c2ad72be0e7b2dfc36000d4987a9d1e87395f68b",
+      "normalized_lf_sha256": "eec2f1d86a5f0ce761c8121d7826d770537718606f480e8da2d31dbf4dca5301"
+    },
+    "stage3": {
+      "path": "Dataset/by_paper/icse2022_an_empirical_study_on_performance/stage3.csv",
+      "sha256": "4ade123faa8e4fc9209b74a599afb666eee3c7d51898ae9088523cf6f2265902",
+      "normalized_lf_sha256": "10218cf242f9b18c34dfb4b782cbcf67337a4df62640b184541c273681fdff3b"
+    },
+    "codebook": {
+      "path": "Benchmark/configs/paper_codebooks_v1.json",
+      "sha256": "2473f80c34c4c3e53d70bcd2c10e32bcf22dd1e3c0cbffd1e97b08ce0195f1ec",
+      "normalized_lf_sha256": "7f5a8da655ea5b35cb6d70a2d04bc77c2e54b1a21dfc2ce4fe5c61769887e9c3"
+    }
+  }
+}

@@ -1,0 +1,2967 @@
+record_id,paper_id,source_project,issue_url,title,body,comments,state,created_at,changed_files,code_diff,decision,symptom,root_cause
+icse2023_an_empirical_study_on_bugs:01232a6caa1f6823,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/20028,CosineAnnealingWarmRestarts documentation poor and not appearing,"## 📚 Documentation
+
+The documentation for the newly introduced `CosineAnnealingWarmRestarts` learning rate scheduler (#17226) does not appear on the website (see [here](https://pytorch.org/docs/stable/optim.html); the location where it should be).
+
+Furthermore, looking at the [source code of the function](https://github.com/pytorch/pytorch/blob/master/torch/optim/lr_scheduler.py#L699), I am very confused about how to use the scheduler.
+
+Specifically, if we look at the documentation of `.step()`, we first see a clear typo, where `CosineAnnealingWarmRestarts` is called `SGDR`. But the provided example is not sufficient to use as a reference. Where did the value 26 come from and why, and what does it have to do with 10 iterations? Also, [the paper](https://arxiv.org/abs/1608.03983) on which this scheduler is based states that the LR should be updated every _batch_, not epoch. I believe the statement in the documentation `SGDR.step(0.1), SGDR.step(0.2)` is referring to this, but I am lost in the example.
+
+If I try to ignore the docstring and look at the source code, my best guess is that the correct message for the docstring in `.step` should be something like:
+
+```python
+""""""Step should be called after every time a batch is processed in addition to after each epoch,
+   like in the following example:
+
+         >>> scheduler = CosineAnnealingWarmRestarts(optimizer, T_0, T_mult)
+         >>> for epoch in range(N):
+         >>>     scheduler.step(epoch)
+         >>>     for inputs, labels in trainloader:
+         >>>         optimizer.zero_grad()
+         >>>         outputs = net(inputs)
+         >>>         loss = criterion(outputs, labels)
+         >>>         loss.backward()
+         >>>         optimizer.step()
+         >>>         scheduler.step()
+""""""
+```
+
+Is this correct? Or have I misinterpreted how to apply this function?
+
+Thanks for the great work and please let me know if I can help in some way.",,closed,2019-05-01T20:55:06Z,,,accepted_fault,Functional error,Inconsistency
+icse2023_an_empirical_study_on_bugs:17c7911b6f27f8c0,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/44384,Pytorch+rocm 3.7.0: cmake cannot find hsa-runtime64,"## 🐛 Bug
+
+Hi,
+
+I'm trying to build Pytorch for rocm from sources following [this page](https://github.com/aieater/rocm_pytorch_informations) and also other sources; however it ends with an error:
+
+```
+***** Library versions from cmake find_package *****
+
+CMake Error at /usr/share/cmake-3.16/Modules/CMakeFindDependencyMacro.cmake:47 (find_package):
+  By not providing ""Findhsa-runtime64.cmake"" in CMAKE_MODULE_PATH this
+  project has asked CMake to find a package configuration file provided by
+  ""hsa-runtime64"", but CMake did not find one.
+
+  Could not find a package configuration file provided by ""hsa-runtime64""
+  with any of the following names:
+
+    hsa-runtime64Config.cmake
+    hsa-runtime64-config.cmake
+
+  Add the installation prefix of ""hsa-runtime64"" to CMAKE_PREFIX_PATH or set
+  ""hsa-runtime64_DIR"" to a directory containing one of the above files.  If
+  ""hsa-runtime64"" provides a separate development package or SDK, be sure it
+  has been installed.
+Call Stack (most recent call first):
+  /opt/rocm/hip/lib/cmake/hip/hip-config.cmake:124 (find_dependency)
+  cmake/public/LoadHIP.cmake:131 (find_package)
+  cmake/public/LoadHIP.cmake:170 (find_package_and_print_version)
+  cmake/Dependencies.cmake:1154 (include)
+  CMakeLists.txt:486 (include)
+```
+
+The file that cmake is looking for is under /opt/rocm-3.7.0/lib/cmake/hsa-runtime64/ .
+I also tried setting the variable  however setting the environmental variable to CMAKE_MODULE_PATH=/opt/rocm-3.7.0/lib/cmake/hsa-runtime64 , but still no luck.
+
+Any hint?
+
+## Environment
+
+PyTorch version: N/A
+Is debug build: N/A
+CUDA used to build PyTorch: N/A
+
+OS: Pop!_OS 20.04 LTS (x86_64)
+GCC version: (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+Clang version: 10.0.0-4ubuntu1 
+CMake version: version 3.16.3
+
+Python version: 3.8 (64-bit runtime)
+Is CUDA available: N/A
+CUDA runtime version: Could not collect
+GPU models and configuration: Could not collect
+Nvidia driver version: Could not collect
+cuDNN version: Could not collect
+
+Versions of relevant libraries:
+[pip3] numpy==1.19.1
+[conda] Could not collect
+
+
+cc @malfet @seemethere @walterddr @jeffdaily @sunway513",,closed,2020-09-09T14:58:06Z,,,accepted_fault,Build failure,Configuration error
+icse2023_an_empirical_study_on_bugs:1a6e4053cca80422,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/19227,[onnx] crash when exporting a model with Sequence module (encodeBlock: Assertion failled ),"## 🐛 Bug
+
+The tracer in onnx exporter is failing with an assertion error in the exporter.
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. define a model:
+
+```
+class SomeModel(nn.Module):
+
+    def __init__(self):
+        super(SomeModel, self).__init__()
+        dim = 5
+        self.emb = nn.Embedding(10, dim)
+        self.lin1 = nn.Linear(dim, 1)
+        self.seq = nn.Sequential(
+            self.emb,
+            self.lin1,
+        )
+
+    def forward(self, input):
+        return self.seq(input)
+
+model = SomeModel()
+```
+
+2. run export:
+
+```
+dummy_input = torch.tensor([2], dtype=torch.long)
+dummy_input
+
+torch.onnx.export(model, dummy_input, ""model.onnx"", verbose=True)
+```
+
+fails with:
+
+```
+[redacted]/vendor/local/lib/python2.7/site-packages/torch/onnx/utils.pyc in _export(model, args, f, export_params, verbose, training, input_names, output_names, operator_export_type, export_type, example_outputs, propagate)
+    230     defer_weight_export = export_type is not ExportTypes.PROTOBUF_FILE
+    231     if export_params:
+--> 232         proto, export_map = graph.export(params, _onnx_opset_version, defer_weight_export, operator_export_type)
+    233     else:
+    234         proto, export_map = graph.export([], _onnx_opset_version, False, operator_export_type)
+
+RuntimeError: torch/csrc/jit/export.cpp:296: encodeBlock: Assertion `b->inputs().size() >= num_initializers` failed.
+```
+
+## Expected behavior
+
+Model is exported to ONNX
+
+## Environment
+
+```
+Collecting environment information...
+PyTorch version: 0.4.1
+Is debug build: No
+CUDA used to build PyTorch: 9.0.176
+
+OS: Ubuntu 16.04.6 LTS
+GCC version: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609
+CMake version: Could not collect
+
+Python version: 2.7
+Is CUDA available: No
+CUDA runtime version: No CUDA
+GPU models and configuration: No CUDA
+Nvidia driver version: No CUDA
+cuDNN version: No CUDA
+
+Versions of relevant libraries:
+[pip] msgpack-numpy==0.4.3.1
+[pip] numpy==1.14.1
+[pip] torch==0.4.1
+[conda] Could not collect
+```
+
+## Additional context
+
+As a workaround one can inline layer definitions into the sequence:
+
+```
+class SomeModel(nn.Module):
+
+    def __init__(self):
+        super(SomeModel, self).__init__()
+        dim = 5
+        self.seq = nn.Sequential(
+            nn.Embedding(10, dim),
+            nn.Linear(dim, 1),
+        )
+
+    def forward(self, input):
+        return self.seq(input)
+
+model = SomeModel()
+```",,closed,2019-04-13T01:18:02Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:1fac1303be5c09e5,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/61656,`torch.median` on empty tensor causes segfault,"## 🐛 Bug
+
+Calling `torch.median()` on an empty tensor causes segfault.
+
+## To Reproduce
+
+```python
+import torch
+t = torch.tensor([])
+t.median()
+```
+
+## Expected behavior
+
+Similar to other ops like `torch.mean()` or `torch.sum()` - attempting to find median of an empty tensor should cause a `RuntimeError` or otherwise produce a stack trace, rather than causing segfault.
+
+## Environment
+
+```shell
+Collecting environment information...
+PyTorch version: 1.9.0+cu102
+Is debug build: False
+CUDA used to build PyTorch: 10.2
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 20.04.2 LTS (x86_64)
+GCC version: (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
+Clang version: Could not collect
+CMake version: Could not collect
+Libc version: glibc-2.31
+
+Python version: 3.8.5 (default, May 27 2021, 13:30:53)  [GCC 9.3.0] (64-bit runtime)
+Python platform: Linux-5.8.0-53-generic-x86_64-with-glibc2.29
+Is CUDA available: True
+CUDA runtime version: Could not collect
+GPU models and configuration: GPU 0: GeForce GTX TITAN X
+Nvidia driver version: 460.32.03
+cuDNN version: Could not collect
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip3] numpy==1.21.0
+[pip3] pytorch-lightning==1.3.8
+[pip3] torch==1.9.0
+[pip3] torch-tb-profiler==0.2.1
+[pip3] torchmetrics==0.4.1
+[pip3] torchvision==0.10.0
+[conda] Could not collect
+```
+
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser @anjali411 @heitorschueroff",,closed,2021-07-14T15:25:43Z,,,accepted_fault,Crash,Corner case
+icse2023_an_empirical_study_on_bugs:20bfc86e03d677f0,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/49928,CUDA error: invalid configuration argument during backward through torch.cdist,"## 🐛 Bug
+
+When back-propagating through torch.cdist operator, the GPU device throws an RuntimeError exception titled:
+```
+CUDA error: invalid configuration argument.
+```
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. create a Python file 'test.py':
+```
+import torch
+
+for i in range(510, 520):
+    a = torch.zeros((4, i, 32)).normal_(0, 1).cuda()
+    b = torch.zeros((4, i, 32)).normal_(0, 1).cuda()
+    a.requires_grad = True
+    b.requires_grad = True
+    c = torch.cdist(a, b, p=1.0)
+    print(c.size())
+    d = c.mean()
+    d.backward()
+    print(a.grad.size(), b.grad.size())
+```
+
+2. Run command 'python test.py', and it shows the output like:
+
+```
+torch.Size([4, 510, 510])
+torch.Size([4, 510, 32]) torch.Size([4, 510, 32])
+torch.Size([4, 511, 511])
+torch.Size([4, 511, 32]) torch.Size([4, 511, 32])
+torch.Size([4, 512, 512])
+Traceback (most recent call last):
+  File ""test.py"", line 13, in <module>
+    d.backward()
+  File ""/home/wanyu/anaconda3/envs/pt1.7/lib/python3.8/site-packages/torch/tensor.py"", line 221, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File ""/home/wanyu/anaconda3/envs/pt1.7/lib/python3.8/site-packages/torch/autograd/__init__.py"", line 130, in backward
+    Variable._execution_engine.run_backward(
+RuntimeError: CUDA error: invalid configuration argument
+```
+
+## Expected behavior
+
+Wish this issue can be fixed.
+
+## Environment
+
+PyTorch version: 1.7.1
+Is debug build: False
+CUDA used to build PyTorch: 11.0
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 18.04.5 LTS (x86_64)
+GCC version: (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+Clang version: Could not collect
+CMake version: version 3.12.0
+
+Python version: 3.8 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: 10.0.130
+GPU models and configuration: 
+GPU 0: GeForce GTX 1080 Ti
+GPU 1: GeForce GTX 1080 Ti
+
+Nvidia driver version: 450.80.02
+cuDNN version: /usr/lib/x86_64-linux-gnu/libcudnn.so.7.6.5
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip3] numpy==1.19.2
+[pip3] torch==1.7.1
+[conda] blas                      1.0                         mkl  
+[conda] cudatoolkit               11.0.221             h6bb024c_0  
+[conda] mkl                       2020.2                      256  
+[conda] mkl-service               2.3.0            py38he904b0f_0  
+[conda] mkl_fft                   1.2.0            py38h23d657b_0  
+[conda] mkl_random                1.1.1            py38h0573a6f_0  
+[conda] numpy                     1.19.2           py38h54aff64_0  
+[conda] numpy-base                1.19.2           py38hfa32c7d_0  
+[conda] pytorch                   1.7.1           py3.8_cuda11.0.221_cudnn8.0.5_0    pytorch
+
+## Additional context
+
+It seems to me that this issue is relevant to Issues #27209 #31593 and pull requests #31167 #31593.
+
+And this is just my guessing. The program fails at 'i' being 512, leading to the number of elements as 4 * 512 * 32 = 65,536. The afrementioned issues and pull requests also mentioned that the y/z-dimension of grid (gridDim.y/z, the maximum number of blocks along dimension y/z within each grid) should not exceed 65,535. Maybe this setting goes beyond the maximum value of grid size (gridDim.y > 65,535 or gridDim.z > 65.535).
+
+Wish this can offer help. Thanks!
+
+
+cc @ngimel",,closed,2020-12-29T17:03:48Z,,,accepted_fault,Crash,Corner case
+icse2023_an_empirical_study_on_bugs:21f4582126fb0725,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/24504,Circular padding doesn't work when the 'right' side is 0,"Reproduction:
+```
+import torch
+import torch.nn.functional as F
+
+inputs = torch.randn(1, 1, 5, 5)
+print(F.pad(inputs, [4,0,3,0], mode='circular').shape) # (1,1,5,5) (Wrong)
+print(F.pad(inputs, [1,0,0,0], mode='circular').shape) # (1,1,5,5) (Wrong)
+print(F.pad(inputs, [1,1,0,0], mode='circular').shape) # (1,1,5,7) (Correct)
+print(F.pad(inputs, [2,1,0,0], mode='circular').shape) # (1,1,5,8) (Correct)
+```
+
+Correct results:
+```
+import torch
+import torch.nn.functional as F
+
+inputs = torch.randn(1, 1, 5, 5)
+print(F.pad(inputs, [4,0,3,0], mode='circular').shape) # (1,1,8,9)
+print(F.pad(inputs, [1,0,0,0], mode='circular').shape) # (1,1,5,6)
+print(F.pad(inputs, [1,1,0,0], mode='circular').shape) # (1,1,5,7)
+print(F.pad(inputs, [2,1,0,0], mode='circular').shape) # (1,1,5,8)
+```
+
+
+
+cc @SsnL",,closed,2019-08-16T18:30:21Z,,,accepted_fault,Functional error,Algorithm
+icse2023_an_empirical_study_on_bugs:228d6dd5c374c3c1,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/44284,Current behavior of `as_tuple` argument is inconsistent in `nonzero`,"After `nonzero` started warning that `as_tuple` is a required argument (1.6) a few unfortunate things has happened:
+1) the examples in docs started issuing a warning #43425
+2) there's no way to pass `out` and `as_tuple` arguments together
+```
+print(torch.nonzero(a, as_tuple=False)) #ok
+print(torch.nonzero(a, out=out)) #warns
+print(torch.nonzero(a, as_tuple=False, out=out)) #errors out with `TypeError: nonzero() received an invalid combination of arguments - got unrecognized keyword arguments: out`
+```
+The rationale behind making `as_tuple` argument required is going through deprecation cycle to change the default value of `as_tuple` so that `torch.nonzero` matches `numpy.nonzero` without any additional args. However, even if implemented properly without problems noted above, this goal is misguided and forces users to modify their codes to avoid warnings for no good reason. 
+Torch default behavior for `nonzero` should not match numpy. Numpy behavior can already be achieved by either using `as_tuple=True` or calling `unbind(1)` on results of `torch.nonzero()` call, that is a very light burden for someone who wants it. But to avoid it, we are making everyone who doesn't care jump through deprecation hoops. 
+Making numpy behavior default is bad, because numpy returns a tuple of tensors, whereas many users want single tensor return. Going from a single tensor to a tuple is a matter of a cheap `.unbind` call, going from a tuple to a single tensor is memory copy. Default behavior should always pick single tensor. 
+My proposal is to go back to making `as_tuple` optional argument and not strive to make `nonzero` match numpy behavior.
+
+cc @albanD @mruberry @rgommers, @alband, @stas00",,closed,2020-09-07T19:17:07Z,,,accepted_fault,Warning-style error,Inconsistency
+icse2023_an_empirical_study_on_bugs:26d33428c331b757,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/37786,Better testing on CPUs without AVX capabilities,"https://github.com/pytorch/pytorch/issues/37577 is the latest occurrence of cases where we broke users with non-AVX CPUs because we accidentally let AVX instructions sneak in to code that isn't guarded by DispatchStub. It would be good to actually test for this case.
+
+According to @colesbury, there are no x86 CPUs on AWS that don't support AVX.
+
+Another test we could do is a limited test to see if our static initializers have any AVX instructions, or files that aren't explicitly intended to be AVX/AVX2 compiled. This might be hard to do robustly.
+
+Possibly related https://github.com/pytorch/pytorch/issues/22338
+
+cc @malfet @VitalyFedyunin",,closed,2020-05-04T19:10:32Z,,,accepted_fault,Functional error,Inconsistency
+icse2023_an_empirical_study_on_bugs:2742f8a4d81978c2,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/20755,Type conversion from float64 to float32 (cpu) sometimes crashes,"```python
+import torch
+
+a = torch.rand(3, 3, dtype = torch.float64)
+print(a.dtype, a.device) # torch.float64 cpu
+c = a.to(torch.float32)
+#works
+
+b = torch.load('bug.pt')
+print(b.dtype, b.device) # torch.float64 cpu
+c = b.to(torch.float32)
+# RuntimeError: expected scalar type Float but found Double
+
+d = b.clone().to(torch.float32)
+# works
+```
+
+[bug.zip](https://github.com/pytorch/pytorch/files/3202664/bug.zip)",,closed,2019-05-21T13:13:30Z,,,accepted_fault,Crash,Type confusion
+icse2023_an_empirical_study_on_bugs:2f87f6414934940c,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/37558,Running python tests as root breaks the /dev/null file,"## 🐛 Bug
+
+Running python tests as root breaks the `/dev/null` file
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. `su - root`
+1. `python3 test/run_tests.py -v -pt`
+
+After that the `/dev/null` file is no longer a character device file but a plain one.
+
+<!-- If you have a code sample, error messages, stack traces, please provide it here as well -->
+
+## Expected behavior
+
+It should not break things of the system.
+
+## Environment
+
+Linux
+
+## Additional context
+
+I've found the root of the problem:
+
+`test_c10d.py` has a test case that creates a `c10d.FileStore(""/dev/null"", 1)` instance:
+https://github.com/pytorch/pytorch/blob/master/test/distributed/test_c10d.py#L2956
+
+And the `c10d.FileStore` object will remove the file specified by that path upon destruction:
+https://github.com/pytorch/pytorch/blob/master/torch/lib/c10d/FileStore.cpp#L229
+
+Should anyone encountered this issue, it can be fixed by simple re-creating the `/dev/null` file:
+
+```shell
+rm -f /dev/null
+ mknod -m 666 /dev/null c 1 3
+```
+
+cc @pietern @mrshenli @pritamdamania87 @zhaojuanmao @satgera @rohan-varma @gqchen @aazzolini @xush6528 @osalpekar",,closed,2020-04-30T02:37:14Z,,,accepted_fault,Crash,Inconsistency
+icse2023_an_empirical_study_on_bugs:31e953b922b21a94,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/32983,PyTorch should hide CUDNN symbols in libtorch.so,"## 🐛 Bug
+
+PyTorch's `libtorch.so` exposes a lot of CUDNN API symbols. This causes issues when our application (independent from PyTorch) uses a different CUDNN version.
+
+<!-- A clear and concise description of what the bug is. -->
+
+## To Reproduce
+
+Install PyTorch 1.4.0. Run `nm` on the `libtorch.so`, and there will be a lot of CUDNN API symbols.
+
+```
+nvpohanh@ubuntu:~$ nm /usr/local/lib/python3.5/dist-packages/torch/lib/libtorch.so | grep ' cudnnCreate'
+000000000f479c30 T cudnnCreate
+000000000f475ff0 T cudnnCreateActivationDescriptor
+000000000f4747e0 T cudnnCreateAlgorithmDescriptor
+000000000f474930 T cudnnCreateAlgorithmPerformance
+000000000f473e90 T cudnnCreateConvolutionDescriptor
+000000000f621a10 T cudnnCreateCTCLossDescriptor
+000000000fc8cb50 T cudnnCreateDropoutDescriptor
+000000000f47b3c0 T cudnnCreateFilterDescriptor
+000000000f476460 T cudnnCreateLRNDescriptor
+000000000f4752d0 T cudnnCreateOpTensorDescriptor
+000000000fbe5520 T cudnnCreatePersistentRNNPlan
+000000000f476af0 T cudnnCreatePoolingDescriptor
+000000000f474f00 T cudnnCreateReduceTensorDescriptor
+000000000fbe4f90 T cudnnCreateRNNDataDescriptor
+000000000fbe3880 T cudnnCreateRNNDescriptor
+000000000f475450 T cudnnCreateSpatialTransformerDescriptor
+000000000f47aca0 T cudnnCreateTensorDescriptor
+000000000f47cde0 T cudnnCreateTensorTransformDescriptor
+```
+
+## Expected behavior
+
+PyTorch should hide CUDNN symbols in libtorch.so
+
+<!-- A clear and concise description of what you expected to happen. -->
+
+## Environment
+
+```
+Collecting environment information...
+PyTorch version: 0.4.0
+Is debug build: No
+CUDA used to build PyTorch: 9.0.176
+
+OS: Ubuntu 16.04.4 LTS
+GCC version: (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+CMake version: version 3.13.3
+
+Python version: 2.7
+Is CUDA available: Yes
+CUDA runtime version: 10.2.89
+GPU models and configuration: GPU 0: TITAN RTX
+Nvidia driver version: 440.33.01
+cuDNN version: Could not collect
+
+Versions of relevant libraries:
+[pip] numpy==1.18.1
+[pip] torch==1.4.0
+[pip] torchvision==0.2.1
+[conda] Could not collect
+```
+
+## Additional context
+
+<!-- Add any other context about the problem here. -->
+
+
+cc @csarofeen @ptrblck",,closed,2020-02-04T19:29:26Z,,,accepted_fault,Warning-style error,Inconsistency
+icse2023_an_empirical_study_on_bugs:332560cc07bd3d21,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/17501,Tensor unfold backward is slow,"## 🐛 Bug
+
+Given the following code, the forward pass is very fast but the backward pass is unreasonably slow. I had a look at the backward pass code and while I am not an expert, I think it could be made significantly faster by writing a custom kernel instead of allocating index arrays, especially since `index_add_` seems to be so slow.
+
+```python
+import torch
+import time
+
+layer = torch.nn.Conv2d(3, 1, 3)
+inp = torch.rand(10, 3, 1000, 1000)
+
+out = layer(inp)
+c = 5
+
+res = out.unfold(3, c, 1)
+res.sum().backward()
+
+```
+
+```
+--------------------------------------------------------------------------------
+  Environment Summary
+--------------------------------------------------------------------------------
+PyTorch 1.0.0.dev20181221 not compiled w/ CUDA
+Running with Python 3.6 and
+
+`pip list` truncated output:
+Unable to fetch
+--------------------------------------------------------------------------------
+  cProfile output
+--------------------------------------------------------------------------------
+         1983 function calls (1400 primitive calls) in 8.831 seconds
+
+   Ordered by: internal time
+   List reduced from 79 to 15 due to restriction <15>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    8.216    8.216    8.216    8.216 {method 'run_backward' of 'torch._C._EngineBase' objects}
+        1    0.315    0.315    0.315    0.315 {built-in method conv2d}
+        1    0.218    0.218    0.218    0.218 {built-in method rand}
+        1    0.078    0.078    0.078    0.078 {method 'sum' of 'torch._C._TensorBase' objects}
+    102/1    0.001    0.000    0.002    0.002 /anaconda3/lib/python3.6/abc.py:196(__subclasscheck__)
+        1    0.000    0.000    0.001    0.001 /anaconda3/lib/python3.6/site-packages/torch/nn/modules/conv.py:17(__init__)
+        2    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/torch/nn/init.py:178(_calculate_fan_in_and_fan_out)
+    98/30    0.000    0.000    0.001    0.000 /anaconda3/lib/python3.6/typing.py:1145(__subclasscheck__)
+      202    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/_weakrefset.py:70(__contains__)
+        1    0.000    0.000    8.831    8.831 minimal.py:1(<module>)
+        1    0.000    0.000    0.000    0.000 {method 'unfold' of 'torch._C._TensorBase' objects}
+       85    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/_weakrefset.py:58(__iter__)
+    196/5    0.000    0.000    0.002    0.000 {built-in method builtins.issubclass}
+       70    0.000    0.000    0.000    0.000 {method '__subclasses__' of 'type' objects}
+       21    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/torch/nn/modules/module.py:537(__setattr__)
+
+
+--------------------------------------------------------------------------------
+  autograd profiler output (CPU mode)
+--------------------------------------------------------------------------------
+        top 15 events sorted by cpu_time_total
+
+---------------------------------------  ---------------  ---------------  ---------------  ---------------  ---------------
+Name                                            CPU time        CUDA time            Calls        CPU total       CUDA total
+---------------------------------------  ---------------  ---------------  ---------------  ---------------  ---------------
+UnfoldBackward                             7823869.000us          0.000us                1    7823869.000us          0.000us
+index_add_                                 7222056.000us          0.000us                1    7222056.000us          0.000us
+contiguous                                  370504.000us          0.000us                1     370504.000us          0.000us
+clone                                       370501.000us          0.000us                1     370501.000us          0.000us
+MkldnnConvolutionBackward                   257265.000us          0.000us                1     257265.000us          0.000us
+mkldnn_convolution_backward                 257256.000us          0.000us                1     257256.000us          0.000us
+mkldnn_convolution_backward_weights         257251.000us          0.000us                1     257251.000us          0.000us
+conv2d                                      249499.000us          0.000us                1     249499.000us          0.000us
+convolution                                 249495.000us          0.000us                1     249495.000us          0.000us
+_convolution                                249494.000us          0.000us                1     249494.000us          0.000us
+mkldnn_convolution                          249477.000us          0.000us                1     249477.000us          0.000us
+contiguous                                  170065.000us          0.000us                1     170065.000us          0.000us
+clone                                       170061.000us          0.000us                1     170061.000us          0.000us
+sum                                          71872.000us          0.000us                1      71872.000us          0.000us
+_th_arange                                   19876.000us          0.000us                1      19876.000us          0.000us
+```
+
+## To Reproduce
+
+See code above
+
+## Expected behavior
+
+It should be faster
+
+## Environment
+Collecting environment information...
+PyTorch version: 1.0.0.dev20181221
+Is debug build: No
+CUDA used to build PyTorch: None
+
+OS: Mac OSX 10.13.6
+GCC version: Could not collect
+CMake version: version 3.13.0
+
+Python version: 3.6
+Is CUDA available: No
+CUDA runtime version: No CUDA
+GPU models and configuration: No CUDA
+Nvidia driver version: No CUDA
+cuDNN version: No CUDA
+
+Versions of relevant libraries:
+[pip] Could not collect
+[conda] blas                      1.0                         mkl
+[conda] mkl                       2018.0.3                      1
+[conda] mkl-service               1.1.2            py37h6b9c3cc_5
+[conda] mkl_fft                   1.0.6            py36hb8a8100_0
+[conda] mkl_random                1.0.1            py36h5d10147_1
+[conda] pytorch                   1.0.0                   py3.6_1    pytorch
+[conda] pytorch-nightly           1.0.0.dev20181221         py3.6_0    pytorch
+[conda] torchaudio                0.2                       <pip>
+[conda] torchtext                 0.3.1                     <pip>
+[conda] torchvision               0.2.1                      py_2    pytorch
+## Additional context
+
+My real application needs `c=200` but it takes more than 10 minutes to run (i stopped at that point). Let me know if the same operation can be done more efficiently with some other method.
+
+
+cc @ezyang @gchanan @zou3519 @SsnL @albanD @gqchen @VitalyFedyunin @ngimel",,closed,2019-02-26T14:05:28Z,,,accepted_fault,Performance degradation,Corner case
+icse2023_an_empirical_study_on_bugs:338f1c9902402c38,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/61455,"no ""arugment""","I found a bug [here](https://github.com/pytorch/pytorch/blob/20085f6d2364c4acf526f4eb303b8623207f0d48/aten/src/ATen/core/adaption.cpp#L10), where it says ""arugment"" instead of ""argument"".
+
+This severely hinders the use of PyTorch and must be fixed ASAP!! It broke our high availability production system. We already lost multiple big enterprise customers because of you! For sure there are many more people complaining about this tremendous bug. For such a pricey product I expect much better QC. This is unaccpetable!!!
+/s",,closed,2021-07-09T13:47:48Z,,,accepted_fault,Crash,Inconsistency
+icse2023_an_empirical_study_on_bugs:3dae01024ecd6e7f,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/45821,Singular value decomposition of complex valued matrices does not match mathematical definition,"## 📚 Documentation
+
+Now when `torch.svd` supports complex input both for CPU and CUDA. Let's discuss the docs.
+Currently, SVD documentation is fully in agreement with the implementation. This function returns`(U, S, V)` such that `input = U @ diag(S) @ V.T`
+However, the mathematical definition of SVD is the decomposition of a matrix **M** such that ![image](https://user-images.githubusercontent.com/19621411/95017939-e72e4e80-0664-11eb-8efe-a853724d142a.png), where `V^*` is the conjugate transpose of `V`. 
+
+What is the opinion on this? Should the documentation and implementation match math and be updated such that `A = U @ diag(S) @ V.T.conj()`?
+
+[Link to `torch.svd` documentation](https://pytorch.org/docs/stable/generated/torch.svd.html).
+
+
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @heitorschueroff @anjali411 @dylanbespalko @mruberry @jlin27 @vishwakftw @jianyuh @nikitaved @pearu @vincentqb",,closed,2020-10-04T14:17:33Z,,,accepted_fault,Functional error,Type confusion
+icse2023_an_empirical_study_on_bugs:3e9c2503e8eed030,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/56022,Out variant of torch.inner incorrectly broadcasts,"## 🐛 Bug
+
+Per title
+
+Currently, we directly `copy_` the result into the output tensor.
+https://github.com/pytorch/pytorch/blob/d490e0120f32dcbb8b23e11eebd638b96b4b0898/aten/src/ATen/native/Linear.cpp#L644
+If the output tensor can be broadcasted from result, it would generate wrong output.
+
+## To Reproduce
+
+```py
+>>> a = torch.randn(5)
+>>> b = torch.randn(5)
+>>> torch.inner(a, b)
+tensor(-4.2595)
+>>> c = torch.randn(2)
+>>> torch.inner(a, b, out=c)
+tensor([-4.2595, -4.2595])
+```
+
+## Expected
+```py
+>>> a = torch.randn(5)
+>>> b = torch.randn(5)
+>>> torch.inner(a, b)
+tensor(-4.2595)
+>>> c = torch.randn(2)
+>>> torch.inner(a, b, out=c)  # c should be resized to shape([1])
+tensor([-4.2595])
+```
+
+cc @jianyuh @nikitaved @pearu @mruberry @heitorschueroff @walterddr @IvanYashchuk @rgommers",,closed,2021-04-14T15:37:53Z,,,accepted_fault,Functional error,Corner case
+icse2023_an_empirical_study_on_bugs:3f28ebc47064f65b,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/21261,Use of Tensor.contiguous() unconditionally results in Mypy linting errors,"## 🐛 Bug
+
+In `tools/pyi/gen_pyi.py` there is no type hint provided for `Tensor.contiguous()` (`Tensor.is_contiguous()` is there however).  As a result uses of `.contiguous()` cause Mypy linting errors.  
+
+In the case I had the line (the context and details of the tensors doesn't matter):
+
+```
+re_batched = seq_first.contiguous().view(expanded_tokens.size(1), -1).transpose(0, 1)
+```
+
+gives the linting error:
+
+```
+error: ""Tensor"" has no attribute ""contiguous""; maybe ""is_contiguous""?
+```
+
+## To Reproduce
+
+Any use of `Tensor.contiguous` will produce this when linted with MyPy
+
+## Expected behavior
+
+No error should be reported
+
+## Environment
+
+PyTorch Version (e.g., 1.0): 1.1.0
+OS (e.g., Linux): MacOS
+How you installed PyTorch (conda, pip, source): conda
+Build command you used (if compiling from source): N/A
+Python version: 3.6
+CUDA/cuDNN version: N/A
+GPU models and configuration: None
+Any other relevant information: None",,closed,2019-06-02T16:18:58Z,,,accepted_fault,Crash,Type confusion
+icse2023_an_empirical_study_on_bugs:3f46078eebed8836,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/49046,Backward pass fails due to CTCLoss in case zero_infinity=True and torch.backends.cudnn.enabled=True,"## 🐛 Bug
+
+When I use CTCLoss with `zero_infinity=True` and at the same time `torch.backends.cudnn.enabled=True`, and run backward() on its result, the script crashes with the following error:
+
+```
+Traceback (most recent call last):
+  ...
+  File "".../new_ctc_loss_bug.py"", line 29, in <module>
+    loss.backward()
+  File ""...\Anaconda3\envs\my-env\lib\site-packages\torch\tensor.py"", line 185, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File ""...\Anaconda3\envs\my-env\lib\site-packages\torch\autograd\__init__.py"", line 127, in backward
+    allow_unreachable=True)  # allow_unreachable flag
+RuntimeError: The size of tensor a (0) must match the size of tensor b (177) at non-singleton dimension 2
+Exception raised from infer_size at ..\aten\src\ATen\ExpandUtils.cpp:24 (most recent call first):
+00007FFAED8175A200007FFAED817540 c10.dll!c10::Error::Error [<unknown file> @ <unknown line number>]
+00007FFAC311B0EB00007FFAC311AED0 torch_cpu.dll!at::infer_size [<unknown file> @ <unknown line number>]
+00007FFAC338617400007FFAC3385DC0 torch_cpu.dll!at::native::DispatchStub<void (__cdecl*)(at::Tensor & __ptr64,at::Tensor & __ptr64,at::Tensor const & __ptr64,__int64,bool),at::native::min_stub>::choose_cpu_impl [<unknown file> @ <unknown line number>]
+00007FFAC338902400007FFAC3388F00 torch_cpu.dll!at::native::where [<unknown file> @ <unknown line number>]
+00007FFAC36AF6A700007FFAC361D060 torch_cpu.dll!at::zeros_out [<unknown file> @ <unknown line number>]
+00007FFAC49AB50E00007FFAC485E010 torch_cpu.dll!torch::autograd::GraphRoot::apply [<unknown file> @ <unknown line number>]
+00007FFAC3150BFF00007FFAC3146470 torch_cpu.dll!torch::nn::functional::BatchNormFuncOptions::~BatchNormFuncOptions [<unknown file> @ <unknown line number>]
+00007FFAC35BC66600007FFAC35B8FA0 torch_cpu.dll!at::bucketize_out [<unknown file> @ <unknown line number>]
+00007FFAC361CBF400007FFAC361CB90 torch_cpu.dll!at::where [<unknown file> @ <unknown line number>]
+00007FFAC479D46A00007FFAC479CE80 torch_cpu.dll!torch::autograd::Node::`default constructor closure' [<unknown file> @ <unknown line number>]
+00007FFAC47AB75B00007FFAC47AB5B0 torch_cpu.dll!torch::autograd::generated::CudnnCtcLossBackward::apply [<unknown file> @ <unknown line number>]
+00007FFAC4797E9100007FFAC4797B50 torch_cpu.dll!torch::autograd::Node::operator() [<unknown file> @ <unknown line number>]
+00007FFAC4CFF9BA00007FFAC4CFF300 torch_cpu.dll!torch::autograd::Engine::add_thread_pool_task [<unknown file> @ <unknown line number>]
+00007FFAC4D003AD00007FFAC4CFFFD0 torch_cpu.dll!torch::autograd::Engine::evaluate_function [<unknown file> @ <unknown line number>]
+00007FFAC4D04FE200007FFAC4D04CA0 torch_cpu.dll!torch::autograd::Engine::thread_main [<unknown file> @ <unknown line number>]
+00007FFAC4D04C4100007FFAC4D04BC0 torch_cpu.dll!torch::autograd::Engine::thread_init [<unknown file> @ <unknown line number>]
+00007FFA66C9090700007FFA66C69FE0 torch_python.dll!THPShortStorage_New [<unknown file> @ <unknown line number>]
+00007FFAC4CFBF1400007FFAC4CFB780 torch_cpu.dll!torch::autograd::Engine::get_base_engine [<unknown file> @ <unknown line number>]
+00007FFB1C9F10B200007FFB1C9F0F70 ucrtbase.dll!beginthreadex [<unknown file> @ <unknown line number>]
+00007FFB1E3B7C2400007FFB1E3B7C10 KERNEL32.DLL!BaseThreadInitThunk [<unknown file> @ <unknown line number>]
+00007FFB1EC0D4D100007FFB1EC0D4B0 ntdll.dll!RtlUserThreadStart [<unknown file> @ <unknown line number>]
+```
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. Download the file with variables  https://drive.google.com/file/d/1eltV2WjDVTuRBXO0n6E5t5dkQ3GEW6Qj/view?usp=sharing
+1. Run the code:
+``` python
+import torch
+import pickle
+
+
+assert torch.cuda.is_available() and torch.backends.cudnn.enabled
+
+# https://drive.google.com/file/d/1eltV2WjDVTuRBXO0n6E5t5dkQ3GEW6Qj/view?usp=sharing
+with open('ctc_bug.pkl', 'rb') as f:
+    variables = pickle.load(f)
+
+log_probs = variables['log_probs'].cuda()
+targets = variables['targets'].cpu()
+target_lengths = variables['target_lengths'].cuda()
+
+# with `zero_infinity=False` it works well
+ctc_loss = torch.nn.CTCLoss(zero_infinity=True).cuda()
+
+assert torch.isfinite(log_probs.max()) and torch.isfinite(log_probs.min())
+
+# with `torch.backends.cudnn.enabled = False` it works well
+T, N, C = log_probs.shape
+loss = ctc_loss(
+    log_probs=log_probs,
+    targets=targets,
+    input_lengths=torch.full(size=(N,), fill_value=T, dtype=torch.int32).cuda(),
+    target_lengths=target_lengths
+)
+assert torch.isfinite(loss)
+loss.backward()
+
+```
+
+## Expected behavior
+
+No crash
+
+## Environment
+
+```
+PyTorch version: 1.6.0
+Is debug build: False
+CUDA used to build PyTorch: 10.2
+ROCM used to build PyTorch: N/A
+OS: Microsoft Windows 10 Home Single Language
+GCC version: Could not collect
+Clang version: Could not collect
+CMake version: Could not collect
+Python version: 3.6 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: 10.0.130
+GPU models and configuration: GPU 0: GeForce MX150
+Nvidia driver version: 451.67
+cuDNN version: Could not collect
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+Versions of relevant libraries:
+[pip3] numpy==1.19.1
+[pip3] numpydoc==0.8.0
+[pip3] torch==1.6.0
+[pip3] torchvision==0.7.0
+[conda] blas                      1.0                         mkl  
+[conda] cudatoolkit               10.2.89              h74a9793_1  
+[conda] libblas                   3.8.0                    16_mkl    conda-forge
+[conda] libcblas                  3.8.0                    16_mkl    conda-forge
+[conda] liblapack                 3.8.0                    16_mkl    conda-forge
+[conda] mkl                       2020.1                      216  
+[conda] numpy                     1.19.1           py36h12ee977_2    conda-forge
+[conda] numpydoc                  0.8.0                    py36_0  
+[conda] pytorch                   1.6.0           py3.6_cuda102_cudnn7_0    pytorch
+[conda] torchvision               0.2.1                    pypi_0    pypi
+
+Python 3.6.8
+print(torch.cuda.get_device_properties(0))
+_CudaDeviceProperties(name='GeForce MX150', major=6, minor=1, total_memory=2048MB, multi_processor_count=3)
+print('CUDA version:', torch.version.cuda)
+CUDA version: 10.2
+print('CUDNN version:', torch.backends.cudnn.version())
+CUDNN version: 7605
+```
+
+## Additional context
+
+I am also able to reproduce the error with the following configuration:
+```
+PyTorch version: 1.7.0
+Is debug build: True
+CUDA used to build PyTorch: 10.2
+ROCM used to build PyTorch: N/A
+OS: Њ ©Єа®б®дв Windows 10 Pro
+GCC version: Could not collect
+Clang version: Could not collect
+CMake version: Could not collect
+Python version: 3.7 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: 10.1.105
+GPU models and configuration: GPU 0: GeForce GTX 1080
+Nvidia driver version: 441.28
+cuDNN version: Could not collect
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+Versions of relevant libraries:
+[pip3] numpy==1.19.4
+[pip3] torch==1.7.0
+[pip3] torchaudio==0.7.0
+[pip3] torchvision==0.8.1
+[conda] Could not collect
+
+Python 3.7.9
+print(torch.cuda.get_device_properties(0))
+_CudaDeviceProperties(name='GeForce GTX 1080', major=6, minor=1, total_memory=8192MB, multi_processor_count=20)
+print('CUDA version:', torch.version.cuda)
+CUDA version: 10.2
+print('CUDNN version:', torch.backends.cudnn.version())
+CUDNN version: 7605
+
+```
+
+__But (!) with the following configuration everything works fine:__
+```
+PyTorch version: 1.1.0
+Is debug build: False
+CUDA used to build PyTorch: 10.0
+ROCM used to build PyTorch: N/A
+OS: Њ ©Єа®б®дв Windows 10 Pro
+GCC version: Could not collect
+Clang version: Could not collect
+CMake version: Could not collect
+Python version: 3.6 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: 10.1.105
+GPU models and configuration: GPU 0: GeForce GTX 1080
+Nvidia driver version: 441.28
+cuDNN version: Could not collect
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+Versions of relevant libraries:
+[pip3] numpy==1.19.4
+[pip3] torch==1.1.0
+[conda] Could not collect
+
+Python 3.6.8
+print(torch.cuda.get_device_properties(0))
+_CudaDeviceProperties(name='GeForce GTX 1080', major=6, minor=1, total_memory=8192MB, multi_processor_count=20)
+print('CUDA version:', torch.version.cuda)
+CUDA version: 10.0
+print('CUDNN version:', torch.backends.cudnn.version())
+CUDNN version: 7401
+
+```
+
+
+cc @csarofeen @ptrblck",,closed,2020-12-08T22:17:30Z,,,accepted_fault,Crash,Inconsistency
+icse2023_an_empirical_study_on_bugs:41b3cedc8f9596cc,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/52857,Python 3.9 installs torch to a wrong version if git commit starts with '0',"## 🐛 Bug
+
+Probably not a big issue, but an interesting one.
+
+In python 3.9, when a torch git commit starts with '0', e.g. `0567988`, a `python setup.py install` would install it to a version of `1.9.0a0+567988` with the leading 0 removed.
+
+A python warning message like this is printed
+
+```
+Building wheel torch-1.9.0a0+0567988
+/usr/lib/python3.9/site-packages/setuptools/dist.py:452: UserWarning: Normalizing '1.9.0a0+0567988' to '1.9.0a0+567988'
+  warnings.warn(tmpl.format(**locals()))
+```
+
+The version in pip freeze is ""wrong"",
+
+```
+$ pip freeze | grep -i torch
+torch==1.9.0a0+567988
+```
+
+but the version in `torch.__version__` is correct
+
+```
+$ python -c 'import torch; print(torch.__version__)'                    
+1.9.0a0+0567988
+```
+
+Theoretically, this behavior will trigger with an odd of 1 in 16. 🤔
+
+cc @malfet @seemethere @walterddr @albanD",,closed,2021-02-25T19:41:17Z,,,accepted_fault,Build failure,Configuration error
+icse2023_an_empirical_study_on_bugs:41d68fcfe1a8b129,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/34997,[Master Plan] Merge c10::ivalue::Future and torch::utils::Future<T>,"Ideally we should have one Future abstraction in PyTorch codebase to have unified code paths regarding Future usage. 
+
+torch::utils::Future<T> is a generic Future, we can specialize it as torch::utils::Future[IValue] and make torch::utils::Future[IValue] to be an IValue. After that, we can kill c10::ivalue::Future implementation
+
+cc @suo @pietern @mrshenli @pritamdamania87 @zhaojuanmao @satgera @gqchen @aazzolini @rohan-varma @xush6528 @jjlilley @osalpekar @ilia-cher @wanchaol",,closed,2020-03-18T22:14:03Z,,,accepted_fault,Functional error,Logic error
+icse2023_an_empirical_study_on_bugs:47d46cf4cc2da9f5,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/54752,Segmentation fault in DataLoader worker in PyTorch 1.8.0 if set_num_threads is called beforehand,"## 🐛 Bug
+
+A segmentation fault occurs if one uses `DataLoader` with `num_workers` > 0 after calling `set_num_threads` with a sufficiently high value.
+I observed this behaviour in PyTorch 1.8.0 and 1.8.1, but I am unable to reproduce it with PyTorch 1.7.1.
+
+## To Reproduce
+
+```
+import torch
+
+def main():
+    torch.set_num_threads(4)
+
+    dataloader = torch.utils.data.DataLoader([1, 2, 3], num_workers=1)
+    iter(dataloader).next()
+
+    return
+
+if __name__ == '__main__':
+    main()
+```
+
+The above code crashes when `set_num_threads` is called with 4 or more as its argument.
+Incidentally (or maybe not) 4 is the number of vCPUs in the AWS EC2 instance I am using.
+
+## Expected behavior
+
+No crash.
+
+## Environment
+
+```
+PyTorch version: 1.8.1+cu102
+Is debug build: False
+CUDA used to build PyTorch: 10.2
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 20.04.2 LTS (x86_64)
+GCC version: (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
+Clang version: Could not collect
+CMake version: Could not collect
+
+Python version: 3.7 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: Could not collect
+GPU models and configuration: GPU 0: Tesla K80
+Nvidia driver version: 460.32.03
+cuDNN version: Could not collect
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip3] numpy==1.20.1
+[pip3] torch==1.8.1
+[conda] Could not collect
+```
+## Additional context
+
+Perhaps this issue is related to #53894 and #54716.
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser @anjali411 @SsnL @VitalyFedyunin @ejguan",,closed,2021-03-26T04:55:09Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:4836b78ec7aad808,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/52463,optimize_for_mobile segfaults during forward of mobilenet_v3,"## 🐛 Bug
+
+Applying `optimize_for_mobile` into a `mobilenet_v3` from torchvision leads to a segfault on the 3rd forward pass.
+
+## To Reproduce
+
+```python
+import torch, torchvision
+from torch.utils.mobile_optimizer import optimize_for_mobile
+
+m = torchvision.models.mobilenet_v3_large()
+m = torch.jit.script(m)
+m = optimize_for_mobile(m)
+
+# run forward 3 times until segfault
+m(torch.rand(1, 3, 224, 224))
+m(torch.rand(1, 3, 224, 224))
+m(torch.rand(1, 3, 224, 224))
+```
+yielding
+```
+Segmentation fault: 11
+```
+
+I'm using PyTorch `1.8.0.dev20210125` with latest torchvision.
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser",,closed,2021-02-18T21:31:31Z,,,accepted_fault,Crash,Memory
+icse2023_an_empirical_study_on_bugs:55668d4ebb6d7676,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/973,"file_descriptor sharing strategy may be leaking FDs, resulting in DataLoader causing `RuntimeError: received 0 items of ancdata`","**Editorial note:** If you are having this problem, try running `torch.multiprocessing.set_sharing_strategy('file_system')` right after your import of torch
+
+----
+
+I am using a `DataLoader` in my code with a custom `Dataset` class, and it worked fine during training for several epochs. However, when testing my model, after a bit less than 1k iterations, I'm getting the following error:
+
+```
+RuntimeError                              Traceback (most recent call last)
+/home/jfsantos/src/pytorch_models/test_model.py in <module>()
+     82
+     83 print('Generating samples...')
+---> 84 for k, batch in tqdm(enumerate(test_loader)):
+     85     f = G_test.audio_paths[k]
+     86     spec, phase = spectrogram_from_file(f, window=window, step=step)
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/site-packages/tqdm/_tqdm.py in __iter__(self)
+    831 """""", fp_write=getattr(self.fp, 'write', sys.stderr.write))
+    832
+--> 833             for obj in iterable:
+    834                 yield obj
+    835                 # Update and print the progressbar.
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/site-packages/torch/utils/data/dataloader.py in __next__(self)
+    166         while True:
+    167             assert (not self.shutdown and self.batches_outstanding > 0)
+--> 168             idx, batch = self.data_queue.get()
+    169             self.batches_outstanding -= 1
+    170             if idx != self.rcvd_idx:
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/multiprocessing/queues.py in get(self)
+    343             res = self._reader.recv_bytes()
+    344         # unserialize the data after having released the lock
+--> 345         return ForkingPickler.loads(res)
+    346
+    347     def put(self, obj):
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/site-packages/torch/multiprocessing/reductions.py in rebuild_storage_fd(cls, df, size)
+     68         fd = multiprocessing.reduction.rebuild_handle(df)
+     69     else:
+---> 70         fd = df.detach()
+     71     try:
+     72         storage = storage_from_cache(cls, fd_id(fd))
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/multiprocessing/resource_sharer.py in detach(self)
+     56             '''Get the fd.  This should only be called once.'''
+     57             with _resource_sharer.get_connection(self._id) as conn:
+---> 58                 return reduction.recv_handle(conn)
+     59
+     60
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/multiprocessing/reduction.py in recv_handle(conn)
+    179         '''Receive a handle over a local connection.'''
+    180         with socket.fromfd(conn.fileno(), socket.AF_UNIX, socket.SOCK_STREAM) as s:
+--> 181             return recvfds(s, 1)[0]
+    182
+    183     def DupFd(fd):
+
+/home/jfsantos/anaconda3/envs/pytorch/lib/python3.5/multiprocessing/reduction.py in recvfds(sock, size)
+    158             if len(ancdata) != 1:
+    159                 raise RuntimeError('received %d items of ancdata' %
+--> 160                                    len(ancdata))
+    161             cmsg_level, cmsg_type, cmsg_data = ancdata[0]
+    162             if (cmsg_level == socket.SOL_SOCKET and
+
+RuntimeError: received 0 items of ancdata
+```
+
+However, if I just do `idxs = [k for k, batch in tqdm(enumerate(test_loader))]` I do **not** have this issue.
+
+I do not have any idea on how to test it as my knowledge of how PyTorch does this is currently very limited, but I could help debug this given some instructions. Does anyone have any idea on where I could start?",,closed,2017-03-10T16:05:34Z,,,accepted_fault,Crash,Algorithm
+icse2023_an_empirical_study_on_bugs:6315af5c3394716f,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/27820,IterableDataset should be added into dataset.pyi,"## 🐛 Bug
+trying to import `IterableDataset` in `torch.utils.data.dataset` creates an error in PyCharm. look at the following picture:
+![图片](https://user-images.githubusercontent.com/44257865/66712058-9c6b5500-edc9-11e9-9492-64c416939e7b.png)
+
+It says that `cannot find reference in dataset.pyi`, where in `dataset.pyi`, we can see that:
+![图片](https://user-images.githubusercontent.com/44257865/66712088-f9670b00-edc9-11e9-9ad4-417bc791c207.png)
+
+It's obviously that there is no `IterableDataset` but only its super class `Dataset` exists.
+I believe it should be added.
+
+
+## To Reproduce
+Steps to reproduce the behavior:
+
+1. Open PyCharm
+2. Write `from torch.utils.data.dataset import IterableDataset`
+3. Error
+
+## Expected behavior
+
+No unresolved reference hinted.
+
+## Environment
+```
+PyTorch version: 1.2.0
+Is debug build: No
+CUDA used to build PyTorch: Could not collect
+
+OS: Arch Linux
+GCC version: (GCC) 9.2.0
+CMake version: version 3.15.4
+
+Python version: 3.7
+Is CUDA available: No
+CUDA runtime version: 10.1.243
+GPU models and configuration: GPU 0: GeForce RTX 2060
+Nvidia driver version: 435.21
+cuDNN version: /usr/lib/libcudnn.so.7.6.4
+
+Versions of relevant libraries:
+[pip3] numpy==1.17.2
+[pip3] torch==1.2.0
+[pip3] torchvision==0.4.0a0
+[conda] Could not collect
+```
+
+## Additional context
+
+
+cc @SsnL @ezyang",,closed,2019-10-13T07:03:00Z,,,accepted_fault,Build failure,Inconsistency
+icse2023_an_empirical_study_on_bugs:6d3152c21b235dcb,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/43918,Breakage caused by #42629,"## 🐛 Bug
+
+[this line](https://github.com/pytorch/pytorch/blob/master/tools/codegen/model.py#L3) is causing a crash when we try to build pytorch.
+
+Crash looks like this:
+```
+Step #0: [91mTraceback (most recent call last):
+Step #0:   File ""/root/anaconda3/envs/pytorch/lib/python3.6/runpy.py"", line 193, in _run_module_as_main
+Step #0:     ""__main__"", mod_spec)
+Step #0:   File ""/root/anaconda3/envs/pytorch/lib/python3.6/runpy.py"", line 85, in _run_code
+Step #0:     exec(code, run_globals)
+Step #0:   File ""/pytorch/tools/codegen/gen.py"", line 14, in <module>
+Step #0:     from tools.codegen.model import *
+Step #0:   File ""/pytorch/tools/codegen/model.py"", line 3, in <module>
+Step #0:     from dataclasses import dataclass
+Step #0: ModuleNotFoundError: No module named 'dataclasses'
+```
+
+(all times in US/West)
+Our 7AM, 8AM builds and earlier were all fine but 9AM, 10AM, 11AM builds all crashed with that same traceback.
+
+The new import was added in https://github.com/pytorch/pytorch/pull/42629/files which I think went in between 8AM and 9AM today
+
+## To Reproduce
+
+See command below:
+`Step #0: subprocess.CalledProcessError: Command '['cmake', '-DBUILD_PYTHON=True', '-DBUILD_TEST=True', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_INSTALL_PREFIX=/pytorch/torch', '-DCMAKE_PREFIX_PATH=/../', '-DNUMPY_INCLUDE_DIR=/root/anaconda3/envs/pytorch/lib/python3.6/site-packages/numpy/core/include', '-DPYTHON_EXECUTABLE=/root/anaconda3/envs/pytorch/bin/python', '-DPYTHON_INCLUDE_DIR=/root/anaconda3/envs/pytorch/include/python3.6m', '-DPYTHON_LIBRARY=/root/anaconda3/envs/pytorch/lib/libpython3.6m.so.1.0', '-DTORCH_BUILD_VERSION=1.7.0a0+6ea8916', '-DUSE_CUDA=0', '-DUSE_NUMPY=True', '/pytorch']' returned non-zero exit status 1.`
+
+`Step #0: The command '/bin/sh -c cd /pytorch && bash xla/scripts/build_torch_wheels.sh ${python_version} ${release_version}' returned a non-zero code: 1`
+
+See here if needed for `build_torch_wheels.sh`: https://github.com/pytorch/xla/blob/master/scripts/build_torch_wheels.sh
+
+## Expected behavior
+
+<!-- A clear and concise description of what you expected to happen. -->
+
+## Environment
+
+Please copy and paste the output from our
+[environment collection script](https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py)
+(or fill out the checklist below manually).
+
+You can get the script and run it with:
+```
+wget https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py
+# For security purposes, please check the contents of collect_env.py before running it.
+python collect_env.py
+```
+
+ - PyTorch Version (e.g., 1.0): building from master
+ - OS (e.g., Linux): linux
+ - How you installed PyTorch (`conda`, `pip`, source): source
+ - Build command you used (if compiling from source): see above under 'reproduce'
+ - Python version: 3.6",,closed,2020-08-31T22:24:13Z,,,accepted_fault,Crash,Referenced types error
+icse2023_an_empirical_study_on_bugs:75d9f284465f0206,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/44378,Can't solve torch.lstsq() with specific values,"## 🐛 Bug
+
+When using `torch.lstsq` to solve with specific values, `torch.lstsq` produces wrong result (on cuda) or raises error (on cpu) while `scipy.linalg.lstsq` not.
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. Use the dumped `.npy` file: `a.npy`, `b.npy` to perform `torch.lstsq`
+2. Meanwhile, `lstsq` can also be solved in `scipy.linalg.lstsq`
+3. With the given `numpy array`, `torch.lstsq` raises error on `cpu`, or gives wrong result on `cuda`, while `scipy.linalg.lstsq` not.
+
+Code samples and error messages:
+
+Download files:
+* `a.npy`: https://github.com/xiaosu-zhu/archives/releases/download/torch.lstsq/a.npy
+* `b.npy`: https://github.com/xiaosu-zhu/archives/releases/download/torch.lstsq/b.npy
+
+```python
+import numpy as np
+import scipy.linalg
+import torch
+
+# sparse 0-1 matrix with shape [100000, 1024]
+# each row contains exactly 4 ones and other zeros
+a = np.load(""a.npy"").astype(np.float32)
+# int matrix with shape [100000, 128]
+b = np.load(""b.npy"").astype(np.float32)
+
+x, _, _, _ = scipy.linalg.lstsq(a, b)
+
+# 67480.16036171981
+print(((a @ x - b) ** 2).sum(-1).mean())
+
+b = torch.from_numpy(b).cuda()
+a = torch.from_numpy(a).cuda()
+x, _ = torch.lstsq(b, a)
+
+# 7.4439e+15
+print(((a @ x[:a.shape[-1]] - b) ** 2).sum(-1).mean())
+
+# raise RuntimeError: Lapack Error in gels : 
+# The 259-th diagonal element of the triangular factor of A is zero 
+# at /opt/conda/conda-bld/pytorch_1595629395347/work/aten/src/TH/generic/THTensorLapack.cpp:177
+x, _ = torch.lstsq(b.cpu(), a.cpu())
+```
+
+Raise `RuntimeError: Lapack Error in gels : The 259-th diagonal element of the triangular factor of A is zero at /opt/conda/conda-bld/pytorch_1595629395347/work/aten/src/TH/generic/THTensorLapack.cpp:177` when using `torch.FloatTensor`.
+Or an irregular result when using `torch.cuda.FloatTensor`.
+
+## Expected behavior
+
+Produce the same result with `scipy.linalg.lstsq`.
+
+
+## Environment
+
+```console
+PyTorch version: 1.6.0
+Is debug build: False
+CUDA used to build PyTorch: 10.2
+
+OS: Ubuntu 20.04.1 LTS (x86_64)
+GCC version: (Ubuntu 9.3.0-10ubuntu2) 9.3.0
+Clang version: Could not collect
+CMake version: version 3.16.3
+
+Python version: 3.8 (64-bit runtime)
+Is CUDA available: True
+CUDA runtime version: Could not collect
+GPU models and configuration: 
+GPU 0: GeForce GTX 1080 Ti
+GPU 1: GeForce GTX 1080 Ti
+GPU 2: GeForce GTX 1080 Ti
+GPU 3: GeForce GTX 1080 Ti
+GPU 4: GeForce GTX 1080 Ti
+GPU 5: GeForce GTX 1080 Ti
+GPU 6: GeForce GTX 1080 Ti
+GPU 7: GeForce GTX 1080 Ti
+
+Nvidia driver version: 450.51.05
+cuDNN version: Could not collect
+
+Versions of relevant libraries:
+[pip3] numpy==1.19.1
+[pip3] torch==1.6.0
+[pip3] torchvision==0.7.0
+[conda] blas                      1.0                         mkl    defaults
+[conda] cudatoolkit               10.2.89              hfd86e86_1    defaults
+[conda] mkl                       2020.1                      217    defaults
+[conda] mkl-service               2.3.0            py38he904b0f_0    defaults
+[conda] mkl_fft                   1.1.0            py38h23d657b_0    defaults
+[conda] mkl_random                1.1.1            py38h0573a6f_0    defaults
+[conda] numpy                     1.19.1           py38hbc911f0_0    defaults
+[conda] numpy-base                1.19.1           py38hfa32c7d_0    defaults
+[conda] pytorch                   1.6.0           py3.8_cuda10.2.89_cudnn7.6.5_0    pytorch
+[conda] torchvision               0.7.0                py38_cu102    pytorch
+```
+
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @vishwakftw @jianyuh @nikitaved @pearu @mruberry @heitorschueroff @walterddr @rgommers @vincentqb",,closed,2020-09-09T11:58:50Z,,,accepted_fault,Functional error,Configuration error
+icse2023_an_empirical_study_on_bugs:923b5b57a87a9e7d,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/57381,COO to CSR tensor conversion is slow,"Originally raised in https://github.com/pytorch/pytorch/pull/50937#discussion_r604346660
+
+The COO to CSR tensor conversion is implemented in
+https://github.com/pytorch/pytorch/blob/3a777b67926c5f02bc287b25e572c521d6d11fb0/torch/_tensor.py#L928-L940
+and it consists of two time-consuming parts:
+- coalescing if the COO tensor is uncoaleasced
+- row indices compression procedure
+
+Indeed, taking a coalesced COO sample with `size=(1000, 1000)` and `nnz=500`, about 1.5% of the `to_sparse_csr` call time is spend in coalescing and 98% of the time in running the row indices compression loop.
+
+The slowness of the row indices compression loop has two origins:
+- it is implemented in Python
+- it uses a suboptimal algorithm
+
+Indeed, a sample of row indices with `size[0] == 1000` and `nnz=500`, a pure Python algorithm in
+https://github.com/pearu/gcs/blob/b54ba0cba9c853b797274ef26b6c42386f2cafa3/gcs/storage.py#L24-L45
+is about 3x faster than used in `to_sparse_csr`, and when applying `numba.njit` to the `compress_indices` function, about 83x speedup is achieved compared to `to_sparse_csr`.
+
+The performance of COO to CSR tensor conversion can be improved by implementing a more efficient row indices compression algorithm (see `compress_indices` referenced above) in C++.
+
+cc @VitalyFedyunin @ngimel @aocsa @nikitaved @pearu @mruberry",,closed,2021-04-30T20:26:01Z,,,accepted_fault,Performance degradation,Algorithm
+icse2023_an_empirical_study_on_bugs:928c8c558faf8ad2,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/42415,Undefined reference to fbgemm.,"## 🐛 Bug
+
+This is a build regression within last few days.
+We got undefined reference `void fbgemm::CodeGenBase<unsigned char, signed char, int, int>::storeCRegs<asmjit::x86::Zmm, 64>(asmjit::x86::Emitter*, int, int, asmjit::x86::Gp, asmjit::x86::Gp, bool)`
+
+<img width=""1064"" alt=""image"" src=""https://user-images.githubusercontent.com/5203025/89109182-7a82b200-d471-11ea-90e8-66d0adb25120.png"">
+
+Since there's an fbgemm update 2 days ago, that could be the reason.
+https://github.com/pytorch/pytorch/pull/42302
+
+## Environment
+
+ - PyTorch Version (e.g., 1.0): master
+ - OS (e.g., Linux): Ubuntu 18.04
+ - How you installed PyTorch (`conda`, `pip`, source): source
+ - Build command you used (if compiling from source): cmake+ninja+gcc-8
+ - CUDA/cuDNN version: 11/8
+
+
+cc @ezyang @gchanan @zou3519 @malfet",,closed,2020-08-01T19:40:36Z,,,accepted_fault,Crash,Algorithm
+icse2023_an_empirical_study_on_bugs:98087a0d58fd92a9,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/38764,max_pool1d creates illegal memory access for large kernel sizes,"## 🐛 Bug
+
+Reported in the forum in [this post](https://discuss.pytorch.org/t/functional-max-pool1d-cuda-error-on-large-tensor/81985) by Robert-Jan Bruintjes.
+
+Minimal code snippet copied from the post:
+```python
+import torch
+import torch.nn.functional as F
+
+x = 6.
+size = 10. ** 6
+print(f""Size of second dimension: {int(size)}"")
+poolsize = 4
+x = torch.rand((1,int(size),poolsize), requires_grad=True).to('cuda:0')
+y = F.max_pool1d(x.contiguous(), kernel_size=poolsize, stride=None, padding=0)
+
+loss = torch.sum(y)
+loss.backward()
+
+""""""
+Traceback (most recent call last):
+  File ""efficient-segmentation/minimal_example.py"", line 14, in <module>
+    loss.backward()
+  File ""/home/nfs/username/miniconda3/envs/pytorch-cuda10/lib/python3.7/site-packages/torch/tensor.py"", line 184, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph)
+  File ""/home/nfs/username/miniconda3/envs/pytorch-cuda10/lib/python3.7/site-packages/torch/autograd/__init__.py"", line 123, in backward
+    allow_unreachable=True)  # allow_unreachable flag
+RuntimeError: CUDA error: an illegal memory access was encountered
+...
+```
+
+Verified with latest nightly binary `1.6.0.dev20200506-py3.7_cuda10.2.89`
+
+CUDA core dump yields:
+```
+CUDA Exception: Warp Illegal Address
+The exception was triggered at PC 0x5591bfb37ca0
+[Current focus set to CUDA kernel 0, grid 7, block (0,0,160), thread (0,0,0), device 0, sm 0, warp 16, lane 0]
+#0  0x00005591bfb37cc0 in void at::native::(anonymous namespace)::max_pool_backward_nchw<float, float>(int, float const*, long const*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, float*)
+   <<<(1,1,65535),(256,1,1)>>> ()
+```
+
+CC @xwang233 to take a shot at it.
+
+
+cc @ngimel @albanD @mruberry",,closed,2020-05-20T06:21:35Z,,,accepted_fault,Crash,Algorithm
+icse2023_an_empirical_study_on_bugs:9dbf7eeb325f3f07,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/49019,"If test suite triggers CUDA assert, should stop running tests","Every test after the CUDA assert will fail, but only the first test will be relevant. It would be more user friendly to immediately halt the test suite the first time a CUDA assert fails.
+
+cc @ngimel @mruberry @VitalyFedyunin @walterddr",,closed,2020-12-08T15:08:44Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:b0b118d4e0b79b4a,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/38915,Different speed between BatchNorm1d and BatchNorm2d,"Hi I assume BatchNorm1d and BatchNorm2d (or 3d) should have same performance. However when normalizing a tensor of shape `(L, C) = (B*H*W, C)` by BatchNorm1d, the speed is >5x slower than BatchNorm2d on a shape of `(B, C, H, W)`. Is this expected or is there a way to speed up?
+
+Reproducer:
+
+```
+import torch
+
+def time_bn(bn, x):
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    x = bn(x)
+    end.record()
+    torch.cuda.synchronize()
+    print(start.elapsed_time(end))
+    return x
+
+shape = (50, 50, 50, 50)
+a = torch.rand(shape)
+b = a.flatten(0, -2)
+
+bna = torch.nn.BatchNorm2d(50)
+bnb = torch.nn.BatchNorm1d(50)
+
+time_bn(bna, a)
+time_bn(bnb, b)
+```
+
+Output:
+```
+11.409407615661621
+89.55596923828125
+```
+
+## Environment
+
+```
+ - PyTorch Version: tested on 1.4/1.5
+ - OS: Ubuntu 18.04
+ - How you installed PyTorch (`conda`, `pip`, source): conda
+ - Python version: 3.7/3.8
+ - CUDA/cuDNN version: 10.1
+ - GPU models and configuration: GTX 1070
+ - Any other relevant information:
+```
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser @anjali411 @ngimel @csarofeen @ptrblck @xwang233 @albanD @mruberry @VitalyFedyunin",,closed,2020-05-22T09:23:38Z,,,accepted_fault,Performance degradation,Logic error
+icse2023_an_empirical_study_on_bugs:b1a7861ba57c44f7,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/49998,torch.normal only issues error for negative sigma when shape argument is given,"## 🐛 Bug
+
+As explained in [this forum thread](https://discuss.pytorch.org/t/how-does-torch-normal-work-with-a-negative-standard-deviation/107571/3) torch.normal only gives an error for negative sigma when there is no size argument given in. Code examples are below.
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+This code cause an error...
+
+```
+torch.manual_seed(8)
+torch.normal(0, -1, (10, ))
+
+# output
+# RuntimeError                              Traceback (most recent call last)
+# <ipython-input-6-f3bb1e6c1119> in <module>()
+    #   1 torch.manual_seed(8)
+# ----> 2 torch.normal(0, -1, (10, ))
+
+# RuntimeError: normal_ expects std > 0.0, but found std=-1
+```
+
+while this code causes no error...
+
+```
+mu = torch.tensor(0.0)
+sigma = torch.tensor(-3.0)
+torch.normal(mu, sigma)
+
+# ...output
+>>> torch.normal(mu, sigma)
+tensor(-3.6977)
+>>> torch.normal(mu, sigma)
+tensor(-3.0448)
+>>> torch.normal(mu, sigma)
+tensor(-0.2327)
+```
+
+<!-- If you have a code sample, error messages, stack traces, please provide it here as well -->
+
+## Expected behavior
+
+I would expect that the error reporting would be consistent and that a negative standard deviation on a singleton sample would also give an error.
+
+## Environment
+
+Please copy and paste the output from our
+[environment collection script](https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py)
+(or fill out the checklist below manually).
+
+You can get the script and run it with:
+```
+wget https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py
+# For security purposes, please check the contents of collect_env.py before running it.
+python collect_env.py
+```
+
+ - PyTorch Version (e.g., 1.0): 1.7.0+cu110
+ - OS (e.g., Linux): 20.04
+ - How you installed PyTorch (`conda`, `pip`, source): pip
+ - Build command you used (if compiling from source): N/A
+ - Python version: 3.8.5
+
+
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser @fritzo @neerajprad @alicanb @vishwakftw @nikitaved @pbelevich",,closed,2021-01-02T05:37:40Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:b934705691ae44f3,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/24802,[FR] More consistent matrix norm for torch.norm,"`torch.norm` currently have the following inconsistent behavior where for matrix inputs and `ord` is a numerical value, **vector** norm is computed instead:
+```
+            =====  ============================  ==========================
+            ord    matrix norm                   vector norm
+            =====  ============================  ==========================
+            None   Frobenius norm                2-norm
+            'fro'  Frobenius norm                --
+            'nuc'  nuclear norm                  --
+            Other  as vec norm when dim is None  sum(abs(x)**ord)**(1./ord)
+            =====  ============================  ==========================
+```
+(Even though the last row reads `when dim is None`, same behavior happens when `dim` is a 2-tuple).
+
+
+However, the matrix Lpq norms are useful. And users are justified in expecting that `mat.norm(2)` computes the L2 norm (max e-value) since `mat.norm('fro')` computes the matrix Frobenius norm. If we follow the [NumPy interface](https://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.norm.html), the following behavior should be less surprising and error prune:
+
+```
+
+    =====  ============================  ==========================
+    ord    norm for matrices             norm for vectors
+    =====  ============================  ==========================
+    None   Frobenius norm                2-norm
+    'fro'  Frobenius norm                --
+    'nuc'  nuclear norm                  --
+    inf    max(sum(abs(x), axis=1))      max(abs(x))
+    -inf   min(sum(abs(x), axis=1))      min(abs(x))
+    0      --                            sum(x != 0)
+    1      max(sum(abs(x), axis=0))      as below
+    -1     min(sum(abs(x), axis=0))      as below
+    2      2-norm (largest sing. value)  as below
+    -2     smallest singular value       as below
+    other  --                            sum(abs(x)**ord)**(1./ord)
+    =====  ============================  ==========================
+```
+
+cc @ezyang @gchanan @zou3519 @SsnL @vishwakftw @jianyuh",,closed,2019-08-17T04:16:11Z,,,accepted_fault,Functional error,Algorithm
+icse2023_an_empirical_study_on_bugs:bac677a588489b39,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/62967,BatchNorm2d + SyncBatchNorm incorrect multi gpu behaviour in 1.10.0 (tested working in 1.8.0),"## 🐛 Bug
+
+SyncBatchNorm layers in torch 1.10.0 give different outputs on 2 gpus vs the equivalent BatchNorm layer on a single gpu. This wasn't a problem in torch 1.8.0
+
+## To Reproduce
+This code is based on the [PyTorch DDP demo](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html) but the model consists only of a `BatchNorm2d` layer.
+
+```python
+import os
+import torch
+import torch.distributed as dist
+import torch.nn as nn
+import torch.multiprocessing as mp
+
+from torch.nn.parallel import DistributedDataParallel as DDP
+import argparse
+
+
+def setup(rank, world_size):
+    torch.manual_seed(0)
+    os.environ[""MASTER_ADDR""] = ""localhost""
+    os.environ[""MASTER_PORT""] = ""12355""
+
+    # iniialize the process group
+    dist.init_process_group(""gloo"", rank=rank, world_size=world_size)
+
+
+def cleanup():
+    dist.destroy_process_group()
+
+
+class ToyModel(nn.Module):
+    def __init__(self, num_features=10):
+        super().__init__()
+        self.bn = nn.BatchNorm2d(num_features=num_features)
+
+    def forward(self, x):
+        x = x.permute(0, 2, 1, 3)
+        x = self.bn(x)
+        x = x.permute(0, 2, 1, 3)
+        return x
+
+
+def demo_basic(rank, world_size, convert_sync_batchnorm):
+    print(f""Running basic DDP example on rank {rank}."")
+    setup(rank, world_size)
+
+    # create model and move it to GPU with id rank
+    model = ToyModel(num_features=10)
+    # create model and move it to GPU with id rank
+    if world_size > 1 and convert_sync_batchnorm:
+        print(""Converting BatchNorm to SyncBatchNorm"")
+        model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
+
+    model = model.to(rank)
+    if world_size > 1:
+        ddp_model = DDP(model, device_ids=[rank])
+        model = ddp_model
+
+    inputs = torch.randn(2, 2, 10, 1).to(rank)
+    print(f""{rank=}, {inputs[0, 0].squeeze()=}"")
+    outputs = model(inputs)
+    print(f""{rank=}, {outputs[0, 0].squeeze()=}"")
+
+    cleanup()
+
+
+def run_demo(demo_fn, world_size, convert_bn):
+    if world_size > 1:
+        mp.spawn(demo_fn, args=(world_size, convert_bn), nprocs=world_size, join=True)
+    else:
+        demo_fn(0, world_size, convert_bn)
+
+
+if __name__ == ""__main__"":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(""--n_gpus"", default=2, type=int, help=""Number of gpus"")
+    parser.add_argument(
+        ""--convert_bn"",
+        action=""store_true"",
+        default=False,
+        help=""Whether to convert BatchNorm layers to SyncBatchNorm"",
+    )
+
+    args = parser.parse_args()
+
+    print(f""{torch.__version__=}"")
+    run_demo(demo_basic, args.n_gpus, args.convert_bn)
+```
+
+### Torch 1.10.0a0+git63955b3
+
+#### 1 - 2 gpus, convert to `SyncBatchNorm`
+```
+python3 ddp_demo.py --n_gpus 2 --convert_bn
+torch.__version__='1.10.0a0+git63955b3'
+Running basic DDP example on rank 0.
+Running basic DDP example on rank 1.
+Converting BatchNorm to SyncBatchNorm
+Converting BatchNorm to SyncBatchNorm
+rank=1, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:1')
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=1, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7058,  0.7740,  0.1321,  0.6478,  0.2026, -0.1025,  1.0656,
+        -1.3900,  0.9416], device='cuda:1', grad_fn=<SqueezeBackward0>)
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7058,  0.7740,  0.1321,  0.6478,  0.2026, -0.1025,  1.0656,
+        -1.3900,  0.9416], device='cuda:0', grad_fn=<SqueezeBackward0>)
+```
+
+#### 2 - 2 gpus, do not convert to `SyncBatchNorm`
+```
+python3 ddp_demo.py --n_gpus 2
+torch.__version__='1.10.0a0+git63955b3'
+Running basic DDP example on rank 0.
+Running basic DDP example on rank 1.
+rank=1, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:1')
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=1, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:1', grad_fn=<SqueezeBackward0>)
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:0', grad_fn=<SqueezeBackward0>)
+```
+
+#### 3 - 1 gpu
+```
+python3 ddp_demo.py --n_gpus 1
+torch.__version__='1.10.0a0+git63955b3'
+Running basic DDP example on rank 0.
+False
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:0', grad_fn=<SqueezeBackward0>)
+```
+
+1 != 2 ❌
+2 == 3 ✅
+
+### Torch 1.8.0a0+618cf40
+
+#### 1 - 2 gpus, convert to `SyncBatchNorm`
+```
+python3 ddp_demo.py --n_gpus 2 --convert_bn
+torch.__version__='1.8.0a0+618cf40'
+Running basic DDP example on rank 0.
+Running basic DDP example on rank 1.
+Converting BatchNorm to SyncBatchNorm
+Converting BatchNorm to SyncBatchNorm
+rank=1, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:1')
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:0', grad_fn=<SqueezeBackward0>)
+rank=1, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:1', grad_fn=<SqueezeBackward0>)
+```
+
+#### 2 - 2 gpus, do not convert to `SyncBatchNorm`
+```
+python3 ddp_demo.py --n_gpus 2
+torch.__version__='1.8.0a0+618cf40'
+Running basic DDP example on rank 0.
+Running basic DDP example on rank 1.
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=1, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:1')
+rank=1, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:1', grad_fn=<SqueezeBackward0>)
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:0', grad_fn=<SqueezeBackward0>)
+```
+
+#### 3 - 1 gpu
+```
+python3 ddp_demo.py --n_gpus 1
+torch.__version__='1.8.0a0+618cf40'
+Running basic DDP example on rank 0.
+rank=0, inputs[0, 0].squeeze()=tensor([-1.1258, -1.1524, -0.2506, -0.4339,  0.8487,  0.6920, -0.3160, -2.1152,
+         0.3223, -1.2633], device='cuda:0')
+rank=0, outputs[0, 0].squeeze()=tensor([-1.6701, -0.7582, -0.7058, -1.2356,  0.7740,  1.4852,  0.1321, -1.1821,
+         0.6478, -1.1941], device='cuda:0', grad_fn=<SqueezeBackward0>)
+```
+
+1 == 2 == 3 ✅
+
+<!-- If you have a code sample, error messages, stack traces, please provide it here as well -->
+
+## Expected behavior
+
+I expect the behaviour in torch 1.10.0 to mirror that in 1.8.0 where options 1, 2 and 3 all produce the same output.
+
+## Environment
+
+Please copy and paste the output from our
+[environment collection script](https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py)
+(or fill out the checklist below manually).
+
+You can get the script and run it with:
+```
+wget https://raw.githubusercontent.com/pytorch/pytorch/master/torch/utils/collect_env.py
+# For security purposes, please check the contents of collect_env.py before running it.
+python collect_env.py
+```
+
+### Torch 1.10.0a0+git63955b3 Env info
+```bash
+Collecting environment information...
+PyTorch version: 1.10.0a0+git63955b3
+Is debug build: False
+CUDA used to build PyTorch: 11.2
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 18.04.5 LTS (x86_64)
+GCC version: (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+Clang version: Could not collect
+CMake version: version 3.21.1
+Libc version: glibc-2.27
+
+Python version: 3.8.11 (default, Jul  3 2021, 17:53:42)  [GCC 7.5.0] (64-bit runtime)
+Python platform: Linux-5.4.0-65-generic-x86_64-with-glibc2.27
+Is CUDA available: False
+CUDA runtime version: 11.2.152
+GPU models and configuration: Could not collect
+Nvidia driver version: Could not collect
+cuDNN version: Probably one of the following:
+/usr/lib/x86_64-linux-gnu/libcudnn.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_train.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_train.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_train.so.8.1.1
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip3] numpy==1.21.1
+[pip3] pytorch-memlab==0.2.3
+[pip3] torch==1.10.0a0+git63955b3
+[pip3] torch-tb-profiler==0.2.1
+[pip3] torchaudio==0.9.0a0-jit-kaldi-fa498ad
+[pip3] torchpq==0.1.8.3
+[pip3] torchsummary==1.5.1
+[pip3] torchvision==0.10.0
+
+```
+
+### Torch 1.8.0a0+618cf40 Env info
+```bash
+Collecting environment information...
+PyTorch version: 1.8.0a0+618cf40
+Is debug build: False
+CUDA used to build PyTorch: 11.2
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 18.04.5 LTS (x86_64)
+GCC version: (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+Clang version: Could not collect
+CMake version: version 3.21.1
+Libc version: glibc-2.27
+
+Python version: 3.8.11 (default, Jul  3 2021, 17:53:42)  [GCC 7.5.0] (64-bit runtime)
+Python platform: Linux-5.4.0-65-generic-x86_64-with-glibc2.27
+Is CUDA available: False
+CUDA runtime version: 11.2.152
+GPU models and configuration: Could not collect
+Nvidia driver version: Could not collect
+cuDNN version: Probably one of the following:
+/usr/lib/x86_64-linux-gnu/libcudnn.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_train.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_train.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_infer.so.8.1.1
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_train.so.8.1.1
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip3] numpy==1.21.1
+[pip3] pytorch-memlab==0.2.3
+[pip3] torch==1.8.0a0+618cf40
+[pip3] torchaudio==0.9.0a0-jit-kaldi-fa498ad
+[pip3] torchpq==0.1.8.3
+[pip3] torchsummary==1.5.1
+[pip3] torchvision==0.10.0
+[conda] Could not collect
+``` 
+
+
+cc @albanD @mruberry @jbschlosser",,closed,2021-08-09T15:27:20Z,,,accepted_fault,Functional error,Inconsistency
+icse2023_an_empirical_study_on_bugs:c541f56ed82f4a4b,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/22534,RuntimeError: ONNX export failed: Couldn't export operator aten::one_hot,"## 🐛 Bug
+
+Export of `F.one_hot` to ONNX format fails.
+
+## To Reproduce
+```
+class TestMod(nn.Module):
+    def __init__(self, size, maxint=10):
+        super().__init__()
+        self.maxint = maxint
+        self.weight = torch.randint(0, maxint, [size])
+
+    def forward(self, x):
+        return F.one_hot(self.weight, num_classes=self.maxint)
+test = TestMod(3)
+torch.onnx.export(test, test.weight, ""test.onnx"", verbose=True)
+```
+
+```
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+<ipython-input-23-0b35ee7f95af> in <module>
+      8         return F.one_hot(self.weight, num_classes=self.maxint)
+      9 test = TestMod(3)
+---> 10 torch.onnx.export(test, test.weight,""test.onnx"", verbose=True)
+
+~/miniconda3/lib/python3.6/site-packages/torch/onnx/__init__.py in export(*args, **kwargs)
+     23 def export(*args, **kwargs):
+     24     from torch.onnx import utils
+---> 25     return utils.export(*args, **kwargs)
+     26 
+     27 
+
+~/miniconda3/lib/python3.6/site-packages/torch/onnx/utils.py in export(model, args, f, export_params, verbose, training, input_names, output_names, aten, export_raw_ir, operator_export_type, opset_version, _retain_param_name, do_constant_folding, strip_doc_string)
+    129             operator_export_type=operator_export_type, opset_version=opset_version,
+    130             _retain_param_name=_retain_param_name, do_constant_folding=do_constant_folding,
+--> 131             strip_doc_string=strip_doc_string)
+    132 
+    133 
+
+~/miniconda3/lib/python3.6/site-packages/torch/onnx/utils.py in _export(model, args, f, export_params, verbose, training, input_names, output_names, operator_export_type, export_type, example_outputs, propagate, opset_version, _retain_param_name, do_constant_folding, strip_doc_string)
+    367         if export_params:
+    368             proto, export_map = graph._export_onnx(params_dict, opset_version, defer_weight_export, operator_export_type,
+--> 369                                                    strip_doc_string)
+    370         else:
+    371             proto, export_map = graph._export_onnx({}, opset_version, False, operator_export_type, strip_doc_string)
+
+RuntimeError: ONNX export failed: Couldn't export operator aten::one_hot
+```
+
+## Expected behavior
+
+Export of graph to ONNX format using reference to ONNX's one_hot.
+
+## Environment
+
+ - PyTorch Version (e.g., 1.0): 1.1.0
+ - OS (e.g., Linux): Linux
+ - How you installed PyTorch (`conda`, `pip`, source): conda
+ - Python version: 3.6.8
+
+## Additional context
+
+Can probably be solved by adding ONNX's one_hot:
+https://github.com/onnx/onnx/blob/master/onnx/backend/test/case/node/onehot.py
+to:
+https://github.com/pytorch/pytorch/blob/v1.1.0/torch/onnx/symbolic.py",,closed,2019-07-04T09:15:48Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:c5b13837433958f5,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/53350,Failed to compute shorthash for libnvrtc.so when compiling application with libtorch 1.8.0,"## 🐛 Bug
+
+When building an application with libtorch 1.8.0, I got this warning:
+```console
+CMake Warning at build/libtorch/share/cmake/Caffe2/public/cuda.cmake:198 (message):
+  Failed to compute shorthash for libnvrtc.so
+Call Stack (most recent call first):
+  build/libtorch/share/cmake/Caffe2/Caffe2Config.cmake:88 (include)
+  build/libtorch/share/cmake/Torch/TorchConfig.cmake:68 (find_package)
+  CMakeLists.txt:109 (find_package)
+```
+The previous version 1.7.1 had no such warning. 
+
+## To Reproduce
+
+I had created a simple project to reproduce this: https://github.com/lamhoangtung/dummy-libtorch
+
+To use it, run this on a machine with CUDA or the docker image `nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04`:
+```bash
+git clone https://github.com/lamhoangtung/dummy-libtorch
+cd dummy-libtorch
+sudo apt update
+sudo apt install unzip cmake
+sh download_libtorch.sh
+sh build.sh
+```
+
+The output shoud be like this:
+```console
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE
+-- Found CUDA: /usr/local/cuda-11.1 (found version ""11.1"")
+-- Caffe2: CUDA detected: 11.1
+-- Caffe2: CUDA nvcc is: /usr/local/cuda-11.1/bin/nvcc
+-- Caffe2: CUDA toolkit directory: /usr/local/cuda-11.1
+-- Caffe2: Header version is: 11.1
+-- Found CUDNN: /usr/local/cuda-11.1/lib64/libcudnn.so
+-- Found cuDNN: v8.1.1  (include: /usr/local/cuda-11.1/include, library: /usr/local/cuda-11.1/lib64/libcudnn.so)
+CMake Warning at libtorch/share/cmake/Caffe2/public/cuda.cmake:198 (message):
+  Failed to compute shorthash for libnvrtc.so
+Call Stack (most recent call first):
+  libtorch/share/cmake/Caffe2/Caffe2Config.cmake:88 (include)
+  libtorch/share/cmake/Torch/TorchConfig.cmake:68 (find_package)
+  CMakeLists.txt:4 (find_package)
+
+
+-- Autodetected CUDA architecture(s):  8.6 6.1
+-- Added CUDA NVCC flags for: -gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_61,code=sm_61
+-- Found Torch: /home/techainer/linus/dummy-libtorch/libtorch/lib/libtorch.so
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/techainer/linus/dummy-libtorch/build
+Scanning dependencies of target simple_model
+[ 50%] Building CXX object CMakeFiles/simple_model.dir/model.cpp.o
+[100%] Linking CXX executable simple_model
+[100%] Built target simple_model
+```
+
+
+
+## Expected behavior
+
+No such warning above
+
+## Environment
+
+My environment was init from this docker images: `nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04` 
+
+```
+PyTorch version: N/A
+Is debug build: N/A
+CUDA used to build PyTorch: N/A
+ROCM used to build PyTorch: N/A
+
+OS: Ubuntu 20.04.1 LTS (x86_64)
+GCC version: (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
+Clang version: Could not collect
+CMake version: version 3.19.5
+
+Python version: 3.8 (64-bit runtime)
+Is CUDA available: N/A
+CUDA runtime version: 11.1.105
+GPU models and configuration:
+GPU 0: GeForce GTX 1080 Ti
+GPU 1: GeForce RTX 3090
+
+Nvidia driver version: 460.56
+cuDNN version: Probably one of the following:
+/usr/lib/x86_64-linux-gnu/libcudnn.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_infer.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_adv_train.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_infer.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_cnn_train.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_infer.so.8.0.5
+/usr/lib/x86_64-linux-gnu/libcudnn_ops_train.so.8.0.5
+HIP runtime version: N/A
+MIOpen runtime version: N/A
+
+Versions of relevant libraries:
+[pip] Could not collect
+[conda] Could not collect
+```
+
+## Additional context
+
+After doing some research, I found the warning will be raise from this: [cuda.cmake](https://github.com/pytorch/pytorch/blob/v1.8.0/cmake/public/cuda.cmake) file.
+
+```cmake
+ execute_process(
+    COMMAND ""${PYTHON_EXECUTABLE}"" -c
+    ""import hashlib;hash=hashlib.sha256();hash.update(open('${CUDA_NVRTC_LIB}','rb').read());print(hash.hexdigest()[:8])""
+    RESULT_VARIABLE _retval
+    OUTPUT_VARIABLE CUDA_NVRTC_SHORTHASH)
+  if(NOT _retval EQUAL 0)
+    message(WARNING ""Failed to compute shorthash for libnvrtc.so"")
+    set(CUDA_NVRTC_SHORTHASH ""XXXXXXXX"")
+```
+
+Which mean that the python script: `""import hashlib;hash=hashlib.sha256();hash.update(open('${CUDA_NVRTC_LIB}','rb').read());print(hash.hexdigest()[:8])""` had failed.
+```console
+Traceback (most recent call last):
+  File ""<string>"", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: ''
+```
+
+I suspect that my shell does not had the variable `CUDA_NVRTC_LIB` configure properly. So I tried to find it, and set it to this according to this [documentation](https://docs.nvidia.com/cuda/nvrtc/index.html):
+```bash
+export CUDA_NVRTC_LIB=/usr/local/cuda-11.1/include/nvrtc.h
+```
+
+And then rerun the python script above and it seems to work with an output like this:
+```console
+703109d3
+```
+
+But the problem `Failed to compute shorthash for libnvrtc.so` still persist when I run cmake build
+
+
+
+cc @malfet @seemethere @walterddr",,closed,2021-03-05T10:31:55Z,,,accepted_fault,Warning-style error,Configuration error
+icse2023_an_empirical_study_on_bugs:ca941f928a0ec573,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/43414,Numerical instability in DivBackward0 for multiple backward,"## 🐛 Bug
+
+A simple division operation: `g = x/y` could produce numerical instability if multiple backward is applied.
+This is because the derivative is calculated by `-grad * self / (other * other)` (see `tools/autograd/derivatives.yaml` in `div.Tensor`).
+The `other` tensor is squared in one backward operation, so multiple operation will raise `other` to the power of `2^n` and can reach `inf` or `0` very quickly.
+A simple fix should be sufficient: by replacing the derivative calculation to `-grad * result / other`, but it makes a bunch of tests fail (I'm not sure why).
+
+## To see the problem
+
+    import torch
+
+    class Div2(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, x, y):
+            z = x / y
+            ctx.save_for_backward(x, y, z)
+            return z
+
+        @staticmethod
+        def backward(ctx, gz):
+            x, y, z = ctx.saved_tensors
+            gx = Div2.apply(gz, y)
+            gy = Div2.apply(-gz*z, y)
+            return gx, gy
+
+    def example(g, y, n):
+        gs = [g.item()]
+        for i in range(n):
+            g, = torch.autograd.grad(g, (y,), create_graph=True)
+            gs.append(g.item())
+        return gs
+
+    if __name__ == ""__main__"":
+        a = 1e-8
+        x = torch.tensor(a, requires_grad=True)
+        y = torch.tensor(a, requires_grad=True)
+        n = 4
+        factorial = lambda i: 1 if i < 2 else i * factorial(i-1)
+        print(""Div1 (current implementation):"")
+        print(example(x / y, y, n))
+        print(""Div2 (proposed implementation):"")
+        print(example(Div2.apply(x, y), y, n))
+        print(""Actual:"")
+        actual = [(-1)**i*factorial(i)/(a**i) for i in range(n+1)] # [1.0, -1/a, 2/(a*a), -3*2/(a*a*a), 4*3*2/(a**4)]
+        print(actual)
+
+Output: 
+
+    Div1 (current implementation):
+    [1.0, -100000000.0, 1.99999983976448e+16, -inf, nan]
+    Div2 (proposed implementation):
+    [1.0, -100000000.0, 2.000000054512845e+16, -6.000000083090567e+24, 2.4000002343777533e+33]
+    Actual:
+    [1.0, -100000000.0, 1.9999999999999996e+16, -5.999999999999999e+24, 2.4e+33]
+
+The current implementation of `DivBackward0` could not calculate the results correctly even with `1e-8` for triple backward, even though the actual result still within the `float32` range.
+
+## Expected behavior
+
+See above.
+
+## Environment
+
+ - PyTorch Version (e.g., 1.0): PyTorch 1.6.0
+ - OS (e.g., Linux): Ubuntu
+ - How you installed PyTorch (`conda`, `pip`, source): `conda`
+ - Build command you used (if compiling from source): N/A
+ - Python version: 3.8
+ - CUDA/cuDNN version: N/A
+ - GPU models and configuration: N/A
+ - Any other relevant information: N/A
+
+## Additional context
+
+<!-- Add any other context about the problem here. -->
+
+
+cc @ezyang @SsnL @albanD @zou3519 @gqchen",,closed,2020-08-21T18:35:56Z,,,accepted_fault,Functional error,Logic error
+icse2023_an_empirical_study_on_bugs:d13cbbc2399ed5da,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/50695,License file in wheels and conda packages does not contain any third-party licenses,"## 🐛 Bug
+
+License files for relevant code that's used or linked to must be distributed with binaries. There are many license files in `third_party` that must be distributed together with any source or binary distribution.
+
+This was noticed by the conda-forge team in https://github.com/conda-forge/pytorch-cpu-feedstock/issues/34
+
+## To Reproduce
+
+Steps to reproduce the behavior:
+
+1. Download a wheel from, e.g., https://pypi.org/project/torch/1.7.1/#files
+2. Unpack it (it's just a zipfile)
+3. Inspect the license file in the `torch-1.7.0.dist-info` directory - it's only a copy of https://github.com/pytorch/pytorch/blob/master/LICENSE. No other license files (there are many in `third_party/` are mentioned or present anywhere in the package.
+
+
+## Expected behavior
+
+The correct way of dealing with this is normally:
+
+- Keep the main `LICENSE` file in the root of the repo unchanged (the default license for new code contributed to the project).
+- Keep a separate list of license files present in the repo, in a script or metadata file
+- At build time - for any sdist, wheel or conda package - concatenate all those license files together into a single `LICENSE` file. If desired separating the main license from the rest with a _""licenses for bundled code""_ section header.
+- Insert that generated license file in the artifacts.
+
+Also, given how often dependencies get added or changed in `third_party`, add some kind of a check that all files named `LICENSE`, `LICENSE.*` or `COPYING` are actually included.
+
+
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser @seemethere @malfet @walterddr",,closed,2021-01-18T20:26:18Z,,,accepted_fault,Build failure,Configuration error
+icse2023_an_empirical_study_on_bugs:d30abc5568a8e519,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/43770,Fix exception chaining all over the codebase,"I would like to suggest a small fix in the way that Python 3's exception chaining is used.
+
+As described in detail in [this article](https://blog.ram.rachum.com/post/621791438475296768/improving-python-exception-chaining-with), exception chaining ([PEP 3134](https://www.python.org/dev/peps/pep-3134/)) can be used to make exceptions more user-friendly, and in that case, the syntax `raise new_exception from old_exception` needs to be used.
+
+For example, the following should be used to chain exceptions:
+```python
+try:
+    something_which_raises_TypeError
+except TypeError as e:
+    raise ValueError(""A more user-friendly exception message."") from e
+```
+instead of:
+```python
+try:
+    something_which_raises_TypeError
+except TypeError:
+    raise ValueError(""A more user-friendly exception message."")
+```
+
+One example which needs to be fixed is:
+https://github.com/pytorch/pytorch/blob/c7787f7fbf388f9fe326d581726e7ef3f2dce74b/torch/jit/annotations.py#L32-L35
+
+I'd be happy to PR! Let me know your thoughts on this!",,closed,2020-08-28T15:16:03Z,,,accepted_fault,Warning-style error,Inconsistency
+icse2023_an_empirical_study_on_bugs:d315d9220fafb616,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/24175,Error caffe2.python when tried importing SummaryWriter from torch.utils.tensorboard,"## 🐛 Bug
+
+I'm currently having a problem whenever I tried importing `SummaryWriter` in my Python script. 
+
+## To Reproduce
+
+I'm currently using the Data Science VM provided by Azure to run the Python. I used clean new env in Anaconda for installing Pytorch and all library dependencies (and also tb-nightly as instructed in [here](https://pytorch.org/docs/stable/tensorboard.html)).
+
+I tried to inspect if my code could use the Tensorboard using simple line of codes like
+```
+import torch
+from torch.utils.tensorboard import SummaryWriter
+```
+But I got this warning, and then critical message here
+
+![image](https://user-images.githubusercontent.com/12664445/62860613-de750d80-bd2a-11e9-86bf-7c00bfa2add5.png)
+
+## Expected behavior
+
+As far as I know, everything should be good if I followed the instruction correctly. I also tried to reproduce the error in my local Windows PC. But no errors showed up
+
+## Environment
+ - PyTorch Version : 1.2.0
+ - OS : Linux 16.04
+ - How you installed PyTorch : conda
+ - Python version: Python 3.6
+ - CUDA/cuDNN version : CUDA 10 / cudnn 7.4
+ - GPU models and configuration: 2 Tesla K80
+ - Any other relevant information: This problem occurs on a VM machine deployed in Azure",,closed,2019-08-12T11:01:46Z,,,accepted_fault,Build failure,Referenced types error
+icse2023_an_empirical_study_on_bugs:d79c1c462f49ebe1,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/31690,ConvTranspose2d much slower with output_padding set,"## 🐛 Bug
+
+A `nn.ConvTranspose2d` can be up to two orders of magnitude slower when the `output_padding` option is set to a nonzero value then when it isn't.
+
+## To Reproduce
+
+```
+class Test(nn.Module):
+    def __init__(self, output_padding):
+        super().__init__()
+        
+        self.c1 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2,
+                                     padding=1, output_padding=output_padding)
+        self.c2 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2,
+                                     padding=1, output_padding=output_padding)
+        self.c3 = nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2,
+                                     padding=1, output_padding=output_padding)
+    def forward(self, x):
+        x = self.c1(x)
+        x = nn.functional.relu(x)
+        x = self.c2(x)
+        x = nn.functional.relu(x)
+        x = self.c3(x)
+        x = nn.functional.relu(x)
+        return x
+
+def test(output_padding):
+    network = Test(output_padding=output_padding).cuda()
+    x = torch.rand((1028, 128, 6, 6)).cuda()
+
+
+    for i in range(5):
+        start = time.time()
+        for i in range(10):
+            network(x)
+        print((time.time() - start) / 10)
+
+test((0, 0))
+test((1, 1))
+```
+
+On my V100 machine, I get timings of about 0.0004s per forward pass with `output_padding=(0, 0)` and about .05s with `output_padding=(1, 1)`.
+
+## Expected behavior
+
+Given that the `output_padding` option has minimal effect on the number of FLOPs required to compute the function, I would expect the computation time to be similar with and without the option.
+
+
+
+## Environment
+
+PyTorch version: 1.3.1
+Is debug build: No
+CUDA used to build PyTorch: 10.1.243
+
+OS: Ubuntu 16.04.6 LTS
+GCC version: Could not collect
+CMake version: Could not collect
+
+Python version: 3.6
+Is CUDA available: Yes
+CUDA runtime version: 10.0.130
+GPU models and configuration: GPU 0: Tesla V100-SXM2-16GB
+Nvidia driver version: 418.87.00
+cuDNN version: /usr/lib/x86_64-linux-gnu/libcudnn.so.7.6.2
+
+Versions of relevant libraries:
+[pip3] numpy==1.17.4
+[pip3] torch==1.3.1
+[pip3] torchcule==0.1.0
+[pip3] torchvision==0.4.1
+[conda] Could not collect
+
+
+cc @csarofeen @ptrblck",,closed,2019-12-29T16:38:52Z,,,accepted_fault,Performance degradation,Corner case
+icse2023_an_empirical_study_on_bugs:dac96e689fd7a19b,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/50014,Segfault with nightly in python 3.9,"## 🐛 Bug
+
+A simple code segfaults in nightly builds with python 3.9 but works with python 3.8
+## To Reproduce
+Content of `Dockerfile`:
+```
+FROM python:3.9-slim-buster
+# works with 3.8
+USER root
+WORKDIR /root
+RUN apt-get update && apt-get install git build-essential --yes
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --pre torch==1.8.0.dev20210102+cpu  -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+RUN python3 -m pip install Pillow
+RUN git clone https://github.com/pytorch/vision/
+ENV PYTHONPATH=./vision
+COPY test-backbone.py /
+RUN python /test-backbone.py
+```
+
+Content of `test-backbone.py`:
+```
+from torchvision.models import resnet50
+import torch
+
+
+if __name__ == ""__main__"":
+    backbone = resnet50(pretrained=True)
+
+    img = torch.randn((2, 3, 256, 288))
+    features = backbone(img)
+    loss = features.sum()
+    loss.backward()
+    print(""exiting"")
+```
+
+Run `docker build  -t py39:v0 .`
+
+Logs:
+```
+Step 11/11 : RUN python /test-backbone.py
+ ---> Running in 31a88ed05b3d
+Downloading: ""https://download.pytorch.org/models/resnet50-19c8e357.pth"" to /root/.cache/torch/hub/checkpoints/resnet50-19c8e357.pth
+100.0%
+exiting
+Segmentation fault (core dumped)
+The command '/bin/sh -c python /test-backbone.py' returned a non-zero code: 139
+
+```
+
+cc @ezyang @gchanan @zou3519 @bdhirsh @jbschlosser",,closed,2021-01-03T12:49:17Z,,,accepted_fault,Crash,Memory
+icse2023_an_empirical_study_on_bugs:dc9f821bace9fe93,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/29352,cuSPARSE handle is not thread-safe,"From what I observe when working on https://github.com/pytorch/pytorch/pull/29233, cusparse handle is managed the same way as cublas handle, therefore not thread-safe.
+
+https://github.com/pytorch/pytorch/pull/29233 makes the handle pool mechanism which was originally used for cudnn generic, so it would also be able to use to manage cusparse handle. We should migrate the management of cusparse handle to that approach.
+
+See also: https://github.com/pytorch/pytorch/issues/6962
+
+cc: @mcarilli @ngimel @mruberry",,closed,2019-11-07T01:45:48Z,,,accepted_fault,Performance degradation,Concurrency
+icse2023_an_empirical_study_on_bugs:ddde8e5e8444bdfe,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/33473,JIT does not support binary operators,"## 🐛 Bug
+
+I have a code that looks like this
+```
+import torch as tc
+from torch import jit
+@jit.script
+def func(inp):
+    return inp<<1
+a = tc.tensor([3,4,5])
+func(a)
+```
+when I run it, I got the error:
+```
+torch.jit.frontend.NotSupportedError: unsupported binary operator: LShift:
+  File ""example.py"", line 5
+@jit.script
+def func(inp):
+    return inp<<1
+              ~~ <--- HERE
+```
+However, if I change `inp<<1` to `inp.__lshift__(1)`, it works. This also happens in C++.
+
+## Expected behavior
+
+I expect the binary operators to work without changing them to the call to methods.
+
+## Environment
+
+PyTorch version: 1.4.0+cpu
+Is debug build: No
+CUDA used to build PyTorch: None
+
+OS: Microsoft Windows 10 Home
+GCC version: Could not collect
+CMake version: Could not collect
+
+Python version: 3.7
+Is CUDA available: No
+CUDA runtime version: No CUDA
+GPU models and configuration: No CUDA
+Nvidia driver version: No CUDA
+cuDNN version: No CUDA
+
+Versions of relevant libraries:
+[pip3] numpy==1.16.3
+[pip3] torch==1.4.0+cpu
+[pip3] torchvision==0.5.0+cpu
+[conda] Could not collect
+## Additional context
+
+It is not a very severe problem and I would like to fix it if I know where the source code is located.
+
+
+cc @suo",,closed,2020-02-19T01:24:42Z,,,accepted_fault,Crash,Logic error
+icse2023_an_empirical_study_on_bugs:dff227004fba1586,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/51349,autograd.grad with set_detect_anomaly(True) will cause memory leak,"## 🐛 Bug
+
+using `torch.autograd.grad()` with `torch.autograd.set_detect_anomaly(True)` will cause memory leak
+
+## To Reproduce
+
+Run the code snippet below.
+It will have about 2MiB GPU memory consumption increasing each iteration.
+
+If comment out the `set_detect_anomaly` line, then there is no memory leak, with constant memory consumption.
+
+```python
+import torch
+torch.autograd.set_detect_anomaly(True) # if comment out this, no leak
+for rep in range(1000):
+    batch = torch.ones(10, 30000).cuda().requires_grad_()
+    y=batch.norm()
+    grad = torch.autograd.grad(
+        outputs=y, inputs=batch,
+        create_graph=True, retain_graph=True, only_inputs=True)[0]
+    print(""memory allocated:"", float(torch.cuda.memory_allocated()/1024**2), ""MiB"")
+    pass
+```
+
+## Expected behavior
+
+No memory leak with or without `set_detect_anomaly(True)`
+
+## Environment
+
+ - PyTorch Version: 1.7.1
+ - OS: Linux
+ - How you installed PyTorch: conda, source: `-c pytorch`
+ - Python version: 3.8.5
+ - CUDA/cuDNN version: cuda11.0
+
+## Additional context
+
+BTW, if replace `y=batch.norm()` with `y=batch.mean()`, then there is no memory leak with or without `set_detect_anomaly`, which makes me very confused.
+
+
+cc @ezyang @albanD @zou3519 @gqchen @pearu @nikitaved @soulitzer",,closed,2021-01-29T13:08:06Z,,,accepted_fault,Performance degradation,Inconsistency
+icse2023_an_empirical_study_on_bugs:e1e5baac02a04bdf,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/71063,Noisy warning raised by 'default_collate',"### 🐛 Describe the bug
+
+After upgrading pytorch version from 1.10.1 to the master branch (commit [d697bb4](https://github.com/pytorch/pytorch/commit/d697bb4220ff5ea8b46591cc082583bbf1a294a4)), `torch.utils.data._utils.collate.default_collate` raises the below noisy warning repeatedly:
+
+```
+UserWarning: An output with one or more elements was resized since it had shape [10], which does not
+match the required output shape [2, 5].This behavior is deprecated, and in a future PyTorch release outputs will
+not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace,
+to zero elements with t.resize_(0).
+```
+The warning is original from [Resize.cpp](https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/Resize.cpp#L11-L27) and triggered by [these lines](https://github.com/pytorch/pytorch/blob/master/torch/utils/data/_utils/collate.py#L130-L138) of `default_colloate`:
+
+```
+    elem = batch[0]
+    elem_type = type(elem)
+    if isinstance(elem, torch.Tensor):
+        out = None
+        if torch.utils.data.get_worker_info() is not None:
+            # If we're in a background process, concatenate directly into a
+            # shared memory tensor to avoid an extra copy
+            numel = sum(x.numel() for x in batch)
+            storage = elem.storage()._new_shared(numel)
+            out = elem.new(storage)
+        return torch.stack(batch, 0, out=out)
+```
+
+In case `default_collate` runs in background/worker process (torch.utils.data.get_worker_info() returns something), `out` is always a 1D tensor, but `batch` may has higher rank, thus a resize operation happens inside the `torch.stack` operation, which triggers the warning.
+
+### Versions
+
+Master branch (commit [d697bb4](https://github.com/pytorch/pytorch/commit/d697bb4220ff5ea8b46591cc082583bbf1a294a4))
+
+# To Reproduce
+Use this code snippet to reproduce the problem:
+
+```
+import torch
+
+a, b = torch.randn([5]), torch.randn([5])
+batch = [a, b]
+elem = batch[0]
+
+# In case torch.utils.data.get_worker_info() is not None
+numel = sum(x.numel() for x in batch)
+storage = elem.storage()._new_shared(numel)
+out = elem.new(storage)
+
+torch.stack(batch, 0, out=out)
+```
+
+# Expected behavior
+No warning raises.
+
+# Workaround
+
+```
+    elem = batch[0]
+    elem_type = type(elem)
+    if isinstance(elem, torch.Tensor):
+        out = None
+        if torch.utils.data.get_worker_info() is not None:
+            # If we're in a background process, concatenate directly into a
+            # shared memory tensor to avoid an extra copy
+            numel = sum(x.numel() for x in batch)
+            storage = elem.storage()._new_shared(numel)
+
+            # reshape `out` before passing to torch.stack
+            out = elem.new(storage).view(-1, *list(elem.size()))  
+
+        return torch.stack(batch, 0, out=out)
+```
+
+Test code:
+
+```
+import torch
+
+a, b = torch.randn([5]), torch.randn([5])
+batch = [a, b]
+elem = batch[0]
+
+# In case torch.utils.data.get_worker_info() is not None
+numel = sum(x.numel() for x in batch)
+storage = elem.storage()._new_shared(numel)
+out = elem.new(storage).view(-1, *list(elem.size()))
+
+torch.stack(batch, 0, out=out)
+```
+
+cc @VitalyFedyunin @ejguan @NivekT",,closed,2022-01-09T06:02:21Z,,,accepted_fault,Warning-style error,Dimension mismatch
+icse2023_an_empirical_study_on_bugs:ef64e2a59beb217e,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/39007,PyTorch issue 39007,"Originally in https://github.com/pytorch/pytorch/issues/18095#issuecomment-633149307:
+
+@vadimkantorov:
+Works: https://pytorch.org/docs/stable/torch.html#torch.flip
+Breaks: https://pytorch.org/docs/master/torch.html#torch.flip
+
+@t-vi:
+They're now separate pages: https://pytorch.org/docs/master/generated/torch.flip.html#torch.flip
+...but it would break many links, including on the forums.
+
+@ezyang:
+Yes, this will be a release blocker for next release.
+
+cc @ezyang @gchanan @zou3519 @kadeng @msaroufim @svekars @brycebortree @mattip","[mattip]: Hmm. Are the pages hosted in a way that we can do redirects to replace `torch.html#torch.\(.*\)` with `generated/torch.\1.html#torch.\1` ?
+
+If so we can write a script to 
+- scrape the stable website and pull out all the links
+- scrape the master website and putll out all the links
+- find the links that are no longer present on master
+- try to redirect to the new locations
+
+---
+
+[vadimkantorov]: One can also do a server or client redirects as fallback
+
+---
+
+[vadimkantorov]: One way could also be eliminate “generated” folder from the urls...
+
+---
+
+[mattip]: > One way could also be eliminate “generated” folder from the urls...
+
+Then we would still have to convert `torch.html#torch.flip` to `torch.flip.html#torch.flip`, note the extra `flip.`
+
+---
+
+[t-vi]: A not quite as neat but reasonable alternative could be to see to anchors being added to the (just the link) entries of the page currently served at that URL.
+
+---
+
+[ShawnZhong]: If I recall correctly, pytorch.org is served by GitHub pages, which does not allow server configurations (say URL rewrite), but client-side redirects should be an option. 
+
+For adding anchors, I didn't see native support in Sphinx to generate anchors for `autosummary`. I guess we either need to hack into Sphinx or manually add them.
+
+---
+
+[vadimkantorov]: @ShawnZhong 
+> Then we would still have to convert `torch.html#torch.flip` to `torch.flip.html#torch.flip`, note the extra `flip.`
+
+Even in that case, maybe better to remove ""generated""? Since it will be in every URL, it's a bit cleaner without it, and it carries no special meaning, docs are (almost) always generated
+
+---
+
+[ShawnZhong]: Not sure exactly why, but it seems that some popular python libs have `generated` in the docs: 
+- https://numpy.org/doc/1.18/reference/generated/numpy.add.html
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html
+- http://ipython.org/ipython-doc/stable/api/generated/IPython.config.application.html
+
+Maybe @mattip knows more about this.
+
+---
+
+[ShawnZhong]: One of the minor benefits I can think of is it's easier to add a single `generated` folder to `.gitignore` and to delete all generated files.
+
+---
+
+[vadimkantorov]: Well, I was just worried that in future if scheme changes, there would be a lot of hyperlinks on the internet containing that ""generated"" thing. But it's not much important
+
+---
+
+[vadimkantorov]: Also there would be a challenge to remove old pages from Google search which is quite nasty (https://github.com/pytorch/pytorch/issues/3428). It would be unfortunate, if Google search finds both new and old links. By the way, NumPy/SciPy do a bad job here...
+
+cc @zou3519
+
+tldr: to remove reliably it's better to generate old pages as well, but set some special headers that would instruct Google to de-index them. And only later to disable their generation
+
+---
+
+[mattip]: > One of the minor benefits I can think of is it's easier to add a single generated folder to .gitignore and to delete all generated files
+
+This seems to be the motivation, and the use of `generated` is standard across projects that use sphinx.
+
+> A not quite as neat but reasonable alternative could be to add to anchors being added to the (just the link) entries of the page currently served at that URL.
+
+If we post-process all the html, we could add an anchor for these entries:
+- add an id for the tag
+- add an anchor element to create the anchor link to the id.
+
+For example `<p><a class=""reference internal"" href=""generated/torch.flip.html#torch.flip""` ... would become `<p id=torch.flip><a class=""headerlink"" href=""#torch.flip"" title=""Permalink"">¶</a><a class=""reference internal"" href=""generated/torch.flip.html#torch.flip""` ...
+
+---
+
+[mattip]: It is enough just to add the `id`, so 
+```
+<p><a class=""reference internal"" href=""generated/torch.flip.html#torch.flip""
+```
+becomes
+```
+<p id=""torch.flip""><a class=""reference internal"" href=""generated/torch.flip.html#torch.flip""
+```
+
+---
+
+[ShawnZhong]: As a side note here, if we just want to scroll to the method instead of redirecting to the detailed page, we can do: 
+
+```js
+document.querySelector('a[title=""torch.flip""]').scrollIntoView()
+```
+
+---
+
+[mattip]: I made sphinx emit references at the old location whenever `generated` is in the uri in gh-39086
+
+---
+
+[zou3519]: So we have two potential solutions:
+1. Have javascript client-side redirect. There's a PR out here: #39032 
+2. Add anchors to links on the page. There's a PR out here: #39086 
+
+Honestly both seem reasonable to me (and equally as hacky). @mattip, @ShawnZhong, @vadimkantorov what do you folks think we should do?
+
+---
+
+[mattip]: Sorry, I didn’t see gh-39032. Either is fine.
+
+---
+
+[vadimkantorov]: @zou3519 I don't have preference, except that Google search results should not be spilled with both old and new URL versions
+
+---
+
+[mattip]: > Google search results should not be spilled with both old and new URL versions
+
+Hmm. Not sure how to give a lower rank to the top-level documents than to the generated ones. It seems the tools available in robots.txt or meta tags are binary: either include or exclude whole pages. Perhaps if we use the javascript solution in gh-39032 but then exclude robots from seeing the javascript that would help? Of course users who turn off javascript would also not see the anchor-specific links and would be refered to the top of the pages ...
+
+---
+
+[vadimkantorov]: @zou3519 should have more insights about Google indexing hacking :)
+
+---
+
+[vadimkantorov]: @mattip about dichotomy between ""top-level documents than to the generated ones."". I'm not sure I understand you. If by ""top-level documents"" you mean old pages, I think they should be phased out from Google search index, by first modifying their meta and simultaneously publishing new indexable pages. Like that, old links will continue to work and Google will not index old pages over time
+
+---
+
+[t-vi]: You'd want to have a list of available functions somewhere, ideally with link and one-line synopsis.
+
+---
+
+[vadimkantorov]: Well, maybe the ""top-level"" / index pages could be created manually/automagically, then old links could stay, and anchors would work. Okay, they will be large, but much faster to load than before, because they would only contain links to new separate pages
+
+---
+
+[mattip]: The old links have become summaries. So the ""old link"" that points to this [whole documentation blurb](https://pytorch.org/docs/stable/torch.html#torch.allclose) on `stable`, now points to [the allclose line in the table](https://pytorch.org/docs/master/torch.html#comparison-ops) in `master` after this PR. Clicking on the `allclose` link brings you to the [full documentation](https://pytorch.org/docs/master/generated/torch.allclose.html#torch.allclose).  I wouldn;t want to totally disable indexing the summary page. since there is still useful information on it, for instance the documentation about [`torch.no_grad`](https://pytorch.org/docs/master/torch.html#locally-disabling-gradient-computation), so
+
+---
+
+[vadimkantorov]: The old link ""https://pytorch.org/docs/master/torch.html#torch.flip"" still does not work (just checked).
+
+I'm all for summary pages, but the new summary pages do not have right anchors, so the browser does not scroll down automatically, and this is problematic
+
+---
+
+[t-vi]: That's because #39086 isn't merged yet. :)
+
+---
+
+[vadimkantorov]: oh, makes sense :)
+
+---
+
+[vadimkantorov]: Some urls got broken again :( https://github.com/pytorch/pytorch.github.io/issues/599
+
+---
+
+[malfet]: @svekars do we have a mechanism to detect if new broken links are added to the docs?
+
+---
+
+[mikaylagawarecki]: fyi @svekars 
+
+Summarizing discussion from triage meeting:
+There are two types of broken links
+1. broken links within our docs
+2. external links that are broken
+
+We should have a mechanism for detecting and eliminating (1). For (2), there are many answers in stack overflow that link to PyTorch docs, should we have a BC-surface on our docs links/redirect to ensure we don't break external links within some statute of limitations?
+
+---
+
+[svekars]: @malfet @mikaylagawarecki - we could look into enabling Sphinx linkchecker builder to identify broken cross-references. For external docs probably need to use something else - there is [sphinx-reredirects](https://documatt.com/sphinx-reredirects/index.html) extension for example. There should be a way to detect that a page is being moved in a PR and that a redirect must be created.
+
+---
+
+[vadimkantorov]: I think a problem is that for this anchor -> page factor-outs, the redirects should be done in a manual JavaScript hack comparing window.location.hash to some known list of redirects. Or at least, the HTML anchors should be preserved so that https://pytorch.org/docs/stable/nn.html#torch.nn.Embedding scrolls to something reasonable (at least some table row)",,,,,accepted_fault,Functional error,Inconsistency
+icse2023_an_empirical_study_on_bugs:f2760512ca863147,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/21344,Make DDP failure recoverable,"@kuttas @pietern and I had a discussion on how to make DDP failure recoverable. The process involves the following steps:
+
+```python
+m = SomeModel()
+dist.init_process_group()
+ddp = DistributedDataParallel(m)
+# got error
+dist.destroy_process_group()
+dist.init_process_group()
+del ddp
+ddp = DistributedDataParallel(m)
+```
+
+This does not work in today's DDP. Currently, to get better performance, DDP assigns the [original module](https://github.com/pytorch/pytorch/blob/fa4ca4e70e98fbe944d1435929ea4fd17c7bed7d/torch/nn/parallel/distributed.py#L316) to the first module replica instead of creating a new one. Then, it creates a new `Reducer` to [add post hooks](https://github.com/pytorch/pytorch/blob/fa4ca4e70e98fbe944d1435929ea4fd17c7bed7d/torch/csrc/distributed/c10d/reducer.cpp#L108-L112) to sync params. However, because every reconstructed DDP instance wraps the same original module, all their reducers will add hooks to the same set of variables. Hence, after 10 recoveries, each param (variable) in the original module will have 11 hooks introduced by 11 different reducers, where only the last one is still alive. We thought about several potential solutions:
+
+#### Solution 1: Force Module Replication
+
+Force DDP to create new module replicas instead of using the original module. In this way, those variables in the replicas will die together with the DDP instance. But it will make the DDP slower. Maybe make it an option?
+
+#### Solution 2: Delete Hooks in Destructor
+
+I feel the best way would be deleting those hooks from model variables when destructing a `Reducer`, but I didn't find a clean way to do that. The [`add_post_hook`](https://github.com/pytorch/pytorch/blob/fa4ca4e70e98fbe944d1435929ea4fd17c7bed7d/torch/csrc/autograd/function.h#L250) function takes unique parameters, and we can get those hooks through [`post_hooks`](https://github.com/pytorch/pytorch/blob/fa4ca4e70e98fbe944d1435929ea4fd17c7bed7d/torch/csrc/autograd/function.h#L254). Directly looping through the the hooks vector and find the target to delete seems to be too hackish.
+
+#### Solution 3: Create New Variables (?)
+
+Not sure if this can work. Instead of creating replica (as in Solution 1), let DDP create a new variable for every parameter in the original module. All DDP forward and backward pass will use those new variables. I think this won't work if the application only wraps part of the model using DDP, because there will be two disjoint autograd graphs (?)
+
+
+@soumith @gchanan @ezyang  thoughts?",,closed,2019-06-04T17:47:05Z,,,accepted_fault,Crash,Algorithm
+icse2023_an_empirical_study_on_bugs:f2d4ab481a02696c,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/25010,Very high CPU utilization with pin_memory=True and num_workers > 0,"## 🐛 Bug
+There seems to be an issue with CPU utilization when using a DataLoader with pin_memory=True and num_workers > 0. 
+
+I revisited some old code that had `pin_memory=True` and two workers that weren't doing all that much. It pinned all of my CPU cores at or near 100%, with 40-50% of the usage in the kernel.  I've had performance issues with pinned memory in the past, but never to this level. Indeed, I cannot reproduce the issue going back to some older environments with 0.4 or 1.0.1. But on 3 machines w/ PyTorch 1.1 and 1.2 I can easily reproduce by running the MNIST main.py from the current examples master.
+
+If I set either num_workers=0 or pin_memory=False the issue goes away and I'm left with the expected one core and change of usage for MNIST (or two cores and change for my original case). 
+
+## To Reproduce
+
+1. Run `main.py` from the MNIST example on master pytorch/examples repository.
+
+## Expected behavior
+
+For MNIST, with 1 worker I expect roughly 1 core's worth of CPU utilization plus some overhead. It consumes 50-100% of all cores on systems with 8-14 physical (16-28 logical) cores. A large % of the CPU usage is in the kernel, appears to be spinning/yielding, possibly due to contention. 
+
+## Environment
+
+I've reproduced on 3 machines.
+
+ - PyTorch Version (e.g., 1.0): 1.1 and 1.2 (no issue on an older 1.0.1 and 0.4.1 environment on one of the machines)
+ - OS (e.g., Linux): two Ubuntu 18.04 machines, one Ubuntu 16.04 machine
+ - How you installed PyTorch (`conda`, `pip`, source): All conda installs
+ - Python version: 3.7.3 and 3.6.8
+ - CUDA/cuDNN version: Cuda 10 and CUDNN 7.5.1 and 7.6.2
+ - GPU models and configuration: dual Titan RTX one one machine, dual Titan Xp and 1080Ti on other two
+ - Any other relevant information:
+
+## Additional context
+I've seen at least one very likely, and other potential threads in discussion forum that are likely this issue. 
+
+This one has an htop screenshot from me, and another user:
+https://discuss.pytorch.org/t/cpu-usage-extremely-high/52172/5
+
+
+
+cc @SsnL",,closed,2019-08-22T04:41:00Z,,,accepted_fault,Performance degradation,Corner case
+icse2023_an_empirical_study_on_bugs:f4e2fc1643d92176,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/30147,DataLoader fails to re-raise exceptions with required arguments,"## 🐛 Bug
+`torch.utils.data.DataLoader` attempts to relay exceptions from its child processes.  It fails to do this when the exception type takes multiple required arguments.
+
+## To Reproduce
+
+Run this:
+```
+import torch.utils.data
+class E(Exception):
+    def __init__(self, a, b):
+        pass
+    def __str__(self):
+        return ""Special exception message""
+
+class G(torch.utils.data.IterableDataset):
+    def __iter__(self):
+        raise E(a=1, b=2)
+        yield 1
+    
+d = torch.utils.data.DataLoader(G(), num_workers=1)
+next(iter(d))
+```
+
+The result:
+```
+Traceback (most recent call last):
+  File ""<stdin>"", line 1, in <module>
+  File ""/usr/local/miniconda3/envs/openai/lib/python3.7/site-packages/torch/utils/data/dataloader.py"", line 819, in __next__
+    return self._process_data(data)
+  File ""/usr/local/miniconda3/envs/openai/lib/python3.7/site-packages/torch/utils/data/dataloader.py"", line 846, in _process_data
+    data.reraise()
+  File ""/usr/local/miniconda3/envs/openai/lib/python3.7/site-packages/torch/_utils.py"", line 369, in reraise
+    raise self.exc_type(msg)
+TypeError: __init__() missing 1 required positional argument: 'b'
+```
+
+## Expected behavior
+
+Should see the `E: Special exception message` printed. (This works when `num_workers=0`.)
+
+## Environment
+ - PyTorch Version (e.g., 1.0): 1.3.1
+ - OS (e.g., Linux): Linux
+
+cc @SsnL",,closed,2019-11-20T07:53:03Z,,,accepted_fault,Functional error,Logic error
+icse2023_an_empirical_study_on_bugs:f52f9633865af8b2,icse2023_an_empirical_study_on_bugs,pytorch,https://github.com/pytorch/pytorch/issues/20522,nn.CTCLoss RuntimeError on GPU,"## 🐛 Bug
+
+nn.CTCLoss Run the official documentation sample code works fine on the CPU but  RuntimeError on the GPU.
+
+## To Reproduce
+
+```py
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+>>> T = 255      # Input sequence length
+>>> C = 20      # Number of classes (excluding blank)
+>>> N = 16      # Batch size
+>>> S = 30      # Target sequence length of longest target in batch
+>>> S_min = 10  # Minimum target length, for demonstration purposes
+>>>
+>>> # Initialize random batch of input vectors, for *size = (T,N,C)
+>>> input = torch.randn(T, N, C).log_softmax(2).detach().requires_grad_()
+>>>
+>>> # Initialize random batch of targets (0 = blank, 1:C+1 = classes)
+>>> target = torch.randint(low=1, high=C+1, size=(N, S), dtype=torch.long)
+>>>
+>>> input_lengths = torch.full(size=(N,), fill_value=T, dtype=torch.long)
+>>> target_lengths = torch.randint(low=S_min, high=S, size=(N,), dtype=torch.long)
+
+input = input.cuda()
+target = target.cuda()
+input_lengths = input_lengths.cuda()
+target_lengths = target_lengths.cuda()
+
+>>> ctc_loss = nn.CTCLoss()
+>>> loss = ctc_loss(input, target, input_lengths, target_lengths)
+>>> loss.backward()
+```
+
+```
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+<ipython-input-10-24c5c245c677> in <module>
+      1 ctc_loss = nn.CTCLoss()
+      2 loss = ctc_loss(input, target, input_lengths, target_lengths)
+----> 3 loss.backward()
+
+~/anaconda3/lib/python3.7/site-packages/torch/tensor.py in backward(self, gradient, retain_graph, create_graph)
+    105                 products. Defaults to ``False``.
+    106         """"""
+--> 107         torch.autograd.backward(self, gradient, retain_graph, create_graph)
+    108 
+    109     def register_hook(self, hook):
+
+~/anaconda3/lib/python3.7/site-packages/torch/autograd/__init__.py in backward(tensors, grad_tensors, retain_graph, create_graph, grad_variables)
+     91     Variable._execution_engine.run_backward(
+     92         tensors, grad_tensors, retain_graph, create_graph,
+---> 93         allow_unreachable=True)  # allow_unreachable flag
+     94 
+     95 
+
+RuntimeError: setStorage: sizes [16, 255, 31], strides [15045, 59, 2], and storage offset 0 requiring a storage size of 240722 are out of bounds for storage with numel 240720
+```
+
+See https://gist.github.com/ypw-rich/faafe22d108c4fe24f128ecb4aaabda3
+
+## Expected behavior
+
+Expect same grad on CPU.
+
+## Environment
+
+PyTorch version: 1.1.0
+Is debug build: No
+CUDA used to build PyTorch: 10.0.130
+
+OS: Ubuntu 18.04.2 LTS
+GCC version: (Ubuntu 7.4.0-1ubuntu1~18.04) 7.4.0
+CMake version: version 3.10.2
+
+Python version: 3.7
+Is CUDA available: Yes
+CUDA runtime version: 10.0.130
+GPU models and configuration: GPU 0: GeForce GTX 1080 Ti
+Nvidia driver version: 418.56
+cuDNN version: /data/ocr/bin/libcudnn.so.7
+
+Versions of relevant libraries:
+[pip3] numpy==1.16.2
+[pip3] numpydoc==0.8.0
+[pip3] torch==1.1.0
+[pip3] torchvision==0.2.2.post3
+[conda] blas                      1.0                         mkl
+[conda] mkl                       2019.3                      199
+[conda] mkl-service               1.1.2            py37he904b0f_5
+[conda] mkl_fft                   1.0.10           py37ha843d7b_0
+[conda] mkl_random                1.0.2            py37hd81dba3_0
+[conda] torch                     1.1.0                    pypi_0    pypi
+[conda] torchvision               0.2.2.post3              pypi_0    pypi",,closed,2019-05-15T06:47:43Z,,,accepted_fault,Crash,Algorithm
