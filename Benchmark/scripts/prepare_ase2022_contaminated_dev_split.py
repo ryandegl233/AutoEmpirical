@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
@@ -13,14 +14,12 @@ SOURCE_COHORT = ROOT / (
     "Benchmark/inputs/ase2022_issue_only_holdout_seed20260806/"
     "ase2022_issue_only_holdout_cohort.csv"
 )
-CATEGORY_MANIFEST = ROOT / (
-    "Benchmark/configs/ase2022_issue_only_holdout_mas_baseline_error_categories.json"
-)
+SELECTION_MANIFEST = ROOT / "Benchmark/configs/splits/ase2022_stage3_contaminated_dev50/split_manifest.json"
+
 TAXONOMY = ROOT / (
     "Benchmark/inputs/ase2022_issue_only_holdout_seed20260806/"
     "ase2022_issue_only_holdout_taxonomy.json"
 )
-OUTPUT = ROOT / "Benchmark/configs/splits/ase2022_stage3_contaminated_dev50"
 FIELDS = (
     "record_id",
     "paper_id",
@@ -51,13 +50,22 @@ def _canonical_sha(value: object) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def main() -> None:
-    categories = json.loads(CATEGORY_MANIFEST.read_text(encoding="utf-8"))
-    record_ids = tuple(categories["record_ids"])
-    with SOURCE_COHORT.open(encoding="utf-8-sig", newline="") as handle:
+def main(argv=None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--selection-manifest', type=Path, default=SELECTION_MANIFEST)
+    parser.add_argument('--source-cohort', type=Path, default=SOURCE_COHORT)
+    parser.add_argument('--taxonomy', type=Path, default=TAXONOMY)
+    parser.add_argument('--output-dir', type=Path, required=True,
+                        help='New output directory; the published split is never overwritten.')
+    args = parser.parse_args(argv)
+    if args.output_dir.exists() and any(args.output_dir.iterdir()):
+        raise FileExistsError('Use a new output directory to preserve frozen inputs')
+    selection = json.loads(args.selection_manifest.read_text(encoding="utf-8"))
+    record_ids = tuple(selection['splits']['development']['record_ids'])
+    with args.source_cohort.open(encoding="utf-8-sig", newline="") as handle:
         source = {row["record_id"]: row for row in csv.DictReader(handle)}
     if len(record_ids) != 50 or len(set(record_ids)) != 50:
-        raise ValueError("development category manifest must freeze 50 unique IDs")
+        raise ValueError("development selection manifest must freeze 50 unique IDs")
     if set(record_ids) - set(source):
         raise ValueError("development IDs are missing from source cohort")
     rows = [
@@ -69,8 +77,8 @@ def main() -> None:
         for row in rows
     ):
         raise ValueError("runner cohort contains forbidden label fields")
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    cohort = OUTPUT / "development_runner_cohort.csv"
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    cohort = args.output_dir / "development_runner_cohort.csv"
     with cohort.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
@@ -84,10 +92,10 @@ def main() -> None:
         "domain": "ase2022",
         "seed": 20260806,
         "source": {
-            "category_manifest": CATEGORY_MANIFEST.relative_to(ROOT).as_posix(),
-            "category_manifest_sha256": _sha(CATEGORY_MANIFEST),
-            "source_cohort_sha256": _sha(SOURCE_COHORT),
-            "taxonomy_structure_sha256": _text_sha(TAXONOMY),
+            "selection_manifest": str(args.selection_manifest),
+            "selection_manifest_sha256": _sha(args.selection_manifest),
+            "source_cohort_sha256": _sha(args.source_cohort),
+            "taxonomy_structure_sha256": _text_sha(args.taxonomy),
             "text_hash_algorithm": "canonical_utf8_lf_sha256_v1",
         },
         "splits": {
@@ -105,7 +113,7 @@ def main() -> None:
             "development_is_contaminated": True,
         },
     }
-    (OUTPUT / "split_manifest.json").write_text(
+    (args.output_dir / "split_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 

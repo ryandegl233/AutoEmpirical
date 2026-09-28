@@ -30,11 +30,15 @@ DEFAULT_TAXONOMY = (
 DEFAULT_LABEL_TAXONOMY = (
     REPO_ROOT
     / "Benchmark"
-    / "results"
+    / "inputs"
     / "ase2022_issue_only_holdout_seed20260806"
     / "ase2022_issue_only_holdout_taxonomy.json"
 )
-DEFAULT_RESULTS = REPO_ROOT / "Benchmark" / "results"
+DEFAULT_CONTAMINATION_ROOTS = tuple(
+    REPO_ROOT / relative for relative in (
+        "Benchmark/inputs", "Benchmark/configs/splits", "Benchmark/results", "Benchmark/runs"
+    )
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -79,7 +83,7 @@ def main(argv: list[str] | None = None) -> None:
             source_csv=args.source_csv,
             taxonomy_path=args.taxonomy_path,
             label_taxonomy_path=args.label_taxonomy_path,
-            contamination_roots=tuple(args.contamination_root or (DEFAULT_RESULTS,)),
+            contamination_roots=tuple(args.contamination_root or DEFAULT_CONTAMINATION_ROOTS),
             output_dir=args.output_dir,
             restricted_gold_path=args.restricted_gold_output,
             split_revision=args.split_revision,
