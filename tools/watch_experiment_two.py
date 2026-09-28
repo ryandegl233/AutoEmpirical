@@ -72,7 +72,7 @@ def main():
     parser.add_argument('--once',action='store_true')
     args=parser.parse_args()
     if args.interval<1: parser.error('interval must be at least 1 second')
-    base=ROOT/'reports/experiment_two'/args.batch_id
+    base=ROOT/'Benchmark/runs/experiment_two'/args.batch_id
     if not (base/'protocol.json').is_file(): parser.error('Batch protocol not found: '+str(base))
     try:
         while True:

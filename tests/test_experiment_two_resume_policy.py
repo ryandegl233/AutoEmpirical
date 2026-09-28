@@ -23,7 +23,7 @@ def load_entry():
 def test_resume_skips_valid_retries_invalid_once_and_preserves_history(tmp_path, monkeypatch, legacy, serial):
     entry, runner = load_entry()
     monkeypatch.setattr(runner, 'ROOT', tmp_path)
-    base = tmp_path / 'reports/experiment_two/test'
+    base = tmp_path / 'Benchmark/runs/experiment_two/test'
     base.mkdir(parents=True)
     gold = tmp_path / 'gold.jsonl'
     gold.write_text('\n'.join(json.dumps(dict(record_id=f'r{i}', symptom='s', root_cause='r')) for i in range(1, 4)))

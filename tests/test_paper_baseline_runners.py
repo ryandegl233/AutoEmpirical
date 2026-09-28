@@ -12,6 +12,17 @@ from Benchmark.src import ase2022_camel_mas_baseline as mas
 from Benchmark.src import ase2022_llm_baseline as single
 
 
+def test_default_run_paths_do_not_write_into_frozen_inputs():
+    from pathlib import Path
+    from Benchmark.scripts.run_paper_camel_mas_baseline import paper_cli_profile
+    from Benchmark.scripts.run_paper_llm_baseline import build_parser
+    profile = paper_cli_profile("icse2021")
+    assert Path(profile.default_cohort_path).as_posix().startswith("Benchmark/inputs/")
+    assert Path(profile.default_output_dir).as_posix() == "Benchmark/runs/seven_papers/icse2021/mas"
+    assert Path(profile.default_single_stage2_metrics).as_posix().startswith("Benchmark/runs/")
+    assert build_parser().parse_args(["--domain", "icse2021"]).output_dir is None
+
+
 def taxonomy(mode="multi_label"):
     return {
         "symptom": [] if mode == "free_text" else ["Crash", "Slow"],
@@ -201,6 +212,7 @@ def test_all_paper_single_cli_uses_native_metrics_and_bound_manifest(tmp_path, m
     from Benchmark.src import ase2022_stage2_filter_baseline as filter_runner
 
     base, labels = _prepared_fixture(tmp_path, domain)
+    monkeypatch.setattr(runner, "DEFAULT_RUN_ROOT", tmp_path)
     monkeypatch.setattr(runner, "_load_env_file", lambda path: None)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setattr(filter_runner, "call_model", lambda **kwargs: json.dumps({
@@ -231,6 +243,7 @@ def test_all_paper_mas_cli_retains_native_rationales_and_metrics(tmp_path, monke
     from Benchmark.scripts import run_paper_camel_mas_baseline as runner
 
     base, labels = _prepared_fixture(tmp_path, domain)
+    monkeypatch.setattr(runner, "DEFAULT_RUN_ROOT", tmp_path)
     monkeypatch.setattr(cli, "_load_env_file", lambda path: None)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
 
@@ -288,6 +301,7 @@ def test_single_no_resume_preserves_existing_run_evidence(tmp_path, monkeypatch)
     from Benchmark.scripts import run_paper_llm_baseline as runner
 
     base, labels = _prepared_fixture(tmp_path, "fse2021")
+    monkeypatch.setattr(runner, "DEFAULT_RUN_ROOT", tmp_path)
     monkeypatch.setattr(runner, "_load_env_file", lambda path: None)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setattr(single, "call_model_with_retries", lambda **kwargs: (json.dumps(labels), 1))

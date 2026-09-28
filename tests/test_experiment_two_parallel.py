@@ -85,7 +85,7 @@ print('finished',arm,case)
 '''
     monkeypatch.setattr(runner,'command',lambda p,b,a,c,dry=False:[sys.executable,'-c',source,str(b),a,str(c)])
     assert runner.main(['--batch-id','synthetic','--run','--case-workers','2'])==0
-    base=tmp_path/'reports/experiment_two/synthetic'
+    base=tmp_path/'Benchmark/runs/experiment_two/synthetic'
     paths=list(base.rglob('predictions_fake.jsonl'))
     assert len(paths)==8
     before={p:p.read_bytes() for p in paths}

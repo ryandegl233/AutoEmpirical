@@ -13,6 +13,7 @@ from Benchmark.scripts.run_ase2022_camel_mas_baseline import CamelMasCliProfile,
 from Benchmark.src.paper_benchmark import DEFAULT_OUTPUT_ROOT
 
 DEFAULT_PREPARED_ROOT = str(DEFAULT_OUTPUT_ROOT)
+DEFAULT_RUN_ROOT = Path("Benchmark/runs/seven_papers")
 
 
 def paper_cli_profile(domain: str, prepared_root: str | Path = DEFAULT_PREPARED_ROOT) -> CamelMasCliProfile:
@@ -22,15 +23,16 @@ def paper_cli_profile(domain: str, prepared_root: str | Path = DEFAULT_PREPARED_
 
     paper = get_paper_profile(domain)
     base = Path(prepared_root) / paper.domain
+    runs = DEFAULT_RUN_ROOT / paper.domain
     return CamelMasCliProfile(
         study_slug=paper.domain,
         description=f"Run {paper.title} through the CAMEL society with its native annotation contract.",
         default_provider="gemini",
         default_cohort_path=str(base / "cohort.csv"),
         default_taxonomy_path=str(base / "taxonomy.json"),
-        default_output_dir=str(base / "mas"),
-        default_single_stage2_metrics=str(base / "single_llm" / f"{paper.domain}_stage2_filter_metrics_{{slug}}.json"),
-        default_single_stage3_metrics=str(base / "single_llm" / f"{paper.domain}_stage3_llm_metrics_{{slug}}.json"),
+        default_output_dir=str(runs / "mas"),
+        default_single_stage2_metrics=str(runs / "single_llm" / f"{paper.domain}_stage2_filter_metrics_{{slug}}.json"),
+        default_single_stage3_metrics=str(runs / "single_llm" / f"{paper.domain}_stage3_llm_metrics_{{slug}}.json"),
         task_builder=build_society_task,
         evidence_builder=model_evidence_fields,
         default_require_valid_json=True,

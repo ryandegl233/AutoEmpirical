@@ -137,7 +137,7 @@ def main(argv=None):
             parser.error('Invalid batch name')
     if args.batch_id == args.source_batch:
         parser.error('Use a distinct continuation batch to preserve the official-API run')
-    base = ROOT / 'reports/experiment_two' / args.batch_id
+    base = ROOT / 'Benchmark/runs/experiment_two' / args.batch_id
     if args.run:
         from Benchmark.scripts.run_ase2022_llm_baseline import _load_env_file
         _load_env_file(ROOT / '.env')
@@ -145,7 +145,7 @@ def main(argv=None):
     if not base.exists():
         if args.resume or args.score_only:
             parser.error('Continuation not prepared; omit --resume on first use')
-        prepare_continuation(ROOT / 'reports/experiment_two' / args.source_batch, base)
+        prepare_continuation(ROOT / 'Benchmark/runs/experiment_two' / args.source_batch, base)
     elif not args.resume and not args.score_only:
         parser.error('Continuation exists; use --resume')
     protocol = runner.read(base / 'protocol.json')

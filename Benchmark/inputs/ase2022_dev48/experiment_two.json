@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "model": "gemini-3.7-flash",
+  "record_ids": [
+    "ase2022_towards_understanding_the_faults_of:03091fe7d4044f9c",
+    "ase2022_towards_understanding_the_faults_of:06956d9ad8af37c5",
+    "ase2022_towards_understanding_the_faults_of:1654a9bfc05bc344",
+    "ase2022_towards_understanding_the_faults_of:17eb085d3eeb63ae",
+    "ase2022_towards_understanding_the_faults_of:1985bb12702ba9b3",
+    "ase2022_towards_understanding_the_faults_of:1b08b71f20f82a43",
+    "ase2022_towards_understanding_the_faults_of:1c8995721a1b5fb6",
+    "ase2022_towards_understanding_the_faults_of:219a05d5929cfd52",
+    "ase2022_towards_understanding_the_faults_of:2205a7604abd52ad",
+    "ase2022_towards_understanding_the_faults_of:26f910112eaad61d",
+    "ase2022_towards_understanding_the_faults_of:2d3946a6b2fe926f",
+    "ase2022_towards_understanding_the_faults_of:33b88ffd73d8611f",
+    "ase2022_towards_understanding_the_faults_of:3675181cd667bc0b",
+    "ase2022_towards_understanding_the_faults_of:392cd63ce09e4855",
+    "ase2022_towards_understanding_the_faults_of:3aad919d1d4ed9da",
+    "ase2022_towards_understanding_the_faults_of:3b0011eb9185a37b",
+    "ase2022_towards_understanding_the_faults_of:428023d3f14d675c",
+    "ase2022_towards_understanding_the_faults_of:46b6b19dbbd7436d",
+    "ase2022_towards_understanding_the_faults_of:4de89ab6f1447c83",
+    "ase2022_towards_understanding_the_faults_of:4fa209f9ad480086",
+    "ase2022_towards_understanding_the_faults_of:56123a64974950b2",
+    "ase2022_towards_understanding_the_faults_of:5b6333a887829691",
+    "ase2022_towards_understanding_the_faults_of:6402806bd22e1c04",
+    "ase2022_towards_understanding_the_faults_of:65dcbf64cd14cbba",
+    "ase2022_towards_understanding_the_faults_of:6a37679593925284",
+    "ase2022_towards_understanding_the_faults_of:770a285432c1ae68",
+    "ase2022_towards_understanding_the_faults_of:7e65feaa6b526965",
+    "ase2022_towards_understanding_the_faults_of:8069a421b3a178eb",
+    "ase2022_towards_understanding_the_faults_of:9258aa71b1a52152",
+    "ase2022_towards_understanding_the_faults_of:9509d6bb50f449c9",
+    "ase2022_towards_understanding_the_faults_of:960d3b7abae596fc",
+    "ase2022_towards_understanding_the_faults_of:9ba9efd9a6ce40ce",
+    "ase2022_towards_understanding_the_faults_of:a325861b1ea68456",
+    "ase2022_towards_understanding_the_faults_of:b0639077d14db86c",
+    "ase2022_towards_understanding_the_faults_of:bc76dac347c58a7a",
+    "ase2022_towards_understanding_the_faults_of:c44431d8c50215f1",
+    "ase2022_towards_understanding_the_faults_of:c71f6d371d8988e3",
+    "ase2022_towards_understanding_the_faults_of:d1b1b8570900f2d9",
+    "ase2022_towards_understanding_the_faults_of:d31d6ae81d046238",
+    "ase2022_towards_understanding_the_faults_of:dc637178b673c90f",
+    "ase2022_towards_understanding_the_faults_of:df7f21a8eb17d67f",
+    "ase2022_towards_understanding_the_faults_of:e78fd2806f426951",
+    "ase2022_towards_understanding_the_faults_of:ef7239489fa7f7ad",
+    "ase2022_towards_understanding_the_faults_of:f4a7c34422dd73d3",
+    "ase2022_towards_understanding_the_faults_of:f6942ec66360230d",
+    "ase2022_towards_understanding_the_faults_of:f9f57015816ad785",
+    "ase2022_towards_understanding_the_faults_of:fd0d180fae820ea3",
+    "ase2022_towards_understanding_the_faults_of:fd2a991a1856e09e"
+  ],
+  "inputs": {
+    "cohort": {
+      "path": "runtime/evaluation48.csv",
+      "sha256": "3f04b770a82bcc5186c09b4caceb5fd6e142b3ab0787a881da32aaba0f380f3c"
+    },
+    "split": {
+      "path": "runtime/split_manifest.json",
+      "sha256": "09b9e70024e5138f8b5068ebe84272e5d4c298984e96d392f4fc615927acafb6"
+    },
+    "examples": {
+      "path": "examples/examples_formal_v2.json",
+      "sha256": "6ac81cb61fccad3629b02ad53fedb262e592e3af102d136602e15d0545552c9e"
+    },
+    "example_source": {
+      "path": "examples/example_source.csv",
+      "sha256": "f78a8c47447b295f66a06da1cae0ed9b9ff79656ad2f21c2faa986aaf1558888"
+    },
+    "supplemental": {
+      "path": "evidence/supplemental_bundle_release_v1.json",
+      "sha256": "a21a6b6d69a8463ff1d175bea8d0e8b4d6f25e95a7440c32661d952ab66e6874"
+    },
+    "gold": {
+      "path": "evaluation/gold50.jsonl",
+      "sha256": "9a2e6b63231726e6002db4ac43ee5e8050c17313e0fb3ebaf7732c7c913c18f1"
+    }
+  }
+}

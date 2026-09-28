@@ -692,9 +692,18 @@ def load_split_manifest_for_runner(
     if manifest.get("split_id") != expected_id:
         raise ValueError("active split manifest identity does not match revision")
     if split_kind == "contaminated_development":
+        released_dev48 = (
+            manifest_path.resolve() == (
+                Path(__file__).resolve().parents[3]
+                / "Benchmark/inputs/ase2022_dev48/runtime/split_manifest.json"
+            )
+            and _canonical_text_sha256(manifest_path)
+            == "1490eb8d360c0d532d1fc8763c863397a96348362ca63a176e8d0b3327b35d4f"
+        )
         if (
             revision != 1
-            or manifest_path.parent.name != "ase2022_stage3_contaminated_dev50"
+            or (manifest_path.parent.name != "ase2022_stage3_contaminated_dev50"
+                and not released_dev48)
         ):
             raise ValueError("contaminated development split trust path is invalid")
         policy = manifest.get("label_access_policy", {})

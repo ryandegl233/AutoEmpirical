@@ -121,8 +121,8 @@ def main(argv=None):
     if not any(x == '--source-batch' or x.startswith('--source-batch=') for x in supplied):
         supplied += ['--source-batch', args.source_batch]
     if args.run and not args.score_only:
-        base = ROOT / 'reports/experiment_two' / args.batch_id
-        source = ROOT / 'reports/experiment_two' / args.source_batch
+        base = ROOT / 'Benchmark/runs/experiment_two' / args.batch_id
+        source = ROOT / 'Benchmark/runs/experiment_two' / args.source_batch
         protocol = legacy.runner.read((base if base.exists() else source) / 'protocol.json')
         legacy.runner.verify_frozen(protocol)
         preflight(os.environ, protocol['model'], ROOT / 'reports/gemini_diagnostics')

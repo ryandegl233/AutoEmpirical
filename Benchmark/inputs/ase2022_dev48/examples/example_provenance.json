@@ -1,0 +1,38 @@
+{
+  "original_source": "reports/meeting_20260916/prep_v1/runtime/ase2022_stage3_contaminated_dev50/cohort50.csv",
+  "original_source_sha256": "748ba5aef5083f7b5688b4dd0680340c77018cac40a76b0459f7c2908c803577",
+  "example_source_sha256": "f78a8c47447b295f66a06da1cae0ed9b9ff79656ad2f21c2faa986aaf1558888",
+  "method": "Two purposive source-only method examples; no gold or human answers; exact contiguous field excerpts. No claims of independent held-out evaluation.",
+  "selection_reason": "Illustrate an explicitly speculative causal statement and overlapping resource/termination observations using only allowed text.",
+  "excerpts": [
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8",
+      "field": "body",
+      "start": 0,
+      "end": 797,
+      "original_field_sha256": "61340042a4e5de7d0c3d99ea7bb07e84da39945d3c05c4cf5fcef1dd0559783f",
+      "excerpt_sha256": "61340042a4e5de7d0c3d99ea7bb07e84da39945d3c05c4cf5fcef1dd0559783f"
+    },
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8",
+      "field": "comments",
+      "start": 284,
+      "end": 1013,
+      "original_field_sha256": "056c3cc404d783b0534fdfb16f4eb59de5f59dea31454715e106b7f0f01da04c",
+      "excerpt_sha256": "a242635dfd71031db3715c7e55c85d7975eef0b25a3996a1afdd808ed11d77a3"
+    },
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632",
+      "field": "body",
+      "start": 0,
+      "end": 4039,
+      "original_field_sha256": "d0d804a15be94f6983f567ad088e739a6e2a4f13298a2875c843d419653aa540",
+      "excerpt_sha256": "d0d804a15be94f6983f567ad088e739a6e2a4f13298a2875c843d419653aa540"
+    }
+  ],
+  "counts": {
+    "frozen_original": 50,
+    "reserved_examples": 2,
+    "development_evaluation": 48
+  }
+}

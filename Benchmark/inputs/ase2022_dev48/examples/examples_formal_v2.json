@@ -1,0 +1,165 @@
+{
+  "source_sha256": "f78a8c47447b295f66a06da1cae0ed9b9ff79656ad2f21c2faa986aaf1558888",
+  "examples": [
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8",
+      "query": {
+        "atoms": [
+          {
+            "atom_id": "O1",
+            "kind": "observation",
+            "statement": "A completed fullFaceDescriptions call has a recorded elapsed time.",
+            "citations": [
+              {
+                "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:body",
+                "quote": "fullFaceDescriptions: **372.788818359375ms**",
+                "kind": "observation"
+              }
+            ]
+          },
+          {
+            "atom_id": "A1",
+            "kind": "source_assertion",
+            "statement": "The comment reports a longer first forward pass on some machines.",
+            "citations": [
+              {
+                "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:comments",
+                "quote": "This unfortunately causes the first forward pass of MTCNN to be much longer on certain machines.",
+                "kind": "source_assertion"
+              }
+            ]
+          },
+          {
+            "atom_id": "A2",
+            "kind": "source_assertion",
+            "statement": "The commenter explicitly calls GPU texture allocation a wild guess and states uncertainty.",
+            "citations": [
+              {
+                "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:comments",
+                "quote": "I am not sure where this inital delay comes from (maybe due to allocating textures of certain sizes on the GPU; just a wild guess; I am not that familar with WebGL for GPGPU).",
+                "kind": "source_assertion"
+              }
+            ]
+          }
+        ],
+        "candidates": [
+          {
+            "dimension": "symptom",
+            "label": "Poor Performance",
+            "premise_ids": [
+              "O1",
+              "A1"
+            ],
+            "relation": "definition_match",
+            "assessment": "supported",
+            "reason": "A completed timed operation plus the reported unusually long first pass supports reported slowness; the numeric timing alone is not a learned threshold.",
+            "missing_evidence": ""
+          },
+          {
+            "dimension": "root_cause",
+            "label": "WebGL Limits",
+            "premise_ids": [
+              "A2"
+            ],
+            "relation": "causal_link",
+            "assessment": "unknown",
+            "reason": "The source supplies a qualified GPU allocation hypothesis, not an established resource limit causing this delay.",
+            "missing_evidence": "Evidence identifying a concrete WebGL limit and connecting it to the delay; a patch is not inherently required."
+          },
+          {
+            "dimension": "root_cause",
+            "label": "Incorrect Code Logic",
+            "premise_ids": [
+              "O1",
+              "A1",
+              "A2"
+            ],
+            "relation": "causal_link",
+            "assessment": "unknown",
+            "reason": "An initial delay is compatible with several mechanisms; these observations identify no erroneous code path.",
+            "missing_evidence": "Evidence distinguishing a code logic defect from a backend/resource constraint or expected initialization cost."
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632",
+      "query": {
+        "atoms": [
+          {
+            "atom_id": "O1",
+            "kind": "observation",
+            "statement": "The command terminates with exit code 7.",
+            "citations": [
+              {
+                "evidence_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632:body",
+                "quote": "error Command failed with exit code 7",
+                "kind": "observation"
+              }
+            ]
+          },
+          {
+            "atom_id": "O2",
+            "kind": "observation",
+            "statement": "The trace records an abort and out-of-memory error during WebAssembly instantiation.",
+            "citations": [
+              {
+                "evidence_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632:body",
+                "quote": "RuntimeError: abort(RangeError: WebAssembly Instantiation: Out of memory: wasm memory).",
+                "kind": "observation"
+              }
+            ]
+          }
+        ],
+        "candidates": [
+          {
+            "dimension": "symptom",
+            "label": "Crash",
+            "premise_ids": [
+              "O1",
+              "O2"
+            ],
+            "relation": "definition_match",
+            "assessment": "supported",
+            "reason": "An abort and nonzero process termination conditionally support unexpected termination. This does not establish priority over initialization failure.",
+            "missing_evidence": ""
+          },
+          {
+            "dimension": "symptom",
+            "label": "Build & Initialization Failure",
+            "premise_ids": [
+              "O2"
+            ],
+            "relation": "definition_match",
+            "assessment": "unknown",
+            "reason": "Instantiation appears in the trace, but the quoted error alone does not establish the application's initialization phase.",
+            "missing_evidence": "Execution context locating the failure in initialization versus an already running application."
+          },
+          {
+            "dimension": "symptom",
+            "label": "Poor Performance",
+            "premise_ids": [
+              "O1",
+              "O2"
+            ],
+            "relation": "definition_match",
+            "assessment": "unknown",
+            "reason": "Memory exhaustion is recorded together with termination. The applicable symptom boundary requires comparison with the execution failure.",
+            "missing_evidence": "Evidence of the execution phase and whether abnormal resource use or the resulting termination is the observed behavior being classified."
+          },
+          {
+            "dimension": "root_cause",
+            "label": "Incorrect Code Logic",
+            "premise_ids": [
+              "O2"
+            ],
+            "relation": "causal_link",
+            "assessment": "unknown",
+            "reason": "Out of memory reports the failure condition; it does not identify the code mechanism that caused allocation failure.",
+            "missing_evidence": "Evidence linking the allocation failure to a specific erroneous implementation, rather than an environment/resource constraint."
+          }
+        ]
+      }
+    }
+  ]
+}

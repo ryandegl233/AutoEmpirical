@@ -1,0 +1,16 @@
+{
+  "provenance": "Same two user-approved source-only records as A v1; no GT, human answers or evaluation traces read.",
+  "source_path": "D:\\AutoEmpirical\\.worktrees\\adaptive-empirical-expert-workflow\\reports\\meeting_20260916\\implementation_A_v1\\example_source.csv",
+  "version": "module-a-formal-few-shot-v2",
+  "implementation_sha256": "bc9f93ad4d24eb6437c59ef6845872a4757c4b58e618ff8be2c71ce249e3bb40",
+  "definitions_sha256": "d3788fb572fc30a514d0d9185f4b3de310678fb0e304dfce621b487706979673",
+  "examples_sha256": "6ac81cb61fccad3629b02ad53fedb262e592e3af102d136602e15d0545552c9e",
+  "source_sha256": "f78a8c47447b295f66a06da1cae0ed9b9ff79656ad2f21c2faa986aaf1558888",
+  "example_record_ids": [
+    "ase2022_towards_understanding_the_faults_of:b70115767d001af8",
+    "ase2022_towards_understanding_the_faults_of:4481a308db299632"
+  ],
+  "formal_implementation_sha256": "2b87df585020b55d2f5e14c1ff56bb31d5f4b2ea76d238021f424e026517b525",
+  "formal_policy_sha256": "fe412251e9924167164bb64dd2adf1cfd0eea1a2490344b900ae108a57e93134",
+  "query_max_tokens": 6000
+}

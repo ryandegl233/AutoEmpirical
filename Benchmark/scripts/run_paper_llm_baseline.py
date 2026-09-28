@@ -15,7 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from Benchmark.scripts.run_ase2022_camel_mas_baseline import _load_taxonomy, resolve_model, resolve_run_config
 from Benchmark.scripts.run_ase2022_llm_baseline import _load_env_file, model_slug
-from Benchmark.scripts.run_paper_camel_mas_baseline import DEFAULT_PREPARED_ROOT
+from Benchmark.scripts.run_paper_camel_mas_baseline import DEFAULT_PREPARED_ROOT, DEFAULT_RUN_ROOT
 from Benchmark.src.ase2022_llm_baseline import run_llm_prompts
 from Benchmark.src.ase2022_stage2_filter_baseline import run_filter_prompts
 from Benchmark.src.llm_provider_config import GEMINI_PROVIDER_ALIASES, canonical_provider
@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None) -> None:
         raise ValueError("limit must be positive")
     paper = get_paper_profile(args.domain)
     base = Path(args.prepared_root) / paper.domain
-    output = Path(args.output_dir) if args.output_dir else base / "single_llm"
+    output = Path(args.output_dir) if args.output_dir else DEFAULT_RUN_ROOT / args.domain / "single_llm"
     cohort = _load_rows(base / "cohort.csv", paper.paper_id)
     taxonomy = _load_taxonomy(base / "taxonomy.json")
     sample = _load_rows(base / "stage3_sample.csv", paper.paper_id)

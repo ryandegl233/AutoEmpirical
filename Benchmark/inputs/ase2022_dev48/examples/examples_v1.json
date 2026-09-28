@@ -1,0 +1,61 @@
+{
+  "source_sha256": "f78a8c47447b295f66a06da1cae0ed9b9ff79656ad2f21c2faa986aaf1558888",
+  "examples": [
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8",
+      "query": {
+        "facts": [
+          {
+            "condition": "system_runs",
+            "status": "supported",
+            "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:body",
+            "quote": "fullFaceDescriptions: **372.788818359375ms**"
+          },
+          {
+            "condition": "performance_problem",
+            "status": "supported",
+            "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:comments",
+            "quote": "This unfortunately causes the first forward pass of MTCNN to be much longer on certain machines."
+          },
+          {
+            "condition": "cause:WebGL Limits",
+            "status": "unknown",
+            "evidence_id": "ase2022_towards_understanding_the_faults_of:b70115767d001af8:comments",
+            "quote": "I am not sure where this inital delay comes from (maybe due to allocating textures of certain sizes on the GPU; just a wild guess; I am not that familar with WebGL for GPGPU)."
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632",
+      "query": {
+        "facts": [
+          {
+            "condition": "unexpected_termination",
+            "status": "supported",
+            "evidence_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632:body",
+            "quote": "error Command failed with exit code 7"
+          },
+          {
+            "condition": "performance_problem",
+            "status": "supported",
+            "evidence_id": "ase2022_towards_understanding_the_faults_of:4481a308db299632:body",
+            "quote": "RuntimeError: abort(RangeError: WebAssembly Instantiation: Out of memory: wasm memory)."
+          },
+          {
+            "condition": "system_runs",
+            "status": "unknown",
+            "evidence_id": "",
+            "quote": ""
+          },
+          {
+            "condition": "build_or_runtime_initialization_failure",
+            "status": "unknown",
+            "evidence_id": "",
+            "quote": ""
+          }
+        ]
+      }
+    }
+  ]
+}

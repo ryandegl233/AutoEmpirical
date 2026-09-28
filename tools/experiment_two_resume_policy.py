@@ -61,13 +61,13 @@ def resume_policy(runner, argv):
         cmd = list(cmd)
         cmd[2] = str(Path(__file__).with_name('experiment_two_resume_worker.py'))
         env = dict(env, AE_EXPERIMENT_TWO_RESUME_PROTOCOL=str(
-            runner.ROOT / 'reports/experiment_two' / args.batch_id / 'protocol.json'))
+            runner.ROOT / 'Benchmark/runs/experiment_two' / args.batch_id / 'protocol.json'))
         return original_worker(cmd, env, log, cancel)
 
     def resumed_jobs(protocol, workers, job, cancel):
         # Native main validates the arguments and frozen hashes, and holds the
         # batch lock before reaching this scheduler.
-        base = runner.ROOT / 'reports/experiment_two' / args.batch_id
+        base = runner.ROOT / 'Benchmark/runs/experiment_two' / args.batch_id
         if args.serial:
             audit = base / 'execution_overrides'
             audit.mkdir(exist_ok=True)

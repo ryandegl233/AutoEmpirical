@@ -20,43 +20,48 @@ def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def read(path): return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
-def evidence_root():
-    for parent in [ROOT,*ROOT.parents]:
-        p=parent/'reports/information_final_round_20260922'
-        if (p/'frozen_protocol.json').is_file(): return p
-    raise ValueError('Cannot locate frozen experiment-one evidence; specify --evidence-root')
-
-
 def freeze(args):
-    source=args.evidence_root or evidence_root()
-    previous=read(source/'frozen_protocol.json')
-    ref=read(source.parent/'supplemented_information_experiment_20260922/baseline_reference.json')
-    cohort=Path(ref['cohort_path'])
-    if digest(cohort)!=ref['cohort_sha256']: raise ValueError('Frozen cohort changed')
-    original=read(source/'runs/final-info-final48-r1-live/evaluation48/G10/r1/run_manifest.json')
-    supplemental=source/'supplemental_bundle_final.json'
-    if digest(supplemental)!=original['supplemental_evidence']['bundle_sha256']:
-        raise ValueError('Frozen supplemental evidence changed')
-    examples=ROOT/'reports/meeting_20260916/iteration_AB_v2/examples_formal_v2.json'
-    example_source=ROOT/'reports/meeting_20260916/implementation_A_v1/example_source.csv'
-    ids=previous['record_ids']
-    if len(ids)!=48 or len(set(ids))!=48: raise ValueError('Expected the original 48 cases')
+    config_path=Path(args.input_config).resolve()
+    config=read(config_path)
+    if config.get('schema_version')!=1: raise ValueError('Unsupported experiment input schema')
+    required={'cohort','split','examples','example_source','supplemental','gold'}
+    if set(config.get('inputs',{}))!=required: raise ValueError('Experiment input keys differ')
+    paths={}
+    for name,binding in config['inputs'].items():
+        relative=Path(binding['path'])
+        path=(config_path.parent/relative).resolve()
+        if relative.is_absolute() or not path.is_relative_to(config_path.parent):
+            raise ValueError('Experiment input path escapes configuration directory')
+        if not path.is_file() or digest(path)!=binding['sha256']:
+            raise ValueError('Experiment input hash mismatch: '+name)
+        paths[name]=path
+    cohort=paths['cohort'];examples=paths['examples']
+    example_source=paths['example_source'];supplemental=paths['supplemental']
+    ids=config['record_ids']
+    if len(ids)!=48 or len(set(ids))!=48: raise ValueError('Expected exactly 48 distinct cases')
+    with cohort.open(encoding='utf-8-sig',newline='') as handle:
+        rows=csv.DictReader(handle)
+        if set(rows.fieldnames or ()) & {'decision','symptom','root_cause','gold','ground_truth','original_label_json'}:
+            raise ValueError('Runtime cohort must contain source evidence only')
+        if [row['record_id'] for row in rows]!=ids: raise ValueError('Runtime cohort order differs from configuration')
     cases=args.cases or list(range(1,49))
     if len(cases)!=len(set(cases)) or any(c<1 or c>48 for c in cases): raise ValueError('Invalid case numbers')
     if len(args.arms)!=len(set(args.arms)): raise ValueError('Duplicate arms')
     # Freeze runtime code, input files and image artifacts; never freeze credentials/.env.
-    files=set((ROOT/'Benchmark/src').rglob('*.py')) | set((ROOT/'Benchmark/scripts').glob('*.py'))
-    files.update([cohort,cohort.parent/'split_manifest.json',examples,example_source,supplemental])
+    files=set((ROOT/'Benchmark/src').rglob('*.py')) | set((ROOT/'Benchmark/scripts').rglob('*.py')) | set((ROOT/'tools').glob('*.py'))
+    files.update([config_path,*paths.values()])
     for row in read(supplemental)['records']:
         for image in row['images']:
             path=(supplemental.parent/image['path']).resolve()
+            if Path(image['path']).is_absolute() or not path.is_relative_to(config_path.parent):
+                raise ValueError('Image path escapes configuration directory')
             if digest(path)!=image['sha256']: raise ValueError('Frozen image changed: '+str(path))
             files.add(path)
-    return dict(version=1,record_ids=ids,cases=cases,arms=args.arms,model=ref['model'],
-        inputs=dict(cohort=str(cohort),split=str(cohort.parent/'split_manifest.json'),
+    return dict(version=1,record_ids=ids,cases=cases,arms=args.arms,model=config['model'],
+        inputs=dict(cohort=str(cohort),split=str(paths['split']),
             examples=str(examples),example_source=str(example_source),supplemental=str(supplemental)),
         file_hashes={str(p.resolve()):digest(p) for p in sorted(files)},
-        gold_path=previous['gold_path'],gold_sha256=previous['gold_sha256'],
+        gold_path=str(paths['gold']),gold_sha256=config['inputs']['gold']['sha256'],
         graph_serialization=args.graph_serialization,
         configuration=dict(concurrency=1,case_workers=args.case_workers,max_network_retries=2,max_schema_retries=2,
             thinking_profile='label-thinking',provider='gemini',a_protocol='rules-v4',
@@ -234,12 +239,13 @@ def main(argv=None):
     p.add_argument('--arms',nargs='+',choices=ARMS,default=list(ARMS))
     p.add_argument('--cases',nargs='+',type=int)
     p.add_argument('--graph-serialization',choices=['graph','flat'],default='graph')
-    p.add_argument('--evidence-root',type=Path)
+    p.add_argument('--input-config',type=Path,default=ROOT/'Benchmark/inputs/ase2022_dev48/experiment_two.json',
+        help='Source-only frozen input configuration, independent of previous model runs.')
     p.add_argument('--case-workers',type=int,help='Concurrent independent cases (default 1; resume inherits frozen value).')
     args=p.parse_args(argv)
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*',args.batch_id): p.error('Invalid batch ID')
     if args.case_workers is not None and args.case_workers<1: p.error('case-workers must be positive')
-    base=ROOT/'reports/experiment_two'/(args.batch_id if args.run or args.score_only else args.batch_id+'-check')
+    base=ROOT/'Benchmark/runs/experiment_two'/(args.batch_id if args.run or args.score_only else args.batch_id+'-check')
     frozen=base/'protocol.json'
     if args.resume or args.score_only:
         if not frozen.exists(): p.error('No frozen batch to resume')
