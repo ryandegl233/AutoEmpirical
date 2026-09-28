@@ -66,7 +66,7 @@ def _relative_registered_path(path: Path, root: Path) -> str:
 
 def _registered_baseline_sha(relative: str) -> str | None:
     """Private trust lookup, separated so tests can register synthetic artifacts."""
-    return MappingProxyType(
+    historical = MappingProxyType(
         {
             "Benchmark/configs/baseline_trust/"
             "ase2022_dev50_mas_evidence_anchored_v1.json": (
@@ -74,6 +74,18 @@ def _registered_baseline_sha(relative: str) -> str | None:
             )
         }
     ).get(relative)
+    if historical is not None:
+        return historical
+    local = _repository_root() / "Benchmark/cache/baseline_trust_registry.json"
+    if not local.exists():
+        return None
+    try:
+        entries = json.loads(local.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise ValueError("cannot read local Baseline trust registry") from error
+    if not isinstance(entries, dict) or entries.get("schema_version") != 1 or not isinstance(entries.get("manifests"), dict):
+        raise ValueError("invalid local Baseline trust registry")
+    return entries["manifests"].get(relative)
 
 
 def _load_registered_trust_manifest(
