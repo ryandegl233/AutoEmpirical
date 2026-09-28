@@ -111,3 +111,8 @@ Sheet name, logical table, source partition, or extraction group within
 
 Zero-based source row index after parser header handling, or the closest available
 source-row locator for reconstructed records.
+
+## `code_diff`
+
+Commit patch evidence where the source study uses code changes as its research
+object. Empty when unavailable or not applicable; it is not an annotation label.
