@@ -1,0 +1,11 @@
+pandas>=2.2,<3
+numpy>=1.26,<3
+scipy>=1.11,<2
+scikit-learn>=1.5,<2
+PyYAML>=6,<7
+pydantic>=2,<3
+requests>=2,<3
+beautifulsoup4>=4.12,<5
+Pillow>=10,<13
+python-dateutil>=2.9,<3
+typing_extensions>=4.12,<5

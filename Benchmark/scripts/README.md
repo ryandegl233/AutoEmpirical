@@ -1,36 +1,20 @@
-# Benchmark Scripts
+# Benchmark entry points
 
-_Script inventory updated on 2026-08-03._
+Run commands from the repository root. Use `--help` for supported arguments.
 
-## Entry points
-
-| Script | Purpose |
+| Program | Purpose |
 | --- | --- |
-| `prepare_ase2022_stage2_filter_baseline.py` | Build the ASE Stage 2 filtering cohort and manifest |
-| `run_ase2022_stage2_filter_baseline.py` | Run the ASE single-LLM Stage 2 filter |
-| `prepare_ase2022_llm_baseline.py` | Build the ASE Stage 3 labeling cohort |
-| `run_ase2022_llm_baseline.py` | Run the ASE single-LLM Stage 3 baseline |
-| `prepare_ase2022_camel_mas_baseline.py` | Prepare ASE CAMEL MAS inputs |
-| `run_ase2022_camel_mas_baseline.py` | Run ASE CAMEL MAS modes and controls |
-| `collect_issta2024_evidence.py` | Collect ISSTA commit evidence used by preparation |
-| `prepare_issta2024_bugs_in_pods_baseline.py` | Build repaired ISSTA code-diff cohorts and manifests |
-| `run_issta2024_stage2_filter_baseline.py` | Run the ISSTA single-LLM Stage 2 filter |
-| `run_issta2024_llm_baseline.py` | Run the ISSTA single-LLM Stage 3 baseline |
-| `run_issta2024_camel_mas_baseline.py` | Run ISSTA native or evidence-anchored CAMEL MAS |
-| `list_teacher_models.py` | Inspect models exposed by the configured provider |
+| `prepare_paper_benchmarks.py` | Prepare or verify seven-paper frozen inputs |
+| `run_paper_llm_baseline.py` | SingleLLM native filtering/annotation |
+| `run_paper_camel_mas_baseline.py` | CAMEL MAS native filtering/annotation |
+| `run_adaptive_empirical_workflow.py` | Adaptive workflow, evidence and rule policies |
+| `collect_external_evidence.py` | Bounded source collection and offline replay |
+| `run_experiment_two.py` | Four-arm protocol; use `tools/run_experiment_two_sharded.py` for case isolation |
+| `prepare_baseline_trust_root.py` | Prepare and explicitly register a local baseline |
+| `evaluate_baseline_preservation_experiment.py`, `evaluate_targeted_sla_experiment.py` | Offline scoring of locally supplied runs |
+| `seven_papers/` | Input verification and local result audits |
+| `ase2022_dev48/` | Method-example preparation and A/B runs |
 
-## Usage
-
-Run any entry point with `--help` before launching a job:
-
-```powershell
-python Benchmark/scripts/run_ase2022_camel_mas_baseline.py --help
-python Benchmark/scripts/run_issta2024_camel_mas_baseline.py --help
-```
-
-Preparation should precede execution so cohort identity, taxonomy, evidence
-mode, and prompt inputs are frozen in a manifest. Use resume options for
-interrupted network runs and retain validation failures in the audit output.
-
-Provider environment variables and dependency installation are documented in
-the [benchmark guide](../README.md).
+Original ASE and ISSTA preparation/baseline entry points remain available.
+Frozen inputs belong in `Benchmark/inputs/`; new outputs belong in ignored
+`Benchmark/runs/` or `Benchmark/results/`. See the [benchmark guide](../README.md).

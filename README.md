@@ -1,13 +1,13 @@
 # AutoEmpirical: Benchmarking Automated Empirical Software Fault Analysis
 
-_Repository status updated on 2026-08-03._
+_Repository status updated on 2026-09-28._
 
 AutoEmpirical is a dataset-first benchmark for evaluating whether automated
 methods can reproduce the collection, filtering, and taxonomy-labeling steps of
 empirical software fault studies. The repository contains a repaired
 three-stage dataset for seven papers, source-evidence sidecars, provenance
-audits, and executable single-LLM and multi-agent baselines for the ASE 2022 and
-ISSTA 2024 cohorts.
+audits, shared single-LLM and CAMEL multi-agent baselines for all seven papers,
+and an adaptive workflow for fault filtering and taxonomy annotation.
 
 ## Workflow
 
@@ -18,7 +18,7 @@ ISSTA 2024 cohorts.
 | Stage 3 | Assign study taxonomies | `Dataset/stage3.csv` | 2,041 |
 
 The research object is paper-specific. Six studies primarily analyze issues,
-pull requests, or other bug-report records; ISSTA 2024 BugsInPy analyzes
+pull requests, or other bug-report records; ISSTA 2024 Bugs in Pods analyzes
 commits. See the [dataset guide](./Dataset/README.md) for the exact object and
 evidence boundary of every paper.
 
@@ -29,13 +29,14 @@ evidence boundary of every paper.
 | Unified and per-paper datasets | Available for all seven retained studies |
 | Information reconstruction | Integrated for Autopilot, IoT, DL performance, PyTorch Stage 1, and Transaction Bugs |
 | Commit diffs | Integrated for all ISSTA 2024 stages |
-| Single-LLM experiments | Implemented for ASE 2022 and ISSTA 2024 |
-| Multi-agent experiments | Implemented for ASE 2022 and ISSTA 2024 |
-| Other paper-specific baselines | Not yet implemented |
+| Single-LLM and CAMEL MAS | Shared entry points implemented for all seven papers |
+| Adaptive workflow | Independent analysis, evidence verification, arbitration and execution audits |
+| Experiment inputs | Frozen seven-paper cohorts with paper-specific codebooks |
+| Evidence tools | External source capture, supplemental evidence and source-graph experiments implemented |
 
-The repository records retrieval limitations explicitly. Reconstructed public
-discussion is generally `current_unversioned`, not a claim that GitHub or other
-sources still expose the exact historical text seen by the original authors.
+The unified dataset is unchanged. Recent work adds benchmark implementations,
+frozen experiment inputs, evidence tools and reusable dataset construction scripts. See the
+[benchmark guide](./Benchmark/README.md) for experiment commands and protocols.
 
 ## Repository structure
 
@@ -47,10 +48,16 @@ AutoEmpirical/
     stage3.csv
     by_paper/
     evidence/
+    scripts/
+    reconstruction/
   Benchmark/
+    configs/
+    inputs/
     scripts/
     src/
-    results/
+    results/                    # local outputs
+    runs/                       # local outputs
+  tests/
   metadata/
     dataset_metadata.csv
     data_dictionary.md
@@ -65,10 +72,11 @@ AutoEmpirical/
 
 ## Quick start
 
-Install the minimal analysis dependencies:
+Fetch the large source files and install the analysis dependencies:
 
 ```powershell
-python -m pip install pandas scikit-learn pyyaml
+git lfs pull
+python -m pip install -r requirements.txt
 ```
 
 Verify the unified dataset:
@@ -94,7 +102,8 @@ stage3 (2041, 24) 7
 Run the repository tests with:
 
 ```powershell
-python -m pytest -q
+python -m pip install -r requirements-dev.txt
+python -m pytest tests -q
 ```
 
 For the implemented experiment commands and provider settings, see the
@@ -104,25 +113,10 @@ For the implemented experiment commands and provider settings, see the
 python -m pip install -r Benchmark/requirements-mas.txt
 ```
 
-## Experimental safeguards
-
-- Build Stage 2 targets from membership in the gold Stage 2 cohort, but do not
-  expose Stage 2 or Stage 3 labels in model inputs.
-- Build Stage 3 inputs only from the information fields permitted by the chosen
-  evidence mode; keep gold taxonomy fields evaluation-only.
-- Use paper-level splits for cross-paper generalization and grouped
-  `paper_id` + `issue_url` splits for within-paper evaluation.
-- Treat `record_id` as the global row key. An `issue_url` may repeat across
-  papers and must not cross train/test boundaries.
-- Keep sentinel values such as `no_comments_in_source` distinct from
-  `comments_unavailable_in_source`.
-- Regenerate `reports/SHA256SUMS.txt` whenever a tracked dataset or report file
-  changes.
-
 ## Documentation
 
 - [Dataset layout, object types, and provenance](./Dataset/README.md)
-- [Benchmark implementations and results](./Benchmark/README.md)
+- [Benchmark implementations and protocols](./Benchmark/README.md)
 - [Field definitions](./metadata/data_dictionary.md)
 - [Paper-level metadata](./metadata/dataset_metadata.md)
 - [Dataset health report](./reports/dataset_health_report.md)

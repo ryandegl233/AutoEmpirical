@@ -1,20 +1,13 @@
-# Benchmark Configs
+# Benchmark configs
 
-_Status updated on 2026-08-03._
+This directory contains paper codebooks, taxonomy structure, active/revoked split
+manifests, offline gold bindings and frozen source-evidence bundles. Frozen files
+retain their bytes across checkouts. Input cohorts are in `../inputs/`.
 
-## Current status
+Real-run baseline statistics and per-record model error analyses are excluded.
+To use your own baseline, follow [local registration](../../docs/methods/local-baseline.md);
+its manifest and registry stay in ignored `Benchmark/cache/`.
 
-No standalone declarative configuration files are currently committed in this
-directory. Experiment parameters are supplied through the command-line
-interfaces in `../scripts/`, while prepared cohorts and their frozen settings
-are recorded in `../results/`.
-
-## Configuration policy
-
-Future reusable configs should contain only non-secret settings such as dataset
-paths, split definitions, prompt versions, model identifiers, decoding
-parameters, and output locations. API keys and other credentials must remain in
-environment variables and must not be committed.
-
-See the [benchmark guide](../README.md) and
-[script inventory](../scripts/README.md) for the currently supported options.
+Some original manifests mention historical runs as contamination provenance.
+Those references do not make the predictions public runtime dependencies.
+Credentials belong in environment variables or an ignored `.env` file.

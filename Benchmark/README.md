@@ -1,112 +1,154 @@
 # AutoEmpirical Benchmark
 
-_Benchmark documentation updated on 2026-08-03._
+_Development status reviewed on 2026-09-28._
 
-This directory contains executable data preparation, single-LLM, and CAMEL
-multi-agent experiments. The currently committed implementations cover ASE
-2022 Faults of DL Systems and ISSTA 2024 BugsInPy; the other five dataset
-domains do not yet have equivalent benchmark runners.
+The benchmark implements study-specific filtering and fixed-taxonomy annotation
+with SingleLLM, CAMEL MAS and an adaptive expert workflow. Shared entry points
+cover `ase2022`, `issta2024`, `fse2021`, `icse2021`, `icse2022`, `icse2023` and
+`icse2024`. The `icse2022` identifier is retained for compatibility; that
+performance study appeared at ICSME.
 
-## Tasks
+## Prepare inputs
 
-| Task | Model input | Evaluation target |
-| --- | --- | --- |
-| Stage 2 filtering | Stage 1 information fields | Membership in the paper's Stage 2 cohort |
-| Stage 3 labeling | Permitted Stage 2 evidence fields | Gold Stage 3 taxonomy |
+```powershell
+python Benchmark/scripts/prepare_paper_benchmarks.py --help
+python Benchmark/scripts/prepare_paper_benchmarks.py --output-root Benchmark/inputs/my_preparation
+python Benchmark/scripts/prepare_paper_benchmarks.py --output-root Benchmark/inputs/my_preparation --verify-existing
+```
 
-Gold membership and taxonomy fields must remain evaluation-only. Preparation
-scripts create task-specific cohorts and manifests so later-stage answers are
-not copied into prompts.
+Use a new output directory. Each paper normally receives 50 annotated positives
+and 50 unselected candidates for filtering; annotation uses the same 50 positives,
+independently of filtering predictions. Stage2-only accepted records are excluded
+from the negative pool. Preparation saves source bindings, exclusions, snapshots,
+prompts, taxonomy and hashes.
 
-## Implemented experiment families
+The released v2 package is `Benchmark/inputs/seven_papers_v2/<domain>/`.
+Original input bytes are preserved; `release_paths.json` supplies repository-relative
+source bindings. Run `git lfs pull` first, then verify the release:
 
-| Paper | Single LLM | CAMEL MAS | Committed result families |
-| --- | --- | --- | --- |
-| ASE 2022 | Stage 2 and Stage 3 | Native/evidence-anchored society and finalizer variants | Five-model Stage 2/3 samples, single-LLM controls, finalizer runs |
-| ISSTA 2024 | Stage 2 and Stage 3 | Native and evidence-anchored society | Repaired full-code-diff cohorts, single-LLM control, MAS native, MAS evidence-enriched |
+```powershell
+python Benchmark/scripts/prepare_paper_benchmarks.py --verify-existing
+python Benchmark/scripts/seven_papers/verify_prepared_cohorts.py
+```
 
-The repository does not claim full seven-paper benchmark coverage yet.
+The original manifests retain historical paths as provenance only. Regenerating
+inputs does not guarantee the historical ASE cohort or byte-identical files.
+Verification identifies two shared source URLs across the paper cohorts; account
+for these when defining train/test boundaries.
 
-## Layout
+## Entry points
 
-| Path | Contents |
+```powershell
+python Benchmark/scripts/run_paper_llm_baseline.py --help
+python Benchmark/scripts/run_paper_camel_mas_baseline.py --help
+python Benchmark/scripts/run_adaptive_empirical_workflow.py --help
+```
+
+The generic baseline runners accept `--domain` and `--prepared-root`. Choose the
+provider and exact model explicitly, and use a new output directory. Generic
+baseline outputs default to `Benchmark/runs/seven_papers/<domain>/`. See the
+adaptive CLI for its cohort, split, architecture, evidence and execution-profile
+options; do not assume all runners share the same preparation flags.
+
+Existing ASE and ISSTA entry points remain available for historical experiments.
+Generic MAS runs save reasons, citations and request traces. `--allow-invalid`
+retains unsuccessful records and continues execution; it does not turn invalid
+outputs into valid predictions.
+
+## Provider and environment setup
+
+Install `requirements.txt` from the repository root; CAMEL-based runs also need
+`Benchmark/requirements-mas.txt`. For the complete test environment install
+`requirements-dev.txt` from the root. Python 3.13 was used for release validation.
+
+| Provider path | Configuration |
 | --- | --- |
-| `scripts/` | Preparation, execution, evidence collection, and model-listing entry points |
-| `src/` | Reusable normalization, prompt, parsing, validation, and MAS logic |
-| `results/` | Committed manifests, predictions, audits, metrics, and selected run outputs |
-| `configs/` | Reserved for reusable declarative experiment configurations |
-| `requirements-mas.txt` | CAMEL and Pydantic dependency constraints |
+| Official Gemini | `GOOGLE_API_KEY` or `GEMINI_API_KEY`; select `--provider gemini` and an explicit `--model` |
+| OpenAI-compatible proxy | `SELF_BASE_URL`, `BASE_URL` or `LLM_BASE_URL`; `SELF_API`, `OPENAI_API_KEY` or `API_KEY` |
+| Direct DeepSeek | `DEEPSEEK_API_KEY` or `DEEPSEEK_API`; optional `DEEPSEEK_BASE_URL` |
 
-See the README in each subdirectory for an exact inventory.
+These names describe this repository's configuration interface. Credential files
+are local. Relay continuation tools have separate credential variables and
+transport provenance; requested model names do not establish upstream equivalence.
 
-## Representative commands
+## Evaluation protocol
 
-Prepare and run the ASE 2022 single-LLM baselines:
+| Domain/property | Evaluation rule |
+| --- | --- |
+| Filtering | Agreement with the paper's selection target on the fixed cohort |
+| IoT symptoms | Label-set exact match and micro F1; serialized with ` || ` |
+| UAV symptoms | Free text; no symptom or joint classification accuracy |
+| DL performance symptoms | Constant description; no symptom or joint classification accuracy |
+| PyTorch filtering | Author-selection agreement, not proven nonbug detection |
+| Invalid/unresolved | Retain in fixed denominators and report separately |
+
+- Keep gold labels, author annotation summaries and later-stage answers out of
+  model inputs. Bind prepared inputs and results to explicit versions and hashes.
+- Keep invalid and unresolved outputs visible in fixed-cohort denominators.
+  Unknown can be a legitimate taxonomy label and differs from invalid output.
+- Group shared source URLs across training/test boundaries, including overlap
+  across papers. Previously inspected development cases are not unseen holdouts.
+- Preserve missing-source markers in provenance while excluding them from
+  technical evidence. Reconstructed sources may be `current_unversioned`; do not
+  describe them as exact historical snapshots without supporting evidence.
+- Separate cohorts, policy versions, providers, retries and continuation batches.
+  Do not pool exploratory subsets or mixed-provider outputs into a final result.
+
+Evidence readiness or citation validation does not certify a model's causal
+interpretation.
+
+## Local experiment outputs
+
+This update publishes implementations, tests, configurations and selected input
+data. Real model predictions, generated explanations, scores, request/response
+traces and experiment logs remain local; they are not uploaded as repository
+files or release attachments. Use `Benchmark/results/` or `Benchmark/runs/` for
+local output, and keep publishable frozen inputs under `Benchmark/inputs/`.
+
+Scoring and verification scripts are part of the implementation. Supply locally
+generated predictions when running them. Features that use a historical baseline
+use your own local artifact or a newly generated baseline. Explicitly register
+its digest using `prepare_baseline_trust_root.py --activate-local`; the manifest
+and registry stay under ignored `Benchmark/cache/`. See
+[local baseline registration](../docs/methods/local-baseline.md).
+
+## Evidence interventions and experiment two
+
+The adaptive code includes formal/rule-based evidence comparisons, evidence-chain
+checking, supplemental snapshots and source-graph experiments. These are
+experimental policies on inspected development data.
+
+Experiment two compares E00 (corrected rules-v4 baseline), E10 (additional
+grounding and checks), E01 (source graph) and E11 (both). The case-isolated entry is
+`tools/run_experiment_two_sharded.py`. It now consumes
+`Benchmark/inputs/ase2022_dev48/experiment_two.json`, with no old run manifest
+required. This input configuration binds the 48 evidence-only cases, two reserved
+method examples, supplemental source text and images. Gold is loaded only by the
+offline scorer; it is not passed to inference workers.
 
 ```powershell
-python Benchmark/scripts/prepare_ase2022_stage2_filter_baseline.py --help
-python Benchmark/scripts/run_ase2022_stage2_filter_baseline.py --help
-python Benchmark/scripts/prepare_ase2022_llm_baseline.py --help
-python Benchmark/scripts/run_ase2022_llm_baseline.py --help
+python tools/run_experiment_two_sharded.py --batch-id my-offline-check
 ```
 
-Prepare and run the ISSTA 2024 full-code-diff baselines:
+The default performs offline validation. `--run` explicitly enables model calls;
+`--resume` retains completed records, including invalid outputs. Use separate
+batch IDs for changed code, inputs or providers. Additional tools handle UTF-8,
+continuation and explicitly configured relay transports. Outputs stay under
+`Benchmark/runs/experiment_two/`. See [method notes](../docs/methods/README.md).
 
-```powershell
-python Benchmark/scripts/prepare_issta2024_bugs_in_pods_baseline.py --help
-python Benchmark/scripts/run_issta2024_stage2_filter_baseline.py --help
-python Benchmark/scripts/run_issta2024_llm_baseline.py --help
-```
+External capture tools support page, issue, code and image reads and offline replay;
+see [external evidence tools](./EXTERNAL_EVIDENCE_TOOLS.md). See the
+[experiment notes](./EXPERIMENT_TWO.md) for protocol details.
 
-Run the CAMEL multi-agent entry points:
+## Reproduction contract
 
-```powershell
-python -m pip install -r Benchmark/requirements-mas.txt
-python Benchmark/scripts/run_ase2022_camel_mas_baseline.py --help
-python Benchmark/scripts/run_issta2024_camel_mas_baseline.py --help
-```
+Every local run should identify its cohort, record order, task semantics,
+taxonomy/prompt versions, evidence snapshot, source version, model/provider,
+decoding settings, retries, validity policy and metric denominator. Keep
+predictions, audits and cost/latency records locally where available. Model output
+artifacts are excluded from this release.
 
-Use `--help` as the source of truth for model, stage, cohort, output, retry,
-resume, and validation options.
-
-## Provider configuration
-
-Do not store credentials in configs, manifests, or result files.
-
-For the OpenAI-compatible proxy path, runners read the base URL from
-`SELF_BASE_URL`, `BASE_URL`, or `LLM_BASE_URL`, and the key from `SELF_API`,
-`OPENAI_API_KEY`, or `API_KEY`.
-
-For direct DeepSeek CAMEL runs, use `DEEPSEEK_API_KEY` (or
-`DEEPSEEK_API`) and optionally `DEEPSEEK_BASE_URL`.
-
-Example for the current PowerShell session:
-
-```powershell
-$env:OPENAI_API_KEY = "<temporary-key>"
-$env:LLM_BASE_URL = "https://example.invalid/v1"
-```
-
-## Output and audit expectations
-
-Each committed experiment family should retain enough information to reproduce
-and audit the run:
-
-- preparation manifest and cohort identity;
-- prompt/taxonomy version or hash;
-- model/provider and decoding parameters;
-- raw or normalized predictions;
-- schema-validation and invalid-output status;
-- aggregate and per-label metrics where applicable;
-- evidence mode, cost, and latency metadata when available.
-
-Invalid model outputs must remain visible in audits. Do not silently drop,
-repair, or score them as valid predictions.
-
-## Related documentation
-
-- [Scripts](./scripts/README.md)
-- [Reusable source modules](./src/README.md)
-- [Committed results](./results/README.md)
-- [Dataset guide](../Dataset/README.md)
-- [Baseline research plan](../research/baseline_research_plan.md)
+Run `python -m pytest tests -q` for current tests. Avoid collecting tests recursively
+from reports containing archived source trees. Pre-cache tokenizer data for fully
+offline SDK integration tests: `python -c "import tiktoken; tiktoken.get_encoding('o200k_base')"`.
+The cache download needs network access once; tests use synthetic model responses.
